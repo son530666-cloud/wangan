@@ -1,0 +1,1584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>技术变革地平线全景扫描系统 - 分析报告生成</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #080e1a;
+    --panel: rgba(10, 28, 58, 0.55);
+    --border: rgba(0, 212, 255, 0.12);
+    --primary: #00d4ff;
+    --text: #fff;
+    --text-secondary: rgba(255,255,255,0.55);
+    --success: #00ffcc;
+    --warning: #ffcc00;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: linear-gradient(180deg, #080e1a 0%, #0a1628 100%);
+    font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .top-header {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px; padding: 0 24px;
+    background: rgba(6,20,40,0.7);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { display: flex; flex-direction: column; }
+  .logo-title { font-size: 20px; font-weight: 700; color: var(--primary); line-height: 1.2; letter-spacing: 1px; }
+  .logo-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .main-nav { display: flex; gap: 8px; }
+  .main-nav a {
+    padding: 8px 20px; color: var(--text-secondary); text-decoration: none; font-size: 14px;
+    border-radius: 4px; transition: all 0.2s;
+  }
+  .main-nav a:hover { color: var(--text); background: rgba(0,212,255,0.08); }
+  .main-nav a.active {
+    color: var(--primary); background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.25);
+  }
+  .user-info { font-size: 13px; color: var(--text-secondary); display: flex; gap: 12px; align-items: center; }
+  .user-info a { color: var(--primary); text-decoration: none; }
+
+  /* Page Title */
+  .page-title-bar {
+    padding: 20px 24px 0;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .page-title {
+    font-size: 18px; font-weight: 700; color: var(--primary);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .page-title::before {
+    content: ''; width: 4px; height: 18px;
+    background: linear-gradient(180deg, var(--primary), #0099ff); border-radius: 2px;
+  }
+  .page-desc { font-size: 13px; color: var(--text-secondary); margin-top: 4px; margin-left: 14px; }
+
+  /* Stepper */
+  .stepper {
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px 24px 0; gap: 0;
+  }
+  .step-item {
+    display: flex; align-items: center; gap: 8px; cursor: default;
+  }
+  .step-circle {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+    background: rgba(0,212,255,0.1); color: var(--primary);
+    border: 1px solid rgba(0,212,255,0.3); transition: all 0.3s;
+  }
+  .step-item.active .step-circle {
+    background: rgba(0,212,255,0.2); border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(0,212,255,0.25);
+  }
+  .step-item.completed .step-circle {
+    background: var(--primary); color: #000; border-color: var(--primary);
+  }
+  .step-label {
+    font-size: 13px; color: var(--text-secondary); white-space: nowrap;
+  }
+  .step-item.active .step-label { color: var(--primary); font-weight: 600; }
+  .step-divider {
+    width: 60px; height: 1px; background: rgba(0,212,255,0.15); margin: 0 12px;
+  }
+  .step-divider.completed { background: var(--primary); opacity: 0.5; }
+
+  /* Main Content */
+  .report-workspace {
+    padding: 20px 24px; max-width: 1400px; margin: 0 auto;
+  }
+  .step-panel { display: none; animation: fadeIn 0.3s ease; }
+  .step-panel.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Common Module */
+  .module {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 20px; backdrop-filter: blur(4px);
+  }
+  .module-title {
+    font-size: 16px; font-weight: 600; color: var(--primary);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+  }
+  .module-title::before {
+    content: ''; width: 3px; height: 16px;
+    background: linear-gradient(180deg, var(--primary), #0099ff); border-radius: 2px;
+  }
+  .module-subtitle {
+    font-size: 12px; color: var(--text-secondary); font-weight: normal; margin-left: 8px;
+  }
+
+  /* Selectable Cards */
+  .select-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  }
+  .select-card {
+    background: rgba(0,0,0,0.2); border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .select-card:hover { border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.04); }
+  .select-card.selected {
+    border-color: var(--primary); background: rgba(0,212,255,0.08);
+  }
+  .select-card.selected::after {
+    content: '✓'; position: absolute; top: 10px; right: 12px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--primary); color: #000; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .select-icon { font-size: 28px; margin-bottom: 10px; }
+  .select-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .select-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* Template Grid */
+  .template-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;
+  }
+  .template-card {
+    background: rgba(0,0,0,0.2); border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.2s;
+  }
+  .template-card:hover { border-color: rgba(0,212,255,0.4); }
+  .template-card.selected { border-color: var(--primary); background: rgba(0,212,255,0.08); }
+  .template-card.selected .template-check { opacity: 1; }
+  .template-check { opacity: 0; float: right; color: var(--primary); font-weight: 700; font-size: 14px; transition: opacity 0.2s; }
+  .template-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .template-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+
+  /* Form Inputs */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(0,212,255,0.2); border-radius: 6px;
+    color: var(--text); font-size: 13px; outline: none; transition: all 0.2s;
+    font-family: inherit;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: rgba(0,212,255,0.5); background: rgba(0,0,0,0.35);
+  }
+  .form-textarea { resize: vertical; min-height: 60px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* Preview Layout */
+  .preview-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+  .preview-sidebar {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; backdrop-filter: blur(4px); height: fit-content;
+  }
+  .sidebar-title { font-size: 14px; font-weight: 600; color: var(--primary); margin-bottom: 12px; }
+  .toc-list { list-style: none; }
+  .toc-list li { padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; color: rgba(255,255,255,0.7); transition: all 0.2s; margin-bottom: 2px; }
+  .toc-list li:hover { background: rgba(0,212,255,0.06); color: var(--text); }
+  .toc-list li.active { background: rgba(0,212,255,0.12); color: var(--primary); font-weight: 500; }
+  .toc-list li .toc-num { display: inline-block; width: 18px; color: var(--text-secondary); font-size: 12px; }
+  .toc-list li.active .toc-num { color: var(--primary); }
+
+  .preview-content {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 28px 32px; backdrop-filter: blur(4px); min-height: 600px;
+  }
+  .report-header { text-align: center; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid rgba(0,212,255,0.1); }
+  .report-header h1 { font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 10px; letter-spacing: 1px; }
+  .report-meta { font-size: 12px; color: var(--text-secondary); display: flex; justify-content: center; gap: 20px; }
+  .report-section { margin-bottom: 28px; }
+  .report-section h2 { font-size: 16px; font-weight: 600; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .report-section h2::before { content: ''; width: 3px; height: 14px; background: var(--primary); border-radius: 2px; }
+  .report-section p { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.8; margin-bottom: 10px; text-align: justify; }
+  .report-chart-box { width: 100%; height: 260px; background: rgba(0,0,0,0.15); border-radius: 6px; margin: 14px 0; border: 1px solid rgba(0,212,255,0.08); }
+  .report-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+  .report-table th { color: var(--text-secondary); font-weight: normal; padding: 8px; border-bottom: 1px solid rgba(0,212,255,0.15); text-align: left; }
+  .report-table td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.75); }
+  .report-table tr:last-child td { border-bottom: none; }
+  .highlight-num { color: var(--primary); font-weight: 600; }
+
+  /* Export Actions */
+  .export-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;
+  }
+  .export-card {
+    background: rgba(0,0,0,0.2); border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .export-card:hover { border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.05); transform: translateY(-2px); }
+  .export-icon { font-size: 32px; margin-bottom: 10px; }
+  .export-name { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .export-desc { font-size: 12px; color: var(--text-secondary); }
+
+  /* Buttons */
+  .action-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(0,212,255,0.1);
+  }
+  .btn {
+    padding: 8px 22px; border-radius: 6px; font-size: 13px; cursor: pointer; transition: all 0.2s;
+    border: none; outline: none; font-family: inherit;
+  }
+  .btn-primary {
+    background: linear-gradient(90deg, var(--primary), #0099ff); color: #000; font-weight: 600;
+  }
+  .btn-primary:hover { box-shadow: 0 0 12px rgba(0,212,255,0.35); }
+  .btn-default {
+    background: rgba(0,0,0,0.25); color: var(--text-secondary); border: 1px solid rgba(0,212,255,0.2);
+  }
+  .btn-default:hover { border-color: rgba(0,212,255,0.4); color: var(--text); }
+  .btn-success {
+    background: rgba(0,255,204,0.15); color: var(--success); border: 1px solid rgba(0,255,204,0.3);
+    font-weight: 600;
+  }
+  .btn-success:hover { background: rgba(0,255,204,0.25); box-shadow: 0 0 12px rgba(0,255,204,0.2); }
+
+  /* Section Title */
+  .section-title {
+    font-size: 15px; font-weight: 700; color: var(--text);
+    padding: 0 0 12px; margin-bottom: 16px;
+    border-bottom: 1px solid rgba(0,212,255,0.1);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before {
+    content: ''; width: 4px; height: 14px;
+    background: linear-gradient(180deg, var(--primary), #0099ff); border-radius: 2px;
+  }
+
+  /* Checkbox list in preview config */
+  .check-list { display: flex; flex-direction: column; gap: 10px; }
+  .check-item {
+    display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 10px;
+    border-radius: 6px; transition: all 0.2s; border: 1px solid transparent;
+  }
+  .check-item:hover { background: rgba(0,212,255,0.04); border-color: rgba(0,212,255,0.1); }
+  .check-box {
+    width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(0,212,255,0.3);
+    display: flex; align-items: center; justify-content: center; font-size: 10px; color: #000;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .check-item.checked .check-box { background: var(--primary); border-color: var(--primary); }
+  .check-label { font-size: 13px; color: rgba(255,255,255,0.75); }
+  .check-item.active { background: rgba(0,212,255,0.08); border-color: rgba(0,212,255,0.3); border-radius: 6px; }
+  .check-item.checked .check-label { color: var(--text); }
+
+  /* Two column layout for config */
+  .config-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px);
+    background: rgba(6,26,61,0.95); border: 1px solid rgba(0,212,255,0.3);
+    color: var(--primary); padding: 10px 24px; border-radius: 6px; font-size: 13px;
+    opacity: 0; pointer-events: none; transition: all 0.3s; z-index: 999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* Tech Rank */
+  .tech-rank-list { display: flex; flex-direction: column; gap: 10px; }
+  .tech-rank-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(0,0,0,0.15); border-radius: 6px; cursor: pointer; transition: background 0.2s; position: relative; }
+  .tech-rank-item:hover { background: rgba(0,212,255,0.08); }
+  .tech-info { display: flex; align-items: center; gap: 8px; width: 150px; flex-shrink: 0; }
+  .tech-rank-num { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); flex-shrink: 0; }
+  .tech-rank-num.top1 { background: rgba(255,204,0,0.2); color: #ffcc00; }
+  .tech-rank-num.top2 { background: rgba(0,212,255,0.2); color: #00d4ff; }
+  .tech-rank-num.top3 { background: rgba(0,255,204,0.15); color: #00ffcc; }
+  .tech-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .tech-bar div { height: 100%; background: linear-gradient(90deg, #00d4ff, #00ffcc); border-radius: 3px; }
+  .tech-score { font-size: 16px; font-weight: 700; color: var(--primary); width: 36px; text-align: right; flex-shrink: 0; }
+  .tech-tooltip { position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); background: rgba(6,26,61,0.98); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 12px; z-index: 100; opacity: 0; pointer-events: none; transition: all 0.2s; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .tech-rank-item:hover .tech-tooltip { opacity: 1; }
+  .tt-title { font-size: 13px; font-weight: 600; color: #00d4ff; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px; }
+  .tt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .tt-grid div { display: flex; flex-direction: column; gap: 2px; }
+  .tt-grid span { font-size: 10px; color: rgba(255,255,255,0.5); }
+  .tt-grid b { font-size: 13px; color: #fff; }
+
+  @media (max-width: 1100px) {
+    .select-grid { grid-template-columns: repeat(2, 1fr); }
+    .template-grid { grid-template-columns: 1fr; }
+    .config-layout { grid-template-columns: 1fr; }
+    .preview-layout { grid-template-columns: 1fr; }
+    .export-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-header">
+  <div class="logo">
+    <div class="logo-title">技术变革地平线全景扫描系统</div>
+    <div class="logo-sub">Horizon Scanning System</div>
+  </div>
+  <nav class="main-nav">
+    <a href="技术扫描.html">技术检索</a>
+    <a href="技术趋势预测-河流图.html">技术扫描</a>
+    <a href="态势追踪-完整版.html">态势追踪</a>
+    <a href="#">技术图谱</a>
+    <a href="决策分析.html">决策分析</a>
+    <a href="分析报告生成.html" class="active">分析报告</a>
+  </nav>
+  <div class="user-info">
+    <span>南方电网科学研究院</span>
+    <a href="#">退出</a>
+  </div>
+</div>
+
+<div class="page-title-bar">
+  <div>
+    <div class="page-title">智能分析报告生成</div>
+    <div class="page-desc">集成多维度研判结果，一键生成结构化决策分析报告</div>
+  </div>
+</div>
+
+<!-- Stepper -->
+<div class="stepper" id="stepper">
+  <div class="step-item active" data-step="1">
+    <div class="step-circle">1</div>
+    <div class="step-label">选择研判内容</div>
+  </div>
+  <div class="step-divider" data-step="1"></div>
+  <div class="step-item" data-step="2">
+    <div class="step-circle">2</div>
+    <div class="step-label">配置报告模板</div>
+  </div>
+  <div class="step-divider" data-step="2"></div>
+  <div class="step-item" data-step="3">
+    <div class="step-circle">3</div>
+    <div class="step-label">预览与调整</div>
+  </div>
+  <div class="step-divider" data-step="3"></div>
+  <div class="step-item" data-step="4">
+    <div class="step-circle">4</div>
+    <div class="step-label">导出与分享</div>
+  </div>
+</div>
+
+<div class="report-workspace">
+
+  <!-- Step 1: 选择研判内容 -->
+  <div class="step-panel active" data-step="1">
+    <div class="config-layout">
+      <div style="display:flex;flex-direction:column;height:100%;">
+        <div class="section-title">选择聚焦技术（多选）</div>
+        <div class="module" style="flex:1;">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;height:100%;" id="techSelector">
+            <div style="background:rgba(0,0,0,0.15);border:1px solid rgba(0,212,255,0.1);border-radius:6px;padding:12px;max-height:280px;overflow-y:auto;">
+              <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:10px;">一级技术</div>
+              <div class="check-list" id="level1List">
+                <div class="check-item checked" data-value="新兴储能与下一代电池"><div class="check-box">✓</div><div class="check-label">新兴储能与下一代电池</div></div>
+              </div>
+            </div>
+            <div style="background:rgba(0,0,0,0.15);border:1px solid rgba(0,212,255,0.1);border-radius:6px;padding:12px;max-height:280px;overflow-y:auto;">
+              <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:10px;">二级技术</div>
+              <div class="check-list" id="level2List"></div>
+            </div>
+            <div style="background:rgba(0,0,0,0.15);border:1px solid rgba(0,212,255,0.1);border-radius:6px;padding:12px;max-height:280px;overflow-y:auto;">
+              <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:10px;">三级技术</div>
+              <div class="check-list" id="level3List"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;height:100%;">
+        <div class="section-title">选择研判模块</div>
+        <div class="module" style="flex:1;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;height:100%;">
+            <!-- 左侧：一级模块 -->
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--primary);margin-bottom:10px;">研判模块（一级）</div>
+              <div class="check-list" id="l1Modules">
+                <div class="check-item checked active" data-parent="tech" onclick="focusModule('tech')">
+                  <div class="check-box" onclick="event.stopPropagation();toggleModuleParent('tech')">✓</div>
+                  <div class="check-label" style="font-weight:600;">🔬 技术态势研判</div>
+                </div>
+                <div class="check-item checked" data-parent="talent" onclick="focusModule('talent')">
+                  <div class="check-box" onclick="event.stopPropagation();toggleModuleParent('talent')">✓</div>
+                  <div class="check-label" style="font-weight:600;">👤 人才布局分析</div>
+                </div>
+                <div class="check-item checked" data-parent="scenario" onclick="focusModule('scenario')">
+                  <div class="check-box" onclick="event.stopPropagation();toggleModuleParent('scenario')">✓</div>
+                  <div class="check-label" style="font-weight:600;">🚀 应用场景研判</div>
+                </div>
+                <div class="check-item checked" data-parent="decision" onclick="focusModule('decision')">
+                  <div class="check-box" onclick="event.stopPropagation();toggleModuleParent('decision')">✓</div>
+                  <div class="check-label" style="font-weight:600;">📊 决策分析建议</div>
+                </div>
+              </div>
+            </div>
+            <!-- 右侧：二级子功能 -->
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--primary);margin-bottom:10px;">子功能（二级）</div>
+              <div class="check-list" id="l2Modules"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar" style="margin-top:24px;margin-bottom:16px;border-top:none;border-bottom:1px solid rgba(0,212,255,0.1);padding-top:0;padding-bottom:20px;">
+      <div></div>
+      <button class="btn btn-primary" onclick="nextStep()">下一步：配置模板 →</button>
+    </div>
+
+    <div class="section-title">历史报告</div>
+    <div class="module">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr>
+            <th style="color:var(--text-secondary);font-weight:normal;padding:8px;border-bottom:1px solid rgba(0,212,255,0.15);text-align:left;">报告标题</th>
+            <th style="color:var(--text-secondary);font-weight:normal;padding:8px;border-bottom:1px solid rgba(0,212,255,0.15);text-align:left;width:160px;">生成时间</th>
+            <th style="color:var(--text-secondary);font-weight:normal;padding:8px;border-bottom:1px solid rgba(0,212,255,0.15);text-align:right;width:80px;">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">固态电池技术变革地平线分析报告</td>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);">2025-06-10 14:32</td>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:right;"><button class="btn btn-default" style="padding:4px 12px;font-size:12px;" onclick="showToast('报告开始下载')">下载</button></td>
+          </tr>
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">钠离子电池技术扫描与决策分析报告</td>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);">2025-06-08 09:15</td>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:right;"><button class="btn btn-default" style="padding:4px 12px;font-size:12px;" onclick="showToast('报告开始下载')">下载</button></td>
+          </tr>
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">氢能燃料电池产业链全景分析报告</td>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);">2025-06-05 16:48</td>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:right;"><button class="btn btn-default" style="padding:4px 12px;font-size:12px;" onclick="showToast('报告开始下载')">下载</button></td>
+          </tr>
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">液流电池储能技术趋势研判报告</td>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.55);">2025-06-01 11:22</td>
+            <td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:right;"><button class="btn btn-default" style="padding:4px 12px;font-size:12px;" onclick="showToast('报告开始下载')">下载</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Step 2: 配置报告模板 -->
+  <div class="step-panel" data-step="2">
+    <div class="config-layout">
+      <div class="module">
+        <div class="module-title">报告基本信息</div>
+        <div class="form-group">
+          <label class="form-label">报告标题</label>
+          <input class="form-input" type="text" id="reportTitle" value="固态电池技术变革地平线分析报告">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">编制单位</label>
+            <input class="form-input" type="text" id="reportOrg" value="南方电网科学研究院">
+          </div>
+          <div class="form-group">
+            <label class="form-label">编制日期</label>
+            <input class="form-input" type="text" id="reportDate" value="2025年6月">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">密级</label>
+          <select class="form-select" id="reportLevel">
+            <option>内部公开</option>
+            <option selected>内部资料</option>
+            <option>机密</option>
+          </select>
+        </div>
+      </div>
+      <div class="module">
+        <div class="module-title">高级设置</div>
+        <div class="form-group" style="display:flex;flex-direction:column;flex:1;">
+          <label class="form-label">报告摘要（自动生成，可编辑）</label>
+          <textarea class="form-textarea" id="reportAbstract" style="min-height:260px;flex:1;">本报告基于技术变革地平线全景扫描系统，对硫化物固态电解质等固态电池关键技术开展多维度研判。技术态势方面，中国在专利布局与项目投入上具备优势；人才布局方面，中美日三国构成核心流动三角；应用场景方面，新能源汽车与储能电站为最先落地场景。综合评估建议优先布局硫化物固态电解质技术路线，预计2027年实现成本拐点。</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-default" onclick="prevStep()">← 上一步</button>
+      <button class="btn btn-primary" onclick="nextStep()">下一步：预览报告 →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: 预览与调整 -->
+  <div class="step-panel" data-step="3">
+    <div class="preview-layout">
+      <div class="preview-sidebar">
+        <div class="sidebar-title">📑 报告目录</div>
+        <ul class="toc-list" id="tocList">
+          <li class="active" data-section="cover"><span class="toc-num">0</span>封面与摘要</li>
+          <li data-section="tech"><span class="toc-num">1</span>技术态势研判</li>
+          <li data-section="talent"><span class="toc-num">2</span>人才布局分析</li>
+          <li data-section="scenario"><span class="toc-num">3</span>应用场景研判</li>
+          <li data-section="decision"><span class="toc-num">4</span>决策分析建议</li>
+          <li data-section="appendix"><span class="toc-num">5</span>附录与数据来源</li>
+        </ul>
+      </div>
+      <div class="preview-content" id="previewContent">
+        <!-- Content injected by JS -->
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn-default" onclick="prevStep()">← 上一步</button>
+      <button class="btn btn-primary" onclick="nextStep()">下一步：导出报告 →</button>
+    </div>
+  </div>
+
+  <!-- Step 4: 导出与分享 -->
+  <div class="step-panel" data-step="4">
+    <div class="section-title">选择导出格式</div>
+    <div class="export-grid">
+      <div class="export-card" onclick="doExport('pdf')">
+        <div class="export-icon">📕</div>
+        <div class="export-name">PDF 文档</div>
+        <div class="export-desc">适合打印与正式呈报<br>保留完整排版与矢量图表</div>
+      </div>
+      <div class="export-card" onclick="doExport('word')">
+        <div class="export-icon">📘</div>
+        <div class="export-name">Word 文档</div>
+        <div class="export-desc">便于二次编辑修订<br>支持 Office / WPS 全功能</div>
+      </div>
+    </div>
+
+    <div class="module" style="margin-bottom:20px;">
+      <div class="module-title">导出设置</div>
+      <div class="form-group">
+        <label class="form-label">文件名</label>
+        <input class="form-input" type="text" value="固态电池技术变革地平线分析报告_202506">
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-default" onclick="prevStep()">← 上一步</button>
+      <button class="btn btn-success" onclick="showToast('报告已开始生成，请留意下载通知')">✓ 确认生成并导出</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentStep = 1;
+
+function updateStepper() {
+  document.querySelectorAll('.step-item').forEach(item => {
+    const step = parseInt(item.dataset.step);
+    item.classList.remove('active', 'completed');
+    if (step === currentStep) item.classList.add('active');
+    else if (step < currentStep) item.classList.add('completed');
+  });
+  document.querySelectorAll('.step-divider').forEach(div => {
+    const step = parseInt(div.dataset.step);
+    div.classList.toggle('completed', step < currentStep);
+  });
+  document.querySelectorAll('.step-panel').forEach(panel => {
+    panel.classList.toggle('active', parseInt(panel.dataset.step) === currentStep);
+  });
+  if (currentStep === 3) renderPreview();
+}
+
+function nextStep() { if (currentStep < 4) { currentStep++; updateStepper(); } }
+function prevStep() { if (currentStep > 1) { currentStep--; updateStepper(); } }
+
+// Module selection cards
+document.querySelectorAll('#moduleSelect .select-card').forEach(card => {
+  card.addEventListener('click', () => card.classList.toggle('selected'));
+});
+
+// Checkbox items (exclude module tree which has its own logic)
+document.querySelectorAll('.check-item:not([data-parent]):not([data-child])').forEach(item => {
+  item.addEventListener('click', () => {
+    item.classList.toggle('checked');
+    const box = item.querySelector('.check-box');
+    box.textContent = item.classList.contains('checked') ? '✓' : '';
+  });
+});
+
+// Module tree checkbox联动 (左右布局)
+const moduleData = {
+  'tech': { name: '🔬 技术态势研判', children: ['技术布局监测', '技术发展脉络', '技术发展趋势预测', '技术成熟度评估'] },
+  'talent': { name: '👤 人才布局分析', children: ['全球科研团队清单', '创新合作网络', '人才流动分析'] },
+  'scenario': { name: '🚀 应用场景研判', children: ['应用场景推演', '产业化前景评估与优选'] },
+  'decision': { name: '📊 决策分析建议', children: ['产业化前景评分榜', '行动路径建议'] }
+};
+let activeModule = 'tech';
+let moduleChecked = { 'tech': true, 'talent': true, 'scenario': true, 'decision': true };
+let moduleChildrenChecked = {
+  'tech': [true, true, true, true],
+  'talent': [true, true, true],
+  'scenario': [true, true],
+  'decision': [true, true]
+};
+
+function focusModule(key) {
+  activeModule = key;
+  document.querySelectorAll('#l1Modules .check-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.parent === key);
+  });
+  renderL2Modules();
+}
+
+function toggleModuleParent(key) {
+  moduleChecked[key] = !moduleChecked[key];
+  const idx = moduleData[key].children.length;
+  moduleChildrenChecked[key] = Array(idx).fill(moduleChecked[key]);
+  const parentEl = document.querySelector(`#l1Modules [data-parent="${key}"]`);
+  if (parentEl) {
+    parentEl.classList.toggle('checked', moduleChecked[key]);
+    parentEl.querySelector('.check-box').textContent = moduleChecked[key] ? '✓' : '';
+  }
+  if (activeModule === key) renderL2Modules();
+}
+
+function toggleModuleChild(key, index) {
+  moduleChildrenChecked[key][index] = !moduleChildrenChecked[key][index];
+  moduleChecked[key] = moduleChildrenChecked[key].every(v => v);
+  const parentEl = document.querySelector(`#l1Modules [data-parent="${key}"]`);
+  if (parentEl) {
+    parentEl.classList.toggle('checked', moduleChecked[key]);
+    parentEl.querySelector('.check-box').textContent = moduleChecked[key] ? '✓' : '';
+  }
+  renderL2Modules();
+}
+
+function renderL2Modules() {
+  const container = document.getElementById('l2Modules');
+  if (!container) return;
+  const data = moduleData[activeModule];
+  const checkedList = moduleChildrenChecked[activeModule];
+  container.innerHTML = data.children.map((name, i) => {
+    const isChecked = checkedList[i];
+    return `<div class="check-item ${isChecked ? 'checked' : ''}" onclick="toggleModuleChild('${activeModule}', ${i})">
+      <div class="check-box">${isChecked ? '✓' : ''}</div>
+      <div class="check-label">${name}</div>
+    </div>`;
+  }).join('');
+}
+
+// 初始化
+renderL2Modules();
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+function doExport(fmt) {
+  const names = { pdf: 'PDF', word: 'Word', ppt: 'PPT', html: 'HTML' };
+  showToast(`正在生成 ${names[fmt]} 格式报告，请稍候...`);
+}
+
+// Preview content
+document.querySelectorAll('#tocList li').forEach(li => {
+  li.addEventListener('click', () => {
+    document.querySelectorAll('#tocList li').forEach(l => l.classList.remove('active'));
+    li.classList.add('active');
+    renderPreviewSection(li.dataset.section);
+  });
+});
+
+function renderPreview() {
+  const activeLi = document.querySelector('#tocList li.active');
+  renderPreviewSection(activeLi ? activeLi.dataset.section : 'cover');
+}
+
+// ========== 人才流动分析数据（报告预览用）==========
+const reportFlowData = {
+  '2024': {
+    '中国': { out: [['中国','美国',45],['中国','日本',22],['中国','德国',12],['中国','韩国',8]], in: [['美国','中国',38],['日本','中国',28],['韩国','中国',20],['德国','中国',15]] },
+    '美国': { out: [['美国','中国',38],['美国','德国',18],['美国','日本',10]], in: [['中国','美国',45],['德国','美国',15],['日本','美国',12]] },
+    '日本': { out: [['日本','中国',28],['日本','德国',15],['日本','美国',12]], in: [['中国','日本',22],['美国','日本',10],['德国','日本',8]] },
+    '德国': { out: [['德国','中国',15],['德国','美国',15],['德国','日本',8]], in: [['中国','德国',12],['美国','德国',18],['日本','德国',15]] },
+    '韩国': { out: [['韩国','中国',20],['韩国','日本',10],['韩国','德国',8]], in: [['中国','韩国',8],['日本','韩国',10],['美国','韩国',5]] }
+  },
+  '2023': {
+    '中国': { out: [['中国','美国',42],['中国','日本',20],['中国','德国',11],['中国','韩国',7]], in: [['美国','中国',35],['日本','中国',26],['韩国','中国',18],['德国','中国',14]] },
+    '美国': { out: [['美国','中国',35],['美国','德国',17],['美国','日本',9]], in: [['中国','美国',42],['德国','美国',14],['日本','美国',11]] },
+    '日本': { out: [['日本','中国',26],['日本','德国',14],['日本','美国',11]], in: [['中国','日本',20],['美国','日本',9],['德国','日本',7]] },
+    '德国': { out: [['德国','中国',14],['德国','美国',14],['德国','日本',7]], in: [['中国','德国',11],['美国','德国',17],['日本','德国',14]] },
+    '韩国': { out: [['韩国','中国',18],['韩国','日本',9],['韩国','德国',7]], in: [['中国','韩国',7],['日本','韩国',9],['美国','韩国',4]] }
+  },
+  '2022': {
+    '中国': { out: [['中国','美国',40],['中国','日本',19],['中国','德国',10],['中国','韩国',7]], in: [['美国','中国',33],['日本','中国',25],['韩国','中国',17],['德国','中国',13]] },
+    '美国': { out: [['美国','中国',33],['美国','德国',16],['美国','日本',9]], in: [['中国','美国',40],['德国','美国',13],['日本','美国',10]] },
+    '日本': { out: [['日本','中国',25],['日本','德国',13],['日本','美国',10]], in: [['中国','日本',19],['美国','日本',8],['德国','日本',7]] },
+    '德国': { out: [['德国','中国',13],['德国','美国',13],['德国','日本',7]], in: [['中国','德国',10],['美国','德国',16],['日本','德国',13]] },
+    '韩国': { out: [['韩国','中国',17],['韩国','日本',9],['韩国','德国',7]], in: [['中国','韩国',7],['日本','韩国',8],['美国','韩国',4]] }
+  },
+  '2021': {
+    '中国': { out: [['中国','美国',38],['中国','日本',18],['中国','德国',10],['中国','韩国',6]], in: [['美国','中国',30],['日本','中国',24],['韩国','中国',16],['德国','中国',12]] },
+    '美国': { out: [['美国','中国',30],['美国','德国',15],['美国','日本',8]], in: [['中国','美国',38],['德国','美国',12],['日本','美国',9]] },
+    '日本': { out: [['日本','中国',24],['日本','德国',12],['日本','美国',9]], in: [['中国','日本',18],['美国','日本',8],['德国','日本',6]] },
+    '德国': { out: [['德国','中国',12],['德国','美国',12],['德国','日本',6]], in: [['中国','德国',10],['美国','德国',15],['日本','德国',12]] },
+    '韩国': { out: [['韩国','中国',16],['韩国','日本',8],['韩国','德国',6]], in: [['中国','韩国',6],['日本','韩国',8],['美国','韩国',3]] }
+  },
+  '2020': {
+    '中国': { out: [['中国','美国',35],['中国','日本',17],['中国','德国',9],['中国','韩国',6]], in: [['美国','中国',28],['日本','中国',22],['韩国','中国',15],['德国','中国',11]] },
+    '美国': { out: [['美国','中国',28],['美国','德国',14],['美国','日本',8]], in: [['中国','美国',35],['德国','美国',11],['日本','美国',8]] },
+    '日本': { out: [['日本','中国',22],['日本','德国',12],['日本','美国',8]], in: [['中国','日本',17],['美国','日本',7],['德国','日本',6]] },
+    '德国': { out: [['德国','中国',11],['德国','美国',11],['德国','日本',6]], in: [['中国','德国',9],['美国','德国',14],['日本','德国',12]] },
+    '韩国': { out: [['韩国','中国',15],['韩国','日本',8],['韩国','德国',6]], in: [['中国','韩国',6],['日本','韩国',7],['美国','韩国',3]] }
+  },
+  '2019': {
+    '中国': { out: [['中国','美国',32],['中国','日本',16],['中国','德国',9],['中国','韩国',5]], in: [['美国','中国',26],['日本','中国',20],['韩国','中国',14],['德国','中国',10]] },
+    '美国': { out: [['美国','中国',26],['美国','德国',13],['美国','日本',7]], in: [['中国','美国',32],['德国','美国',10],['日本','美国',7]] },
+    '日本': { out: [['日本','中国',20],['日本','德国',11],['日本','美国',7]], in: [['中国','日本',16],['美国','日本',7],['德国','日本',6]] },
+    '德国': { out: [['德国','中国',10],['德国','美国',10],['德国','日本',5]], in: [['中国','德国',9],['美国','德国',13],['日本','德国',11]] },
+    '韩国': { out: [['韩国','中国',14],['韩国','日本',7],['韩国','德国',5]], in: [['中国','韩国',5],['日本','韩国',7],['美国','韩国',3]] }
+  },
+  '2018': {
+    '中国': { out: [['中国','美国',30],['中国','日本',15],['中国','德国',8],['中国','韩国',5]], in: [['美国','中国',24],['日本','中国',18],['韩国','中国',12],['德国','中国',9]] },
+    '美国': { out: [['美国','中国',24],['美国','德国',12],['美国','日本',7]], in: [['中国','美国',30],['德国','美国',9],['日本','美国',6]] },
+    '日本': { out: [['日本','中国',18],['日本','德国',10],['日本','美国',7]], in: [['中国','日本',15],['美国','日本',6],['德国','日本',5]] },
+    '德国': { out: [['德国','中国',9],['德国','美国',9],['德国','日本',5]], in: [['中国','德国',8],['美国','德国',12],['日本','德国',10]] },
+    '韩国': { out: [['韩国','中国',12],['韩国','日本',7],['韩国','德国',5]], in: [['中国','韩国',5],['日本','韩国',6],['美国','韩国',2]] }
+  }
+};
+
+// ========== 报告聚焦技术 - 三级联动多选 ==========
+const techTree = {
+  '新兴储能与下一代电池': {
+    '固态锂电池技术': ['硫化物固态电解质', '聚合物固态电解质', '硅碳负极材料', '氧电极', '钙钛矿'],
+    '钠离子电池': ['层状氧化物正极', '聚阴离子正极', '普鲁士蓝正极'],
+    '液流电池': ['全钒液流电池', '铁铬液流电池'],
+    '氢能与燃料电池': ['质子交换膜燃料电池', '固体氧化物燃料电池']
+  }
+};
+
+function initTechSelector() {
+  const l1List = document.getElementById('level1List');
+  const l2List = document.getElementById('level2List');
+  const l3List = document.getElementById('level3List');
+  if (!l1List || !l2List || !l3List) return;
+
+  function getChecked(container) {
+    return Array.from(container.querySelectorAll('.check-item.checked')).map(el => el.dataset.value);
+  }
+
+  function renderList(container, items, defaultChecked, dataAttr) {
+    container.innerHTML = items.map(item => {
+      const isChecked = defaultChecked.includes(item);
+      return `<div class="check-item ${isChecked ? 'checked' : ''}" data-value="${item}" data-${dataAttr}="${item}">
+        <div class="check-box">${isChecked ? '✓' : ''}</div>
+        <div class="check-label">${item}</div>
+      </div>`;
+    }).join('');
+    container.querySelectorAll('.check-item').forEach(item => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('checked');
+        const box = item.querySelector('.check-box');
+        box.textContent = item.classList.contains('checked') ? '✓' : '';
+        if (dataAttr === 'l1') renderL2();
+        if (dataAttr === 'l2') renderL3();
+      });
+    });
+  }
+
+  function renderL2() {
+    const checkedL1 = getChecked(l1List);
+    const l2Items = [];
+    checkedL1.forEach(l1 => {
+      if (techTree[l1]) l2Items.push(...Object.keys(techTree[l1]));
+    });
+    // 保留之前已选中的二级（如果它们仍在列表中）
+    const prevChecked = getChecked(l2List);
+    const newChecked = prevChecked.filter(x => l2Items.includes(x));
+    // 默认选中前几个新的
+    if (newChecked.length === 0 && l2Items.length > 0) {
+      newChecked.push(l2Items[0]);
+    }
+    renderList(l2List, l2Items, newChecked, 'l2');
+    renderL3();
+  }
+
+  function renderL3() {
+    const checkedL1 = getChecked(l1List);
+    const checkedL2 = getChecked(l2List);
+    const l3Items = [];
+    checkedL1.forEach(l1 => {
+      const node = techTree[l1];
+      if (!node) return;
+      checkedL2.forEach(l2 => {
+        if (node[l2]) l3Items.push(...node[l2]);
+      });
+    });
+    const prevChecked = getChecked(l3List);
+    const newChecked = prevChecked.filter(x => l3Items.includes(x));
+    if (newChecked.length === 0 && l3Items.length > 0) {
+      newChecked.push(l3Items[0]);
+    }
+    renderList(l3List, l3Items, newChecked, 'l3');
+  }
+
+  // 初始化一级事件
+  l1List.querySelectorAll('.check-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('checked');
+      const box = item.querySelector('.check-box');
+      box.textContent = item.classList.contains('checked') ? '✓' : '';
+      renderL2();
+    });
+  });
+
+  renderL2();
+}
+
+document.addEventListener('DOMContentLoaded', initTechSelector);
+
+function renderPreviewSection(section) {
+  const container = document.getElementById('previewContent');
+  const title = document.getElementById('reportTitle').value;
+  const org = document.getElementById('reportOrg').value;
+  const date = document.getElementById('reportDate').value;
+
+  if (section === 'cover') {
+    container.innerHTML = `
+      <div class="report-header">
+        <h1>${title}</h1>
+        <div class="report-meta">
+          <span>编制单位：${org}</span>
+          <span>编制日期：${date}</span>
+          <span>密级：内部资料</span>
+        </div>
+      </div>
+      <div class="report-section">
+        <h2>报告摘要</h2>
+        <p>${document.getElementById('reportAbstract').value}</p>
+      </div>
+      <div class="report-section">
+        <h2>核心发现速览</h2>
+        <table class="report-table">
+          <tr><th>维度</th><th>核心结论</th><th>关键指标</th></tr>
+          <tr><td>技术态势</td><td>硫化物固态电解质技术成熟度领先，中国专利与项目投入占比最高</td><td class="highlight-num">TRL 6-7 / 专利占比 38%</td></tr>
+          <tr><td>人才布局</td><td>中美日构成人才流动核心三角，中国人才净流入趋势增强</td><td class="highlight-num">净流入 +87人/年</td></tr>
+          <tr><td>应用场景</td><td>新能源汽车与储能电站为最先落地场景，预计2027年成本降至$80/kWh</td><td class="highlight-num">市场规模 万亿级</td></tr>
+          <tr><td>决策建议</td><td>优先布局硫化物路线，同步关注硅碳负极与氧电极技术储备</td><td class="highlight-num">综合评分 92分</td></tr>
+        </table>
+      </div>`;
+    return;
+  }
+
+  if (section === 'tech') {
+    container.innerHTML = `
+      <div class="report-section">
+        <h2>1 技术态势研判</h2>
+        <p>基于全球专利、论文、政策与项目数据的多源融合分析，硫化物固态电解质在技术成熟度、产业化进程与研发布局三个维度均处于领先地位。</p>
+        <p>中国在专利布局（占比38%）与项目投入（占比42%）方面具有显著优势；美国在基础研究（高被引论文占比31%）与机构数量上保持领先；日本则在产业化早期布局与标准制定方面具备先发优势。</p>
+
+        <h3 style="font-size:15px;font-weight:600;color:var(--primary);margin:22px 0 12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:3px;height:14px;background:var(--primary);border-radius:2px;"></span>
+          技术布局监测
+        </h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:14px;">从专利布局、论文产出、政策覆盖、项目投入、人才储备与机构数量六个维度，对比中国、美国与日本的技术研发布局态势。</p>
+        <div id="previewChart1" class="report-chart-box"></div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-top:14px;"><strong>分析结论：</strong>中国在专利布局与项目投入维度具有明显优势，但在论文产出与机构数量上与美国仍有差距；日本在人才储备与政策覆盖上相对薄弱，整体呈现"中国追赶、美国领先、日本跟随"的竞争格局。</p>
+
+        <h3 style="font-size:15px;font-weight:600;color:var(--primary);margin:22px 0 12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:3px;height:14px;background:var(--primary);border-radius:2px;"></span>
+          技术发展脉络
+        </h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:14px;">梳理硫化物固态电解质技术从基础研究到产业化预备阶段的关键里程碑事件。</p>
+        <div style="position:relative;padding-left:20px;margin:14px 0;">
+          <div style="position:absolute;left:3px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,#00d4ff 0%,#00ffcc 40%,#ffcc00 70%,#ff9f43 100%);border-radius:1px;"></div>
+
+          <div style="position:relative;margin-bottom:18px;">
+            <div style="position:absolute;left:-18px;top:4px;width:7px;height:7px;border-radius:50%;background:#ff9f43;border:2px solid rgba(255,159,67,0.25);box-shadow:0 0 6px rgba(255,159,67,0.3);"></div>
+            <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">2025 · 产业化预备期</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.7;">
+              <span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(102,255,153,0.12);color:#66ff99;font-size:11px;font-weight:500;margin-right:6px;">专利</span>
+              丰田公布2027全固态电池量产专利群，标志着头部企业进入工程化验证阶段。
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:18px;">
+            <div style="position:absolute;left:-18px;top:4px;width:7px;height:7px;border-radius:50%;background:#ffcc00;border:2px solid rgba(255,204,0,0.25);box-shadow:0 0 6px rgba(255,204,0,0.3);"></div>
+            <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">2023-2024 · 机理突破期</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.7;">
+              <span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(255,153,102,0.12);color:#ff9966;font-size:11px;font-weight:500;margin-right:6px;">论文</span>
+              Nature/Science 多篇固态界面机理突破，理论层面的界面阻抗模型与枝晶抑制机制获得重大进展。
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:18px;">
+            <div style="position:absolute;left:-18px;top:4px;width:7px;height:7px;border-radius:50%;background:#00ffcc;border:2px solid rgba(0,255,204,0.25);box-shadow:0 0 6px rgba(0,255,204,0.3);"></div>
+            <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">2021-2022 · 专利爆发期</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.7;">
+              <span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(102,255,153,0.12);color:#66ff99;font-size:11px;font-weight:500;margin-right:6px;">专利</span>
+              宁德时代发布硫化物全固态电池专利，国内企业专利布局进入爆发式增长阶段。
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:18px;">
+            <div style="position:absolute;left:-18px;top:4px;width:7px;height:7px;border-radius:50%;background:#00ffcc;border:2px solid rgba(0,255,204,0.25);box-shadow:0 0 6px rgba(0,255,204,0.3);"></div>
+            <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">2019-2020 · 技术验证期</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.7;">
+              <span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(255,153,102,0.12);color:#ff9966;font-size:11px;font-weight:500;margin-right:6px;">论文</span>
+              Nature Energy 无锂负极固态电池研究发表，验证了高能量密度固态电池的可行性。
+            </div>
+          </div>
+
+          <div style="position:relative;margin-bottom:6px;">
+            <div style="position:absolute;left:-18px;top:4px;width:7px;height:7px;border-radius:50%;background:#00d4ff;border:2px solid rgba(0,212,255,0.25);box-shadow:0 0 6px rgba(0,212,255,0.3);"></div>
+            <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;">2015-2018 · 基础研究期</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.7;">
+              <span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(255,153,102,0.12);color:#ff9966;font-size:11px;font-weight:500;margin-right:6px;">论文</span>
+              硫化物固态电解质离子电导率突破 10⁻² S/cm 量级，奠定材料基础。
+              <br>
+              <span style="display:inline-block;padding:1px 6px;border-radius:3px;background:rgba(102,255,153,0.12);color:#66ff99;font-size:11px;font-weight:500;margin-right:6px;margin-top:4px;">专利</span>
+              丰田注册全固态电池基础专利，开启产业化专利壁垒布局。
+            </div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-top:14px;"><strong>分析结论：</strong>硫化物固态电解质技术已从基础研究期（2015-2018）逐步迈入产业化预备期（2025）。关键技术突破呈现"论文先行、专利跟进、量产落地"的递进规律，预计未来2-3年将迎来工程化验证的集中爆发。</p>
+
+        <h3 style="font-size:15px;font-weight:600;color:var(--primary);margin:22px 0 12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:3px;height:14px;background:var(--primary);border-radius:2px;"></span>
+          技术发展趋势预测
+        </h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:14px;">基于多源数据融合分析（2018-2025年历史数据 + 2026-2029年趋势预测），展示固态电池相关技术生态的演化轨迹。</p>
+        <div id="previewChartRiver" class="report-chart-box" style="height:340px;"></div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-top:14px;"><strong>分析结论：</strong>固态电池相关技术生态整体呈指数级增长态势，其中专利、论文与人才三项指标增速最快。2026-2029年预测区间显示，专利与论文仍将保持年均15%-20%的增长，人才竞争将成为各国技术博弈的核心战场。</p>
+
+        <h3 style="font-size:15px;font-weight:600;color:var(--primary);margin:22px 0 12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:3px;height:14px;background:var(--primary);border-radius:2px;"></span>
+          技术成熟度评估
+        </h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:14px;">多国家技术成熟度雷达对比，覆盖技术性能、成本控制、产业化程度、安全性、市场应用与政策支持六维度。</p>
+
+        <div style="display:flex;align-items:center;gap:24px;background:rgba(0,0,0,0.2);border:1px solid rgba(0,212,255,0.1);border-radius:6px;padding:12px 16px;margin-bottom:16px;">
+          <div style="font-size:15px;font-weight:700;color:var(--primary);">硫化物固态电解质</div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:11px;color:var(--text-secondary);">成熟度平均分</span>
+            <span style="font-size:20px;font-weight:700;color:var(--primary);">78.4</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <span style="font-size:11px;color:var(--text-secondary);">TRL 阶段</span>
+            <span style="font-size:13px;font-weight:600;color:#ffcc00;">系统验证 (Level 8)</span>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 220px;gap:16px;">
+          <div id="previewChartMaturity" class="report-chart-box" style="height:300px;"></div>
+          <div style="background:rgba(0,0,0,0.15);border-radius:6px;padding:12px;">
+            <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:10px;text-align:center;">各国技术成熟度评分</div>
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead>
+                <tr><th style="color:var(--text-secondary);font-weight:normal;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,0.08);text-align:center;">排名</th><th style="color:var(--text-secondary);font-weight:normal;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,0.08);text-align:center;">国家</th><th style="color:var(--text-secondary);font-weight:normal;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,0.08);text-align:center;">总分</th></tr>
+              </thead>
+              <tbody>
+                <tr><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:600;background:rgba(255,204,0,0.2);color:#ffcc00;">1</span></td><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;color:rgba(255,255,255,0.8);">中国</td><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;font-weight:700;color:var(--primary);">86</td></tr>
+                <tr><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:600;background:rgba(0,212,255,0.2);color:#00d4ff;">2</span></td><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;color:rgba(255,255,255,0.8);">美国</td><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;font-weight:700;color:var(--primary);">82</td></tr>
+                <tr><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:600;background:rgba(0,255,204,0.15);color:#00ffcc;">3</span></td><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;color:rgba(255,255,255,0.8);">日本</td><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;font-weight:700;color:var(--primary);">78</td></tr>
+                <tr><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:600;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);">4</span></td><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;color:rgba(255,255,255,0.8);">德国</td><td style="padding:7px 4px;border-bottom:1px solid rgba(255,255,255,0.04);text-align:center;font-weight:700;color:var(--primary);">76</td></tr>
+                <tr><td style="padding:7px 4px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;font-size:10px;font-weight:600;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);">5</span></td><td style="padding:7px 4px;text-align:center;color:rgba(255,255,255,0.8);">韩国</td><td style="padding:7px 4px;text-align:center;font-weight:700;color:var(--primary);">72</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p>综合评估显示，硫化物固态电解质当前处于 TRL 8（系统验证阶段），中国以86分的综合成熟度评分位列首位。预计2026-2027年可完成工程样机验证并进入小批量试产；硅碳负极材料成熟度略高（TRL 7-8），可作为近期产业化配套重点。</p>
+      </div>`
+    setTimeout(() => {
+      // Radar chart
+      const chart1 = echarts.init(document.getElementById('previewChart1'));
+      chart1.setOption({
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'axis', backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.3)', textStyle: { color: '#fff' } },
+        legend: { data: ['中国','美国','日本'], textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 }, bottom: 0, itemWidth: 12, itemHeight: 8 },
+        radar: {
+          indicator: [{name:'专利布局',max:100},{name:'论文产出',max:100},{name:'政策覆盖',max:100},{name:'项目投入',max:100},{name:'人才储备',max:100},{name:'机构数量',max:100}],
+          center: ['50%','48%'], radius: '58%',
+          axisName: { color: 'rgba(255,255,255,0.6)', fontSize: 11 },
+          splitArea: { areaStyle: { color: ['rgba(0,212,255,0.02)','rgba(0,212,255,0.05)','rgba(0,212,255,0.08)','rgba(0,212,255,0.11)'] } },
+          axisLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } },
+          splitLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } }
+        },
+        series: [{ type: 'radar', data: [
+          { value: [92,88,85,90,78,75], name: '中国', areaStyle: { color: 'rgba(0,212,255,0.25)' }, lineStyle: { color: '#00d4ff', width: 2 }, itemStyle: { color: '#00d4ff' } },
+          { value: [85,82,70,75,80,82], name: '美国', areaStyle: { color: 'rgba(255,107,107,0.2)' }, lineStyle: { color: '#ff6b6b', width: 2 }, itemStyle: { color: '#ff6b6b' } },
+          { value: [78,75,68,72,65,68], name: '日本', areaStyle: { color: 'rgba(255,204,0,0.2)' }, lineStyle: { color: '#ffcc00', width: 2 }, itemStyle: { color: '#ffcc00' } }
+        ]}]
+      });
+
+      // River chart (Trend Prediction)
+      const riverDom = document.getElementById('previewChartRiver');
+      if (riverDom) {
+        const riverChart = echarts.init(riverDom);
+        const categories = [
+          { name: '智库报告', color: '#2E86AB' },
+          { name: '资讯',     color: '#1B5299' },
+          { name: '政策',     color: '#00A8E8' },
+          { name: '管控清单', color: '#D64045' },
+          { name: '专利',     color: '#1DD3B0' },
+          { name: '项目',     color: '#8B5CF6' },
+          { name: '论文',     color: '#F9A620' },
+          { name: '奖项',     color: '#F86624' },
+          { name: '机构',     color: '#3A86FF' },
+          { name: '人才',     color: '#06D6A0' }
+        ];
+        const years = ['2018','2019','2020','2021','2022','2023','2024','2025','2026','2027','2028','2029'];
+        const rawHistory = {
+          '智库报告': [120,145,180,220,265,310,358,420],
+          '资讯':     [850,1120,1480,1850,2300,2800,3350,3900],
+          '政策':     [45,58,72,88,105,128,155,180],
+          '管控清单':  [12,18,25,32,42,55,68,82],
+          '专利':     [320,410,520,680,850,1050,1280,1520],
+          '项目':     [85,110,145,190,240,300,370,450],
+          '论文':     [560,720,910,1150,1420,1750,2100,2480],
+          '奖项':     [28,35,45,58,72,88,108,130],
+          '机构':     [65,82,105,135,170,210,255,310],
+          '人才':     [150,195,250,320,400,490,590,700]
+        };
+        const rawPredict = {
+          '智库报告': [485,560,640,730],
+          '资讯':     [4500,5200,6000,6900],
+          '政策':     [210,245,285,330],
+          '管控清单':  [98,118,142,170],
+          '专利':     [1780,2080,2420,2800],
+          '项目':     [520,605,700,810],
+          '论文':     [2850,3280,3760,4300],
+          '奖项':     [155,185,220,260],
+          '机构':     [365,430,505,590],
+          '人才':     [820,960,1120,1300]
+        };
+        function hexToRgba(hex, a) {
+          const r = parseInt(hex.slice(1,3), 16);
+          const g = parseInt(hex.slice(3,5), 16);
+          const b = parseInt(hex.slice(5,7), 16);
+          return `rgba(${r},${g},${b},${a})`;
+        }
+        const riverSeries = [];
+        categories.forEach(cat => {
+          const data = [];
+          for (let v of rawHistory[cat.name]) {
+            data.push({ value: v, lineStyle: { width: 0 }, symbol: 'none' });
+          }
+          for (let v of rawPredict[cat.name]) {
+            data.push({
+              value: v,
+              lineStyle: { type: 'dashed', width: 1.5, color: cat.color },
+              itemStyle: { color: 'transparent', borderColor: cat.color, borderWidth: 1.5 },
+              symbol: 'emptyCircle', symbolSize: 4
+            });
+          }
+          riverSeries.push({
+            name: cat.name, type: 'line', stack: 'River', smooth: 0.5, showSymbol: false,
+            lineStyle: { width: 0 }, itemStyle: { color: cat.color },
+            areaStyle: {
+              opacity: 0.55,
+              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: cat.color },
+                { offset: 1, color: hexToRgba(cat.color, 0.15) }
+              ])
+            },
+            emphasis: { focus: 'series', areaStyle: { opacity: 0.75 } },
+            data: data
+          });
+        });
+        if (riverSeries.length > 0) {
+          riverSeries[0].markArea = {
+            silent: true,
+            data: [[
+              { xAxis: '2025', itemStyle: { color: 'rgba(255, 159, 67, 0.03)' }, label: { show: true, position: 'insideTopRight', offset: [0, 4], color: 'rgba(255, 159, 67, 0.6)', fontSize: 11, formatter: '预测区间' } },
+              { xAxis: '2029' }
+            ]]
+          };
+          riverSeries[0].markLine = {
+            silent: true, symbol: 'none',
+            lineStyle: { color: 'rgba(255, 159, 67, 0.4)', type: 'dashed', width: 1 },
+            label: { show: true, position: 'end', formatter: '预测起点', color: '#ff9f43', fontSize: 10, distance: [0, -18] },
+            data: [{ xAxis: '2025' }]
+          };
+        }
+        riverChart.setOption({
+          backgroundColor: 'transparent',
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'cross', crossStyle: { color: 'rgba(255,255,255,0.15)' }, label: { backgroundColor: 'rgba(0,0,0,0.7)', color: '#fff' } },
+            backgroundColor: 'rgba(6, 26, 61, 0.95)', borderColor: 'rgba(0, 212, 255, 0.25)', borderWidth: 1,
+            textStyle: { color: '#fff', fontSize: 12 },
+            formatter: function(params) {
+              const year = params[0].axisValue;
+              const isPredict = ['2026','2027','2028','2029'].includes(year);
+              let html = `<div style="font-weight:600;margin-bottom:8px;color:#00d4ff;font-size:14px;">${year}年 ${isPredict ? '<span style="color:#ff9f43;font-size:12px;">(预测)</span>' : ''}</div>`;
+              let total = 0;
+              params.forEach(p => { if (p.value != null && p.value !== '-') total += Number(p.value); });
+              html += `<div style="margin-bottom:6px;color:rgba(255,255,255,0.5);font-size:11px;">数据总量: ${total.toLocaleString()}</div>`;
+              html += '<table style="width:100%;border-collapse:collapse;">';
+              params.forEach(p => {
+                const marker = `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${p.color};margin-right:6px;vertical-align:middle;"></span>`;
+                html += `<tr><td style="padding:3px 0;">${marker}${p.seriesName}</td><td style="padding:3px 0 3px 16px;text-align:right;font-weight:500;">${Number(p.value).toLocaleString()}</td></tr>`;
+              });
+              html += '</table>';
+              return html;
+            }
+          },
+          legend: {
+            data: categories.map(c => c.name),
+            top: 0, right: 0, icon: 'roundRect', itemWidth: 12, itemHeight: 8, itemGap: 12,
+            textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
+            pageIconColor: '#00d4ff', pageTextStyle: { color: 'rgba(255,255,255,0.5)' }
+          },
+          grid: { left: '2%', right: '3%', bottom: '6%', top: '16%', containLabel: true },
+          xAxis: {
+            type: 'category', boundaryGap: false, data: years,
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+            axisTick: { show: false },
+            axisLabel: {
+              color: v => ['2026','2027','2028','2029'].includes(v) ? '#ff9f43' : 'rgba(255,255,255,0.6)',
+              fontSize: 11, margin: 12
+            },
+            splitLine: { show: false }
+          },
+          yAxis: {
+            type: 'value', axisLine: { show: false }, axisTick: { show: false },
+            axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11, formatter: v => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed' } }
+          },
+          series: riverSeries,
+          animationDuration: 1800,
+          animationEasing: 'cubicOut'
+        });
+      }
+
+      // Maturity radar chart
+      const maturityDom = document.getElementById('previewChartMaturity');
+      if (maturityDom) {
+        const maturityChart = echarts.init(maturityDom);
+        maturityChart.setOption({
+          backgroundColor: 'transparent',
+          tooltip: { trigger: 'item', backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.3)', textStyle: { color: '#fff' } },
+          legend: { data: ['中国','美国','日本','德国','韩国'], bottom: 0, textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 10 }, itemWidth: 10, itemHeight: 6, itemGap: 8 },
+          radar: {
+            indicator: [{name:'技术性能',max:100},{name:'成本控制',max:100},{name:'产业化程度',max:100},{name:'安全性',max:100},{name:'市场应用',max:100},{name:'政策支持',max:100}],
+            center: ['50%','45%'], radius: '60%',
+            axisName: { color: 'rgba(255,255,255,0.6)', fontSize: 10 },
+            splitArea: { areaStyle: { color: ['rgba(0,212,255,0.02)','rgba(0,212,255,0.05)','rgba(0,212,255,0.08)','rgba(0,212,255,0.11)'] } },
+            axisLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } },
+            splitLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } }
+          },
+          series: [{ type: 'radar', data: [
+            { value: [88,82,85,90,78,92], name: '中国', areaStyle: { color: 'rgba(0,212,255,0.2)' }, lineStyle: { color: '#00d4ff', width: 2 }, itemStyle: { color: '#00d4ff' } },
+            { value: [85,78,88,82,85,75], name: '美国', areaStyle: { color: 'rgba(255,107,107,0.15)' }, lineStyle: { color: '#ff6b6b', width: 2 }, itemStyle: { color: '#ff6b6b' } },
+            { value: [80,75,82,85,70,78], name: '日本', areaStyle: { color: 'rgba(255,204,0,0.15)' }, lineStyle: { color: '#ffcc00', width: 2 }, itemStyle: { color: '#ffcc00' } },
+            { value: [75,80,78,80,72,70], name: '德国', areaStyle: { color: 'rgba(0,255,204,0.12)' }, lineStyle: { color: '#00ffcc', width: 2 }, itemStyle: { color: '#00ffcc' } },
+            { value: [72,70,75,75,68,72], name: '韩国', areaStyle: { color: 'rgba(204,153,255,0.12)' }, lineStyle: { color: '#cc99ff', width: 2 }, itemStyle: { color: '#cc99ff' } }
+          ]}]
+        });
+      }
+    }, 50);
+    return;
+  }
+
+  if (section === 'talent') {
+    container.innerHTML = `
+      <div class="report-section">
+        <h2>2 人才布局分析</h2>
+        <p>全球固态电池领域核心科研人才主要集中在中国、美国、日本、德国与韩国五国。2018-2024年间，中国呈现显著的人才净流入态势，年均净流入量从+45人增长至+87人。</p>
+        <p>从合作网络看，中科院物理所—清华大学—MIT 构成全球最强科研合作三角，宁德时代、斯坦福与马普所分别为产业转化、基础研究与应用研究的重要枢纽节点。</p>
+
+        <h3 style="font-size:15px;font-weight:600;color:var(--primary);margin:22px 0 12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:3px;height:14px;background:var(--primary);border-radius:2px;"></span>
+          全球科研团队清单
+        </h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:14px;">重点技术领域核心人才一览，覆盖固态电池、燃料电池、储能材料等方向。</p>
+        <div style="margin-bottom:10px;">
+          <select id="reportTalentFilter" style="background:rgba(0,0,0,0.25);border:1px solid rgba(0,212,255,0.2);color:rgba(255,255,255,0.85);padding:6px 28px 6px 10px;border-radius:4px;font-size:12px;appearance:none;background-image:url('data:image/svg+xml,%3Csvg%20width%3D%2210%22%20height%3D%226%22%20viewBox%3D%220%200%2010%206%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1%201l4%204%204-4%22%20stroke%3D%22%2300d4ff%22%20stroke-width%3D%221.5%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right%208px%20center;">
+            <option value="all">全部国家</option>
+            <option value="中国">中国</option>
+            <option value="美国">美国</option>
+            <option value="日本">日本</option>
+            <option value="德国">德国</option>
+            <option value="韩国">韩国</option>
+          </select>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px;" id="reportTalentTable">
+          <thead>
+            <tr><th style="color:var(--text-secondary);font-weight:normal;padding:8px;border-bottom:1px solid rgba(0,212,255,0.15);text-align:left;">人才名称</th><th style="color:var(--text-secondary);font-weight:normal;padding:8px;border-bottom:1px solid rgba(0,212,255,0.15);text-align:left;">所在机构</th><th style="color:var(--text-secondary);font-weight:normal;padding:8px;border-bottom:1px solid rgba(0,212,255,0.15);text-align:left;">研究领域</th><th style="color:var(--text-secondary);font-weight:normal;padding:8px;border-bottom:1px solid rgba(0,212,255,0.15);text-align:right;">成果数</th></tr>
+          </thead>
+          <tbody>
+            <tr data-country="中国"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">张明华</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">中科院物理所</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">固态电解质</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">156</td></tr>
+            <tr data-country="中国"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">李建国</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">清华大学</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">钠离子电池</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">128</td></tr>
+            <tr data-country="美国"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">John Smith</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">MIT</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">燃料电池</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">142</td></tr>
+            <tr data-country="美国"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">Emily Chen</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">斯坦福大学</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">钙钛矿光伏</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">115</td></tr>
+            <tr data-country="日本"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">田中一郎</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">东京大学</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">固态电池</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">98</td></tr>
+            <tr data-country="德国"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">Klaus Weber</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">马普所</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">液流电池</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">87</td></tr>
+            <tr data-country="韩国"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">朴秀贤</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">KAIST</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">硅碳负极</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">76</td></tr>
+            <tr data-country="中国"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">王志强</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">宁德时代</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">固态锂电池</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">203</td></tr>
+            <tr data-country="美国"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">Michael Brown</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">伯克利</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">氢能催化</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">94</td></tr>
+            <tr data-country="日本"><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">佐藤健二</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">理化学研究所</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:rgba(255,255,255,0.75);">储能材料</td><td style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.04);color:var(--primary);font-weight:600;text-align:right;">82</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-top:14px;"><strong>分析结论：</strong>中国在固态锂电池方向聚集了最多的顶尖人才（王志强203项、张明华156项），美国在燃料电池与钙钛矿领域保持优势（John Smith 142项），日本在固态电池基础研究方面亦有深厚积累（田中一郎98项）。整体呈现"中国强应用、美国重基础、日本精专项"的分布特征。</p>
+
+        <h3 style="font-size:15px;font-weight:600;color:var(--primary);margin:22px 0 12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:3px;height:14px;background:var(--primary);border-radius:2px;"></span>
+          创新合作网络
+        </h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:14px;">核心团队合作关系识别，展示顶尖学者与重点机构之间的科研合作强度。</p>
+        <div id="previewChartSankey" class="report-chart-box" style="height:380px;"></div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-top:14px;"><strong>分析结论：</strong>科研合作呈现"人才-机构"双中心特征：张明华-中科院、王志强-宁德时代、John Smith-MIT 分别为最强产学研纽带。跨国产学研合作链路仍以中美为主，中日德合作深度有待加强。</p>
+
+        <h3 style="font-size:15px;font-weight:600;color:var(--primary);margin:22px 0 12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:3px;height:14px;background:var(--primary);border-radius:2px;"></span>
+          人才流动分析
+        </h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:14px;">国家间人才流动数量统计，可筛选特定国家并切换流入/流出视角。</p>
+        <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;">
+          <select id="reportFlowCountry" style="background:rgba(0,0,0,0.25);border:1px solid rgba(0,212,255,0.2);color:rgba(255,255,255,0.85);padding:6px 28px 6px 10px;border-radius:4px;font-size:12px;appearance:none;background-image:url('data:image/svg+xml,%3Csvg%20width%3D%2210%22%20height%3D%226%22%20viewBox%3D%220%200%2010%206%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1%201l4%204%204-4%22%20stroke%3D%22%2300d4ff%22%20stroke-width%3D%221.5%22%20fill%3D%22none%22%2F%3E%3C%2Fsvg%3E');background-repeat:no-repeat;background-position:right%208px%20center;">
+            <option value="all">全部国家</option>
+            <option value="中国">中国</option>
+            <option value="美国">美国</option>
+            <option value="日本">日本</option>
+            <option value="德国">德国</option>
+            <option value="韩国">韩国</option>
+          </select>
+          <div style="display:flex;gap:4px;">
+            <button class="flow-btn active" data-dir="out" style="padding:5px 14px;background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.4);color:#00d4ff;border-radius:4px;cursor:pointer;font-size:12px;">流出</button>
+            <button class="flow-btn" data-dir="in" style="padding:5px 14px;background:rgba(0,0,0,0.2);border:1px solid rgba(0,212,255,0.2);color:rgba(255,255,255,0.5);border-radius:4px;cursor:pointer;font-size:12px;">流入</button>
+          </div>
+        </div>
+        <div id="previewChartFlow" class="report-chart-box"></div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-top:14px;"><strong>分析结论：</strong>2018-2024年中国人才净流出持续收窄并转为净流入，年均净流入从-6人增至+87人，显示国内科研环境吸引力显著增强。美国仍为全球人才最大流向国，但吸引力增速放缓；日韩德三国间人才流动趋于均衡。</p>
+      </div>`;
+    setTimeout(() => {
+      // Talent table filter
+      const filter = document.getElementById('reportTalentFilter');
+      if (filter) {
+        filter.addEventListener('change', (e) => {
+          const val = e.target.value;
+          document.querySelectorAll('#reportTalentTable tbody tr').forEach(tr => {
+            tr.style.display = (val === 'all' || tr.dataset.country === val) ? '' : 'none';
+          });
+        });
+      }
+
+      // Sankey chart
+      const sankeyDom = document.getElementById('previewChartSankey');
+      if (sankeyDom) {
+        const sankeyChart = echarts.init(sankeyDom);
+        sankeyChart.setOption({
+          backgroundColor: 'transparent',
+          tooltip: { trigger: 'item', triggerOn: 'mousemove', backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.3)', textStyle: { color: '#fff' } },
+          series: [{
+            type: 'sankey', layout: 'none', emphasis: { focus: 'adjacency' },
+            nodeWidth: 18, nodeGap: 10,
+            data: [
+              { name: '张明华' }, { name: '李建国' }, { name: 'John Smith' }, { name: 'Emily Chen' },
+              { name: '田中一郎' }, { name: 'Klaus Weber' }, { name: '朴秀贤' }, { name: '王志强' },
+              { name: '赵文博' }, { name: 'Sarah Johnson' },
+              { name: '中科院' }, { name: '清华' }, { name: 'MIT' }, { name: '斯坦福' },
+              { name: '东京大学' }, { name: '马普所' }, { name: 'KAIST' }, { name: '宁德时代' },
+              { name: '牛津' }, { name: '中科院化学所' }
+            ],
+            links: [
+              { source: '张明华', target: '中科院', value: 20 },
+              { source: '张明华', target: '清华', value: 8 },
+              { source: '李建国', target: '清华', value: 15 },
+              { source: '李建国', target: '宁德时代', value: 6 },
+              { source: 'John Smith', target: 'MIT', value: 18 },
+              { source: 'John Smith', target: '斯坦福', value: 5 },
+              { source: 'Emily Chen', target: '斯坦福', value: 12 },
+              { source: '田中一郎', target: '东京大学', value: 14 },
+              { source: 'Klaus Weber', target: '马普所', value: 10 },
+              { source: '朴秀贤', target: 'KAIST', value: 9 },
+              { source: '王志强', target: '宁德时代', value: 22 },
+              { source: '赵文博', target: '中科院', value: 11 },
+              { source: '赵文博', target: '中科院化学所', value: 7 },
+              { source: 'Sarah Johnson', target: '牛津', value: 8 },
+              { source: 'Sarah Johnson', target: 'MIT', value: 4 }
+            ],
+            lineStyle: { color: 'source', curveness: 0.5, opacity: 0.4 },
+            itemStyle: { borderWidth: 0 },
+            label: { color: 'rgba(255,255,255,0.7)', fontSize: 10 }
+          }]
+        });
+      }
+
+      // Flow chart
+      const flowDom = document.getElementById('previewChartFlow');
+      if (flowDom) {
+        let flowChart = echarts.init(flowDom);
+        function renderReportFlow() {
+          const country = document.getElementById('reportFlowCountry').value;
+          const dir = document.querySelector('.flow-btn.active').dataset.dir;
+          const years = Object.keys(reportFlowData).sort();
+          let series = [];
+          let legendData = [];
+          if (country === 'all') {
+            const countries = ['中国', '美国', '日本', '德国', '韩国'];
+            const colors = ['#00d4ff', '#ff6b6b', '#ffcc00', '#00ffcc', '#a855f7'];
+            legendData = countries;
+            series = countries.map((c, idx) => ({
+              name: c, type: 'bar', stack: 'total', emphasis: { focus: 'series' },
+              data: years.map(year => {
+                const rows = reportFlowData[year]?.[c]?.[dir] || [];
+                return rows.reduce((sum, [, , num]) => sum + num, 0);
+              }),
+              itemStyle: { color: colors[idx] }
+            }));
+          } else {
+            const targetSet = new Set();
+            years.forEach(year => {
+              const rows = reportFlowData[year]?.[country]?.[dir] || [];
+              rows.forEach(([src, tgt]) => targetSet.add(dir === 'out' ? tgt : src));
+            });
+            const targets = Array.from(targetSet);
+            legendData = targets;
+            series = targets.map(tgt => ({
+              name: tgt, type: 'bar', stack: 'total', emphasis: { focus: 'series' },
+              data: years.map(year => {
+                const rows = reportFlowData[year]?.[country]?.[dir] || [];
+                const found = rows.find(([src, t]) => (dir === 'out' ? t : src) === tgt);
+                return found ? found[2] : 0;
+              })
+            }));
+          }
+          if (series.length > 0) {
+            series[series.length - 1].itemStyle = { ...(series[series.length - 1].itemStyle || {}), borderRadius: [4, 4, 0, 0] };
+          }
+          flowChart.setOption({
+            backgroundColor: 'transparent',
+            tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.3)', textStyle: { color: '#fff', fontSize: 12 } },
+            legend: { data: legendData, textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 }, bottom: 0, itemWidth: 12, itemHeight: 8 },
+            grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
+            xAxis: { type: 'category', data: years, axisLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } }, axisLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11 }, axisTick: { show: false } },
+            yAxis: { type: 'value', name: '人才数量（人）', nameTextStyle: { color: 'rgba(255,255,255,0.5)', fontSize: 11 }, axisLine: { show: false }, axisLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11 }, splitLine: { lineStyle: { color: 'rgba(0,212,255,0.08)' } } },
+            series: series
+          }, true);
+        }
+        document.getElementById('reportFlowCountry').addEventListener('change', renderReportFlow);
+        document.querySelectorAll('.flow-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            document.querySelectorAll('.flow-btn').forEach(b => {
+              b.classList.remove('active');
+              b.style.background = 'rgba(0,0,0,0.2)';
+              b.style.borderColor = 'rgba(0,212,255,0.2)';
+              b.style.color = 'rgba(255,255,255,0.5)';
+            });
+            this.classList.add('active');
+            this.style.background = 'rgba(0,212,255,0.15)';
+            this.style.borderColor = 'rgba(0,212,255,0.4)';
+            this.style.color = '#00d4ff';
+            renderReportFlow();
+          });
+        });
+        renderReportFlow();
+      }
+    }, 50);
+    return;
+  }
+
+  if (section === 'scenario') {
+    container.innerHTML = `
+      <div class="report-section">
+        <h2>3 应用场景研判</h2>
+        <p>基于场景识别、能力匹配、价值评估与可行性分析四维框架，对硫化物固态电解质技术的应用场景进行系统推演。</p>
+        <h3 style="font-size:15px;font-weight:600;color:var(--primary);margin:22px 0 12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:3px;height:14px;background:var(--primary);border-radius:2px;"></span>
+          应用场景推演
+        </h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0;">
+          <div style="background:rgba(0,0,0,0.15);border:1px solid rgba(0,212,255,0.1);border-radius:6px;padding:14px;">
+            <div style="display:inline-block;padding:3px 10px;background:rgba(0,212,255,0.12);color:var(--primary);font-size:12px;font-weight:600;border-radius:4px;margin-bottom:10px;">场景识别</div>
+            <ul style="list-style:none;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.9;">
+              <li><strong>适用行业：</strong>新能源汽车、储能电站、消费电子</li>
+              <li><strong>当前痛点：</strong>续航里程焦虑、充电时间长、低温性能衰减</li>
+              <li><strong>需求验证：</strong>高频真实需求，市场规模万亿级</li>
+            </ul>
+          </div>
+          <div style="background:rgba(0,0,0,0.15);border:1px solid rgba(0,212,255,0.1);border-radius:6px;padding:14px;">
+            <div style="display:inline-block;padding:3px 10px;background:rgba(0,255,204,0.12);color:var(--success);font-size:12px;font-weight:600;border-radius:4px;margin-bottom:10px;">能力匹配</div>
+            <ul style="list-style:none;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.9;">
+              <li><strong>技术满足度：</strong>能量密度400Wh/kg，满足高端车型需求</li>
+              <li><strong>基础条件：</strong>材料体系成熟，产线可兼容现有设备</li>
+              <li><strong>流程兼容：</strong>与现有电池Pack工艺兼容度85%</li>
+            </ul>
+          </div>
+          <div style="background:rgba(0,0,0,0.15);border:1px solid rgba(0,212,255,0.1);border-radius:6px;padding:14px;">
+            <div style="display:inline-block;padding:3px 10px;background:rgba(255,204,0,0.12);color:var(--warning);font-size:12px;font-weight:600;border-radius:4px;margin-bottom:10px;">价值评估</div>
+            <ul style="list-style:none;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.9;">
+              <li><strong>核心提升：</strong>续航提升50%，充电时间缩短至15分钟</li>
+              <li><strong>ROI预期：</strong>3年回收期，全生命周期成本降低30%</li>
+              <li><strong>规模化价值：</strong>具备大规模商业化条件</li>
+            </ul>
+          </div>
+          <div style="background:rgba(0,0,0,0.15);border:1px solid rgba(0,212,255,0.1);border-radius:6px;padding:14px;">
+            <div style="display:inline-block;padding:3px 10px;background:rgba(255,107,107,0.15);color:#ff6b6b;font-size:12px;font-weight:600;border-radius:4px;margin-bottom:10px;">可行性分析</div>
+            <ul style="list-style:none;font-size:13px;color:rgba(255,255,255,0.75);line-height:1.9;">
+              <li><strong>实施难度：</strong>中高，需解决界面阻抗和量产一致性</li>
+              <li><strong>成本周期：</strong>预计2027年成本降至$80/kWh</li>
+              <li><strong>风险安全：</strong>热稳定性已通过针刺/挤压测试</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 style="font-size:15px;font-weight:600;color:var(--primary);margin:22px 0 12px;display:flex;align-items:center;gap:8px;">
+          <span style="width:3px;height:14px;background:var(--primary);border-radius:2px;"></span>
+          产业化前景评估与优选
+        </h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-bottom:14px;">变革性技术产业化前景评分排序，综合市场潜力、技术成熟度、政策环境、经济效益与社会影响五维评分。</p>
+        <div class="tech-rank-list">
+          <div class="tech-rank-item" data-scene="95" data-mature="88" data-policy="92" data-profit="90" data-social="85">
+            <div class="tech-info"><span class="tech-rank-num top1">1</span><span class="tech-name">硫化物固态电解质</span></div>
+            <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:92%"></div></div></div>
+            <span class="tech-score">92</span>
+            <div class="tech-tooltip">
+              <div class="tt-title">硫化物固态电解质</div>
+              <div class="tt-grid">
+                <div><span>市场潜力</span><b>95</b></div>
+                <div><span>技术成熟度</span><b>88</b></div>
+                <div><span>政策环境</span><b>92</b></div>
+                <div><span>经济效益</span><b>90</b></div>
+                <div><span>社会影响</span><b>85</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="tech-rank-item" data-scene="90" data-mature="92" data-policy="85" data-profit="88" data-social="82">
+            <div class="tech-info"><span class="tech-rank-num top2">2</span><span class="tech-name">硅碳负极材料</span></div>
+            <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:88%"></div></div></div>
+            <span class="tech-score">88</span>
+            <div class="tech-tooltip">
+              <div class="tt-title">硅碳负极材料</div>
+              <div class="tt-grid">
+                <div><span>市场潜力</span><b>90</b></div>
+                <div><span>技术成熟度</span><b>92</b></div>
+                <div><span>政策环境</span><b>85</b></div>
+                <div><span>经济效益</span><b>88</b></div>
+                <div><span>社会影响</span><b>82</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="tech-rank-item" data-scene="88" data-mature="82" data-policy="85" data-profit="83" data-social="80">
+            <div class="tech-info"><span class="tech-rank-num top3">3</span><span class="tech-name">氧电极</span></div>
+            <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:85%"></div></div></div>
+            <span class="tech-score">85</span>
+            <div class="tech-tooltip">
+              <div class="tt-title">氧电极</div>
+              <div class="tt-grid">
+                <div><span>市场潜力</span><b>88</b></div>
+                <div><span>技术成熟度</span><b>82</b></div>
+                <div><span>政策环境</span><b>85</b></div>
+                <div><span>经济效益</span><b>83</b></div>
+                <div><span>社会影响</span><b>80</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="tech-rank-item" data-scene="85" data-mature="75" data-policy="80" data-profit="78" data-social="75">
+            <div class="tech-info"><span class="tech-rank-num">4</span><span class="tech-name">钙钛矿</span></div>
+            <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:78%"></div></div></div>
+            <span class="tech-score">78</span>
+            <div class="tech-tooltip">
+              <div class="tt-title">钙钛矿</div>
+              <div class="tt-grid">
+                <div><span>市场潜力</span><b>85</b></div>
+                <div><span>技术成熟度</span><b>75</b></div>
+                <div><span>政策环境</span><b>80</b></div>
+                <div><span>经济效益</span><b>78</b></div>
+                <div><span>社会影响</span><b>75</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="tech-rank-item" data-scene="75" data-mature="78" data-policy="70" data-profit="68" data-social="72">
+            <div class="tech-info"><span class="tech-rank-num">5</span><span class="tech-name">聚合物固态电解质</span></div>
+            <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:72%"></div></div></div>
+            <span class="tech-score">72</span>
+            <div class="tech-tooltip">
+              <div class="tt-title">聚合物固态电解质</div>
+              <div class="tt-grid">
+                <div><span>市场潜力</span><b>75</b></div>
+                <div><span>技术成熟度</span><b>78</b></div>
+                <div><span>政策环境</span><b>70</b></div>
+                <div><span>经济效益</span><b>68</b></div>
+                <div><span>社会影响</span><b>72</b></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-top:14px;"><strong>分析结论：</strong>硫化物固态电解质以综合评分92分位列五项技术之首，在市场潜力（95分）与政策环境（92分）上优势显著，建议作为首要产业化突破方向。硅碳负极材料技术成熟度最高（92分），可作为近期产业化配套重点快速跟进。氧电极与钙钛矿处于培育期，聚合物固态电解质则更适合柔性电子等差异化场景。</p>
+
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;margin-top:14px;"><strong>分析结论：</strong>硫化物固态电解质在新能源汽车场景具备最明确的商业化路径：技术满足度已达标（能量密度400Wh/kg），预计2027年成本降至$80/kWh即可触发规模化装车；储能电站场景因对循环寿命要求更高，落地时点预计推迟至2028-2029年。实施难度集中体现在界面阻抗控制与量产一致性，建议优先投入工艺工程化资源攻克。</p>
+      </div>`;
+    return;
+  }
+
+  if (section === 'decision') {
+    container.innerHTML = `
+      <div class="report-section">
+        <h2>4 决策分析建议</h2>
+        <p>综合技术态势、人才布局与应用场景三维度评估，建议采取“优先突破硫化物路线、同步储备硅碳负极、跟踪关注氧电极”的梯次布局策略。</p>
+        <div id="previewChart3" class="report-chart-box"></div>
+        <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;"><strong>分析结论：</strong>硫化物固态电解质以综合评分92分位列五项技术之首，在市场潜力（95分）与政策环境（92分）上优势显著，建议作为首要突破方向。硅碳负极材料技术成熟度最高（92分），可作为近期产业化配套重点。氧电极与钙钛矿技术仍处于培育期，建议以跟踪储备为主。</p>
+        <p><strong>近期行动（2025-2026）：</strong>加大硫化物固态电解质研发投入，重点突破界面工程与量产工艺；引进或合作张明华、李建国等核心团队；与宁德时代、比亚迪建立联合实验室。</p>
+        <p><strong>中期布局（2027-2028）：</strong>推动硫化物路线进入小批量装车验证；同步开展硅碳负极材料产线改造；建立固态电池专利池与标准体系。</p>
+        <p><strong>远期储备（2029+）：</strong>跟踪氧电极与钙钛矿技术路线进展；评估聚合物固态电解质在特定场景（柔性电子）的差异化应用潜力。</p>
+      </div>`;
+    setTimeout(() => {
+      const chart = echarts.init(document.getElementById('previewChart3'));
+      chart.setOption({
+        backgroundColor: 'transparent',
+        tooltip: { trigger: 'axis', backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.3)', textStyle: { color: '#fff', fontSize: 12 } },
+        legend: { data: ['市场潜力','技术成熟度','政策环境','经济效益','社会影响'], textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 }, bottom: 0, itemWidth: 12, itemHeight: 8 },
+        grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
+        xAxis: { type: 'category', data: ['硫化物固态电解质','硅碳负极材料','氧电极','钙钛矿','聚合物固态电解质'], axisLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } }, axisLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 10, interval: 0 }, axisTick: { show: false } },
+        yAxis: { type: 'value', max: 100, name: '评分', nameTextStyle: { color: 'rgba(255,255,255,0.5)', fontSize: 11 }, axisLine: { show: false }, axisLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11 }, splitLine: { lineStyle: { color: 'rgba(0,212,255,0.08)' } } },
+        series: [
+          { name: '市场潜力', type: 'bar', data: [95,90,88,85,75], itemStyle: { color: '#00d4ff' } },
+          { name: '技术成熟度', type: 'bar', data: [88,92,82,75,78], itemStyle: { color: '#ffcc00' } },
+          { name: '政策环境', type: 'bar', data: [92,85,85,80,70], itemStyle: { color: '#00ffcc' } },
+          { name: '经济效益', type: 'bar', data: [90,88,83,78,68], itemStyle: { color: '#ff6b6b' } },
+          { name: '社会影响', type: 'bar', data: [85,82,80,75,72], itemStyle: { color: '#a855f7' } }
+        ]
+      });
+    }, 50);
+    return;
+  }
+
+  if (section === 'appendix') {
+    container.innerHTML = `
+      <div class="report-section">
+        <h2>5 附录与数据来源</h2>
+        <p><strong>数据来源：</strong></p>
+        <p>1. 专利数据：Derwent Innovation、incoPat、国家知识产权局专利检索系统，检索时间范围 2018-2024。</p>
+        <p>2. 论文数据：Web of Science、CNKI、Scopus，关键词覆盖 "solid-state electrolyte"、"sulfide electrolyte"、"silicon anode" 等。</p>
+        <p>3. 人才数据：ORCID、ResearchGate、机构官网及公开学术履历，统计口径为近5年有固态电池领域论文/专利产出的人才。</p>
+        <p>4. 政策与项目数据：各国能源部/科技部官网、国家自然科学基金、欧盟 Horizon Europe、美国 ARPA-E 公开项目库。</p>
+        <p>5. 市场预测：基于 BloombergNEF、SNE Research、中国汽车动力电池产业创新联盟公开报告的综合推演。</p>
+        <p style="margin-top:16px;"><strong>分析工具：</strong>技术变革地平线全景扫描系统 v2.1</p>
+        <p><strong>报告生成时间：</strong>${new Date().toLocaleString('zh-CN')}</p>
+      </div>`;
+    return;
+  }
+}
+
+window.addEventListener('resize', () => {
+  document.querySelectorAll('.report-chart-box').forEach(box => {
+    const chart = echarts.getInstanceByDom(box);
+    if (chart) chart.resize();
+  });
+});
+</script>
+
+<script>
+  // 若被嵌入综合看板 iframe，则隐藏自身顶部导航
+  if (window.self !== window.top) {
+    document.querySelectorAll('.top-header, header').forEach(function(el) {
+      el.style.display = 'none';
+    });
+    document.body.style.paddingTop = '0';
+  }
+</script>
+
+</body>
+</html>

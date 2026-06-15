@@ -1,0 +1,3875 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网络安全情报平台 - 全球态势感知</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        :root {
+            --bg: #050a14;
+            --bg-panel: rgba(10, 22, 42, 0.85);
+            --border: rgba(0, 212, 255, 0.15);
+            --primary: #00d4ff;
+            --primary-dark: #0099ff;
+            --text: #e0e6ed;
+            --text-secondary: rgba(224, 230, 237, 0.6);
+            --danger: #ff4d4f;
+            --warning: #ffa940;
+            --success: #00ffcc;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* 顶部标题栏 */
+        .top-bar {
+            height: 56px;
+            background: rgba(6, 16, 32, 0.95);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            position: relative;
+            z-index: 100;
+        }
+        .top-bar::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.5;
+        }
+        .platform-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .platform-title::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border-radius: 2px;
+        }
+        .system-time {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+
+        /* 顶部导航 */
+        .nav-tabs {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .nav-tab {
+            padding: 6px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .nav-tab:hover {
+            color: var(--text);
+            background: rgba(0, 212, 255, 0.05);
+        }
+        .nav-tab.active {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.12);
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.15);
+        }
+
+        /* 主体三栏布局 */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            gap: 16px;
+            min-height: calc(100vh - 56px);
+            padding: 16px;
+        }
+
+        /* 通用面板 */
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .panel-title::before {
+            content: '';
+            width: 3px;
+            height: 14px;
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border-radius: 2px;
+        }
+
+        /* 左侧 */
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 主题筛选 */
+        .theme-filter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .theme-tag {
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.05);
+            color: var(--text-secondary);
+        }
+        .theme-tag:hover {
+            border-color: rgba(0, 212, 255, 0.4);
+            color: var(--text);
+        }
+        .theme-tag.active {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+        }
+        .theme-tag.military.active { border-color: #ff4d4f; color: #ff4d4f; background: rgba(255, 77, 79, 0.12); box-shadow: 0 0 10px rgba(255, 77, 79, 0.15); }
+        .theme-tag.economy.active { border-color: #ffa940; color: #ffa940; background: rgba(255, 169, 64, 0.12); box-shadow: 0 0 10px rgba(255, 169, 64, 0.15); }
+        .theme-tag.humanrights.active { border-color: #00ffcc; color: #00ffcc; background: rgba(0, 255, 204, 0.12); box-shadow: 0 0 10px rgba(0, 255, 204, 0.15); }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .stat-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 6px;
+            padding: 14px 12px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            border-color: rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.04);
+        }
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* 中间地图 */
+        .map-panel {
+            position: relative;
+            overflow: hidden;
+            min-height: 500px;
+        }
+        #worldMap {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 底部事件发展趋势河流图 */
+        .bottom-panel {
+            grid-column: 1 / -1;
+            min-height: 340px;
+        }
+        .bottom-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .bottom-row .panel {
+            min-height: 360px;
+        }
+        #trendRiverChart {
+            width: 100%;
+            height: 300px;
+        }
+        #socialGraphChart {
+            width: 100%;
+            height: 300px;
+        }
+        #sourceTopChart {
+            width: 100%;
+            height: 300px;
+        }
+        .map-legend {
+            position: absolute;
+            left: 16px;
+            bottom: 16px;
+            background: rgba(6, 16, 32, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            z-index: 10;
+        }
+        .legend-title {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .legend-gradient {
+            width: 160px;
+            height: 8px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #1a4d6e, #00d4ff, #ffcc00, #ff4d4f);
+            margin-bottom: 6px;
+        }
+        .legend-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* 右侧话题列表 */
+        .right-col {
+            display: flex;
+            flex-direction: column;
+        }
+        .topic-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .topic-list::-webkit-scrollbar { width: 4px; }
+        .topic-list::-webkit-scrollbar-track { background: transparent; }
+        .topic-list::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.2); border-radius: 2px; }
+
+        /* 左侧最新资讯时间轴 */
+        .timeline-panel {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .timeline {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding-left: 8px;
+        }
+        .timeline::-webkit-scrollbar { width: 4px; }
+        .timeline::-webkit-scrollbar-track { background: transparent; }
+        .timeline::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.2); border-radius: 2px; }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 6px;
+            bottom: 6px;
+            width: 1px;
+            background: rgba(0, 212, 255, 0.2);
+        }
+        .timeline-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            position: relative;
+        }
+        .timeline-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+            margin-top: 5px;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+        .timeline-content {
+            flex: 1;
+        }
+        .timeline-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 3px;
+        }
+        .timeline-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 3px;
+            line-height: 1.4;
+        }
+        .timeline-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .topic-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 6px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .topic-item:hover {
+            border-color: rgba(0, 212, 255, 0.25);
+            background: rgba(0, 212, 255, 0.05);
+            transform: translateX(4px);
+        }
+        .topic-item.active {
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.08);
+        }
+        .topic-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--primary);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .topic-item:hover::before,
+        .topic-item.active::before { opacity: 1; }
+
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .topic-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+        }
+        .topic-hot {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+        .topic-hot::before {
+            content: '🔥';
+            font-size: 10px;
+        }
+        .topic-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .topic-countries {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .topic-country-tag {
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            color: var(--primary);
+            font-size: 10px;
+        }
+        .topic-time {
+            font-size: 11px;
+        }
+
+        /* 事件扫描页面 */
+        .scan-view {
+            display: none;
+            min-height: calc(100vh - 56px);
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .scan-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+        .scan-top {
+            min-height: 120px;
+            width: 100%;
+        }
+        .warning-list {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .warning-list::-webkit-scrollbar { height: 4px; }
+        .warning-list::-webkit-scrollbar-track { background: transparent; }
+        .warning-list::-webkit-scrollbar-thumb { background: rgba(255, 77, 79, 0.3); border-radius: 2px; }
+        .warning-item {
+            flex-shrink: 0;
+            background: rgba(255, 77, 79, 0.08);
+            border: 1px solid rgba(255, 77, 79, 0.25);
+            border-radius: 8px;
+            padding: 14px 16px;
+            min-width: 240px;
+            max-width: 300px;
+            transition: all 0.2s;
+        }
+        .warning-item:hover {
+            background: rgba(255, 77, 79, 0.12);
+            border-color: rgba(255, 77, 79, 0.4);
+            transform: translateY(-2px);
+        }
+        .warning-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .warning-score {
+            color: var(--danger);
+            font-size: 22px;
+            font-weight: bold;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .warning-badge {
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            background: rgba(255, 77, 79, 0.2);
+            color: var(--danger);
+            border: 1px solid rgba(255, 77, 79, 0.3);
+        }
+        .warning-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+        .warning-meta {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .warning-empty {
+            color: var(--text-secondary);
+            font-size: 13px;
+            padding: 12px 0;
+        }
+
+        .scan-middle {
+            display: flex;
+            gap: 16px;
+            min-height: 420px;
+            height: 420px;
+            width: 100%;
+        }
+        .radar-panel {
+            flex: 1;
+            min-width: 0;
+            min-height: 420px;
+            height: 420px;
+            position: relative;
+        }
+        .radar-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .radar-panel-header .panel-title {
+            margin-bottom: 0;
+        }
+        .radar-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .last-scan-time {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-family: 'Courier New', monospace;
+        }
+        .scan-btn {
+            padding: 5px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            background: rgba(0, 212, 255, 0.12);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .scan-btn:hover {
+            background: rgba(0, 212, 255, 0.22);
+            box-shadow: 0 0 12px rgba(0, 212, 255, 0.2);
+        }
+        .scan-btn:active {
+            transform: scale(0.96);
+        }
+        #radarChart {
+            width: 100%;
+            height: 360px;
+        }
+        .events-panel {
+            width: 320px;
+            flex-shrink: 0;
+            min-height: 420px;
+            height: 420px;
+            display: flex;
+            flex-direction: column;
+        }
+        .scan-events-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .scan-events-list::-webkit-scrollbar { width: 4px; }
+        .scan-events-list::-webkit-scrollbar-track { background: transparent; }
+        .scan-events-list::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.2); border-radius: 2px; }
+        .scan-event-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 6px;
+            padding: 12px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .scan-event-item:hover {
+            border-color: rgba(0, 212, 255, 0.25);
+            background: rgba(0, 212, 255, 0.05);
+        }
+        .scan-event-item.warning {
+            border-color: rgba(255, 77, 79, 0.25);
+            background: rgba(255, 77, 79, 0.05);
+        }
+        .scan-event-item.warning:hover {
+            border-color: rgba(255, 77, 79, 0.4);
+            background: rgba(255, 77, 79, 0.08);
+        }
+        .scan-event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .scan-event-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+        }
+        .scan-event-score {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .scan-event-item.warning .scan-event-score {
+            color: var(--danger);
+        }
+        .scan-event-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .scan-event-tag {
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            color: var(--primary);
+            font-size: 10px;
+        }
+        .scan-event-item.warning .scan-event-tag {
+            background: rgba(255, 77, 79, 0.1);
+            border-color: rgba(255, 77, 79, 0.2);
+            color: var(--danger);
+        }
+
+        .scan-bottom {
+            min-height: 280px;
+        }
+        .history-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .history-panel-header .panel-title {
+            margin-bottom: 0;
+        }
+        .history-filter {
+            display: flex;
+            gap: 8px;
+        }
+        .history-filter-tag {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            background: rgba(0, 212, 255, 0.05);
+            transition: all 0.2s;
+        }
+        .history-filter-tag:hover {
+            border-color: rgba(0, 212, 255, 0.35);
+            color: var(--text);
+        }
+        .history-filter-tag.active {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.12);
+        }
+        .history-filter-tag.military.active { border-color: #ff4d4f; color: #ff4d4f; background: rgba(255, 77, 79, 0.12); }
+        .history-filter-tag.economy.active { border-color: #ffa940; color: #ffa940; background: rgba(255, 169, 64, 0.12); }
+        .history-filter-tag.humanrights.active { border-color: #00ffcc; color: #00ffcc; background: rgba(0, 255, 204, 0.12); }
+        .history-table-wrap {
+            overflow-x: auto;
+            max-height: 340px;
+            overflow-y: auto;
+        }
+        .history-table-wrap::-webkit-scrollbar { width: 4px; height: 4px; }
+        .history-table-wrap::-webkit-scrollbar-track { background: transparent; }
+        .history-table-wrap::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.2); border-radius: 2px; }
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        .history-table th {
+            text-align: left;
+            padding: 10px 8px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 22, 42, 0.95);
+            z-index: 1;
+        }
+        .history-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.06);
+            color: var(--text);
+        }
+        .history-table tr:hover td {
+            background: rgba(0, 212, 255, 0.04);
+        }
+        .history-score {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .history-score.high {
+            color: var(--danger);
+        }
+        .history-type {
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            color: var(--primary);
+        }
+        .history-type.military { background: rgba(255, 77, 79, 0.1); border-color: rgba(255, 77, 79, 0.2); color: #ff4d4f; }
+        .history-type.economy { background: rgba(255, 169, 64, 0.1); border-color: rgba(255, 169, 64, 0.2); color: #ffa940; }
+        .history-type.humanrights { background: rgba(0, 255, 204, 0.1); border-color: rgba(0, 255, 204, 0.2); color: #00ffcc; }
+
+        .history-countries {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        /* 事件详情分析页面 */
+        .detail-view {
+            display: none;
+            min-height: calc(100vh - 56px);
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .detail-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+        .detail-top {
+            min-height: 140px;
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            gap: 16px;
+        }
+        .detail-title-wrap {
+            flex: 1;
+        }
+        .detail-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+        .detail-level {
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(255, 77, 79, 0.12);
+            border: 1px solid rgba(255, 77, 79, 0.3);
+            color: var(--danger);
+            flex-shrink: 0;
+        }
+        .detail-info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .detail-info-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 6px;
+            padding: 14px;
+            text-align: center;
+        }
+        .detail-info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .detail-info-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .detail-info-value.heat {
+            color: var(--danger);
+        }
+        .detail-info-value.score {
+            color: #ffcc00;
+        }
+        .detail-info-value.countries {
+            font-size: 13px;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+        .detail-countries-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 2px;
+        }
+        .detail-country-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            line-height: 1.3;
+        }
+        .detail-country-tag-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: rgba(0, 0, 0, 0.25);
+            padding: 1px 8px;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            white-space: nowrap;
+        }
+        .detail-country-tag-value {
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .detail-middle {
+            display: flex;
+            gap: 16px;
+            min-height: 520px;
+            width: 100%;
+        }
+        .detail-radar-panel {
+            flex: 1;
+            min-width: 0;
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+        }
+        #detailRadarChart {
+            width: 100%;
+            height: 360px;
+            flex-shrink: 0;
+        }
+        .detail-summary-section {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        .detail-summary-section .panel-title {
+            margin-bottom: 10px;
+        }
+        .detail-score {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+        .detail-score-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-right: 4px;
+        }
+        .detail-score-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--danger);
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .detail-score-max {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .detail-right {
+            width: 520px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .detail-timeline-panel {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-timeline-panel .detail-timeline {
+            flex: 1;
+            overflow-y: auto;
+            margin-top: 4px;
+        }
+        .detail-summary-panel {
+            flex: 1;
+            min-height: 0;
+        }
+        .detail-summary {
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text);
+            text-align: justify;
+        }
+        .detail-dimensions-panel {
+            flex: 1.5;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-dimensions {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .detail-dimensions::-webkit-scrollbar { width: 4px; }
+        .detail-dimensions::-webkit-scrollbar-track { background: transparent; }
+        .detail-dimensions::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.2); border-radius: 2px; }
+        .detail-dimension-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .detail-dimension-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .detail-dimension-score {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--danger);
+            width: 24px;
+            text-align: center;
+        }
+        .detail-dimension-max {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .detail-dimension-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .detail-dimension-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .detail-dimension-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4d4f, #ff7875);
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+        .detail-dimension-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .detail-section {
+            width: 100%;
+            min-height: 280px;
+        }
+        .detail-background-section {
+            min-height: auto;
+            height: auto;
+        }
+        .detail-text {
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--text);
+            text-align: justify;
+        }
+        .detail-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            padding-left: 8px;
+        }
+        .detail-timeline::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 6px;
+            bottom: 6px;
+            width: 1px;
+            background: rgba(0, 212, 255, 0.2);
+        }
+        .detail-timeline-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            position: relative;
+        }
+        .detail-timeline-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+            margin-top: 5px;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+        .detail-timeline-content {
+            flex: 1;
+        }
+        .detail-timeline-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 3px;
+        }
+        .detail-timeline-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 3px;
+            line-height: 1.4;
+        }
+        .detail-timeline-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        #detailTrendRiverChart {
+            width: 100%;
+            height: 300px;
+        }
+        #detailSocialGraphChart {
+            width: 100%;
+            height: 360px;
+        }
+        .detail-bottom-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            width: 100%;
+            min-height: 420px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
+            padding: 0;
+        }
+        .detail-bottom-row .panel {
+            min-height: 420px;
+        }
+        .detail-source-top-panel {
+            display: flex;
+            flex-direction: column;
+        }
+        #detailSourceTopChart {
+            width: 100%;
+            height: 360px;
+            flex: 1;
+        }
+        .detail-social-graph-panel {
+            display: flex;
+            flex-direction: column;
+        }
+        .detail-impact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .detail-impact-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 6px;
+            padding: 16px;
+        }
+        .detail-impact-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-impact-text {
+            font-size: 13px;
+            color: var(--text);
+            line-height: 1.7;
+        }
+        .detail-info-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .detail-info-card-item {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 6px;
+            padding: 14px;
+            transition: all 0.2s;
+        }
+        .detail-info-card-item:hover {
+            border-color: rgba(0, 212, 255, 0.25);
+            background: rgba(0, 212, 255, 0.05);
+        }
+        .detail-info-card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        .detail-info-card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .detail-info-card-source {
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.15);
+            color: var(--primary);
+        }
+
+        /* 资讯检索页面 */
+        .info-view {
+            display: none;
+            min-height: calc(100vh - 56px);
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .info-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+        }
+        .info-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px 24px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+        }
+        .info-header-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 212, 255, 0.12);
+            border: 1px solid rgba(0, 212, 255, 0.25);
+            border-radius: 10px;
+            font-size: 26px;
+        }
+        .info-header-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 1px;
+        }
+        .info-header-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .info-main {
+            display: flex;
+            gap: 16px;
+            flex: 1;
+            min-height: 0;
+        }
+        .info-filter-panel {
+            width: 280px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            max-height: calc(100vh - 220px);
+            overflow-y: auto;
+        }
+        .info-filter-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .info-filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .info-filter-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        .info-filter-label:hover {
+            border-color: rgba(0, 212, 255, 0.25);
+            background: rgba(0, 212, 255, 0.04);
+        }
+        .info-filter-checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+        .info-filter-label-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .info-search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.1);
+            border-radius: 6px;
+        }
+        .info-search-box:focus-within {
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        .info-search-icon {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .info-search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-size: 13px;
+        }
+        .info-search-input::placeholder {
+            color: rgba(255, 255, 255, 0.35);
+        }
+        .info-filter-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .info-filter-tag {
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .info-filter-tag:hover {
+            border-color: rgba(0, 212, 255, 0.25);
+            color: var(--text);
+        }
+        .info-filter-tag.active {
+            background: rgba(0, 212, 255, 0.15);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .info-filter-tag.strategic.active {
+            background: rgba(255, 77, 79, 0.15);
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+        .info-filter-tag.important.active {
+            background: rgba(255, 169, 64, 0.15);
+            border-color: #ffa940;
+            color: #ffa940;
+        }
+        .info-filter-tag.reference.active {
+            background: rgba(0, 255, 204, 0.12);
+            border-color: #00ffcc;
+            color: #00ffcc;
+        }
+        .info-filter-tag.unrated.active {
+            background: rgba(136, 150, 179, 0.15);
+            border-color: rgba(136, 150, 179, 0.5);
+            color: rgba(136, 150, 179, 0.9);
+        }
+        .info-result-count {
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+        .info-result-count span {
+            color: var(--primary);
+            font-weight: 700;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .info-content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            align-content: start;
+        }
+        .info-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.25s;
+            cursor: pointer;
+        }
+        .info-card:hover {
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+            transform: translateY(-2px);
+        }
+        .info-card-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .info-card-tag {
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .info-card-tag.level-strategic {
+            background: rgba(255, 77, 79, 0.12);
+            border: 1px solid rgba(255, 77, 79, 0.3);
+            color: var(--danger);
+        }
+        .info-card-tag.level-important {
+            background: rgba(255, 169, 64, 0.12);
+            border: 1px solid rgba(255, 169, 64, 0.3);
+            color: #ffa940;
+        }
+        .info-card-tag.level-reference {
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid rgba(0, 255, 204, 0.25);
+            color: #00ffcc;
+        }
+        .info-card-tag.topic-ai {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            color: var(--primary);
+        }
+        .info-card-tag.topic-security {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            color: var(--primary);
+        }
+        .info-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        .info-card-summary {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            line-clamp: 3;
+            overflow: hidden;
+        }
+        .info-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0, 212, 255, 0.06);
+        }
+        .info-card-source {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .info-card-time {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.45);
+        }
+        .info-card-link {
+            color: rgba(255, 255, 255, 0.45);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .info-card-link:hover {
+            color: var(--primary);
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .main-layout { grid-template-columns: 240px 1fr 280px; }
+        }
+        @media (max-width: 1100px) {
+            .scan-middle { flex-direction: column; height: auto; min-height: auto; }
+            .events-panel { width: 100%; min-height: 360px; height: 360px; }
+            .radar-panel { min-height: 400px; height: 400px; }
+            #radarChart { height: 340px; }
+            .detail-middle { flex-direction: column; height: auto; min-height: auto; }
+            .detail-right { width: 100%; }
+            .detail-radar-panel { min-height: 460px; height: 460px; }
+            #detailRadarChart { height: 280px; }
+            .detail-timeline-panel { min-height: 360px; }
+            .detail-info-grid { grid-template-columns: repeat(4, 1fr); }
+            .detail-impact-grid { grid-template-columns: 1fr; }
+            .detail-info-cards { grid-template-columns: 1fr; }
+            .info-main { flex-direction: column; }
+            .info-filter-panel { width: 100%; max-height: none; }
+            .info-grid { grid-template-columns: 1fr; }
+            .detail-bottom-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="platform-title">网络安全情报平台</div>
+        <div class="nav-tabs">
+            <span class="nav-tab active" data-view="home">首页</span>
+            <span class="nav-tab" data-view="scan">事件扫描</span>
+            <span class="nav-tab" data-view="info">资讯检索</span>
+            <span class="nav-tab" data-view="detail">事件详情分析</span>
+        </div>
+        <div class="system-time" id="systemTime"></div>
+    </div>
+
+    <div class="main-layout" id="homeView">
+        <!-- 左侧：主题筛选 + 数据统计 -->
+        <div class="left-col">
+            <div class="panel">
+                <div class="panel-title">全局主题筛选</div>
+                <div class="theme-filter" id="themeFilter">
+                    <span class="theme-tag active" data-theme="all">全部</span>
+                    <span class="theme-tag military" data-theme="military">军事</span>
+                    <span class="theme-tag economy" data-theme="economy">经济</span>
+                    <span class="theme-tag humanrights" data-theme="humanrights">人权</span>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">数据统计</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">资讯总量</div>
+                        <div class="stat-value" id="infoCount">128,456</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">话题总量</div>
+                        <div class="stat-value" id="topicCount">3,842</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">关键词总量</div>
+                        <div class="stat-value" id="keywordCount">15,627</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">国家总量</div>
+                        <div class="stat-value" id="countryCount">97</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel timeline-panel">
+                <div class="panel-title">最新资讯</div>
+                <div class="timeline" id="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-time">06-14 09:30</div>
+                            <div class="timeline-title">大规模钓鱼邮件首次发现</div>
+                            <div class="timeline-desc">针对能源行业多家企业的钓鱼邮件开始传播</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-time">06-14 11:45</div>
+                            <div class="timeline-title">恶意载荷分析完成</div>
+                            <div class="timeline-desc">确认载荷与已知 APT 组织 TTPs 高度相似</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-time">06-14 14:20</div>
+                            <div class="timeline-title">横向移动 detected</div>
+                            <div class="timeline-desc">至少 3 个国家 12 个机构出现内网横向移动迹象</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-time">06-14 16:00</div>
+                            <div class="timeline-title">数据外泄预警发布</div>
+                            <div class="timeline-desc">监测到异常出站流量，建议相关机构启动应急响应</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中间：地图 -->
+        <div class="panel map-panel">
+            <div id="worldMap"></div>
+            <div class="map-legend">
+                <div class="legend-title">话题热度 / 恶意资讯密集度</div>
+                <div class="legend-gradient"></div>
+                <div class="legend-labels">
+                    <span>低</span>
+                    <span>中</span>
+                    <span>高</span>
+                    <span>极高</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧：实时热点事件 -->
+        <div class="panel right-col">
+            <div class="panel-title">最新实时热点事件</div>
+            <div class="topic-list" id="topicList"></div>
+        </div>
+
+        <!-- 底部：事件发展趋势及预测河流图 -->
+        <div class="panel bottom-panel">
+            <div class="panel-title">事件发展趋势及预测河流图</div>
+            <div id="trendRiverChart"></div>
+        </div>
+
+        <!-- 底部：来源网站社交拓扑图 -->
+        <div class="bottom-row">
+            <div class="panel source-top-panel">
+                <div class="panel-title">热门来源 Top 10</div>
+                <div id="sourceTopChart"></div>
+            </div>
+            <div class="panel source-graph-panel">
+                <div class="panel-title">来源网站社交拓扑图</div>
+                <div id="socialGraphChart"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 事件扫描页面 -->
+    <div class="scan-view" id="scanView">
+        <div class="scan-layout">
+            <!-- 顶部：事件预警 -->
+            <div class="panel scan-top">
+                <div class="panel-title">事件预警（≥90分）</div>
+                <div class="warning-list" id="warningList">
+                    <div class="warning-empty">暂无预警事件</div>
+                </div>
+            </div>
+
+            <!-- 中部：雷达图 + 实时事件 -->
+            <div class="scan-middle">
+                <div class="panel radar-panel">
+                    <div class="radar-panel-header">
+                        <div class="panel-title">实时雷达扫描</div>
+                        <div class="radar-controls">
+                            <span class="last-scan-time" id="lastScanTime">最近扫描：--</span>
+                            <button class="scan-btn" id="manualScanBtn">手动扫描</button>
+                        </div>
+                    </div>
+                    <div id="radarChart"></div>
+                </div>
+                <div class="panel events-panel">
+                    <div class="panel-title">本周实时事件</div>
+                    <div class="scan-events-list" id="realtimeEventsList"></div>
+                </div>
+            </div>
+
+            <!-- 底部：历史事件 -->
+            <div class="panel scan-bottom">
+                <div class="history-panel-header">
+                    <div class="panel-title">历史事件（按活跃时间倒序）</div>
+                    <div class="history-filter" id="historyFilter">
+                        <span class="history-filter-tag active" data-type="all">全部</span>
+                        <span class="history-filter-tag military" data-type="military">军事</span>
+                        <span class="history-filter-tag economy" data-type="economy">经济</span>
+                        <span class="history-filter-tag humanrights" data-type="humanrights">人权</span>
+                    </div>
+                </div>
+                <div class="history-table-wrap">
+                    <table class="history-table" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">ID</th>
+                                <th>事件名称</th>
+                                <th style="width: 80px;">类型</th>
+                                <th style="width: 70px;">评分</th>
+                                <th style="width: 120px;">涉及国家</th>
+                                <th style="width: 140px;">开始时间</th>
+                                <th style="width: 140px;">活跃时间</th>
+                                <th style="width: 80px;">资讯数</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 事件详情分析页面 -->
+    <div class="detail-view" id="detailView">
+        <div class="detail-layout">
+            <!-- 顶部：事件基本信息 -->
+            <div class="detail-top panel">
+                <div class="detail-header">
+                    <div class="detail-title-wrap">
+                        <div class="panel-title">事件详情分析</div>
+                        <div class="detail-name" id="detailName"></div>
+                    </div>
+                    <div class="detail-level" id="detailLevel"></div>
+                </div>
+                <div class="detail-info-grid" id="detailInfoGrid"></div>
+            </div>
+
+            <!-- 背景与动因 -->
+            <div class="panel detail-section detail-background-section">
+                <div class="panel-title">背景与动因</div>
+                <div class="detail-text" id="detailBackground"></div>
+            </div>
+
+            <!-- 中部：雷达图 + AI 解读 -->
+            <div class="detail-middle">
+                <div class="panel detail-radar-panel">
+                    <div class="radar-panel-header">
+                        <div class="panel-title">五维度评分</div>
+                        <div class="detail-score">
+                            <span class="detail-score-label">总分</span>
+                            <span class="detail-score-value" id="detailScore"></span>
+                            <span class="detail-score-max" id="detailScoreMax"></span>
+                        </div>
+                    </div>
+                    <div id="detailRadarChart"></div>
+                    <div class="detail-summary-section">
+                        <div class="panel-title">🤖 综合评语</div>
+                        <div class="detail-summary" id="detailSummary"></div>
+                    </div>
+                </div>
+                <div class="detail-right">
+                    <div class="panel detail-timeline-panel">
+                        <div class="panel-title">事件发展脉络</div>
+                        <div class="detail-timeline" id="detailTimeline"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 资讯发展趋势 -->
+            <div class="panel detail-section">
+                <div class="panel-title">资讯发展趋势</div>
+                <div id="detailTrendRiverChart"></div>
+            </div>
+
+            <!-- 来源网站社交拓扑图 + 热门来源 -->
+            <div class="detail-section detail-bottom-row">
+                <div class="panel detail-source-top-panel">
+                    <div class="panel-title">热门来源 Top 10</div>
+                    <div id="detailSourceTopChart"></div>
+                </div>
+                <div class="panel detail-social-graph-panel">
+                    <div class="panel-title">来源网站社交拓扑图</div>
+                    <div id="detailSocialGraphChart"></div>
+                </div>
+            </div>
+
+            <!-- 影响与风险研判 -->
+            <div class="panel detail-section">
+                <div class="panel-title">影响与风险研判</div>
+                <div class="detail-impact-grid" id="detailImpactGrid"></div>
+            </div>
+
+            <!-- 相关资讯 -->
+            <div class="panel detail-section">
+                <div class="panel-title">相关资讯</div>
+                <div class="detail-info-cards" id="detailInfoCards"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 资讯检索页面 -->
+    <div class="info-view" id="infoView">
+        <div class="info-layout">
+            <!-- 顶部标题 -->
+            <div class="info-header">
+                <div class="info-header-icon">📰</div>
+                <div class="info-header-text">
+                    <div class="info-header-title">情报资讯</div>
+                    <div class="info-header-subtitle">实时同步多源情报 · 智能分级标注</div>
+                </div>
+            </div>
+
+            <div class="info-main">
+                <!-- 左侧筛选 -->
+                <div class="panel info-filter-panel">
+                    <div class="info-filter-title">🛰 筛选条件</div>
+
+                    <div class="info-filter-group">
+                        <label class="info-filter-label">
+                            <input type="checkbox" class="info-filter-checkbox" id="themeClassify" checked>
+                            <span>📂 按主题分类</span>
+                        </label>
+                    </div>
+
+                    <div class="info-filter-group">
+                        <div class="info-filter-label-text">关键词搜索</div>
+                        <div class="info-search-box">
+                            <span class="info-search-icon">🔍</span>
+                            <input type="text" class="info-search-input" placeholder="全文检索：标题/摘要/正文...">
+                        </div>
+                    </div>
+
+                    <div class="info-filter-group">
+                        <div class="info-filter-label-text">模块</div>
+                        <div class="info-filter-tags" data-filter="module">
+                            <span class="info-filter-tag active" data-value="all">全部</span>
+                            <span class="info-filter-tag" data-value="ai">AI</span>
+                            <span class="info-filter-tag" data-value="security">网安</span>
+                            <span class="info-filter-tag" data-value="ai-security">AI+网安</span>
+                            <span class="info-filter-tag" data-value="uncategorized">未分类</span>
+                        </div>
+                    </div>
+
+                    <div class="info-filter-group">
+                        <div class="info-filter-label-text">分级</div>
+                        <div class="info-filter-tags" data-filter="level">
+                            <span class="info-filter-tag active" data-value="all">全部</span>
+                            <span class="info-filter-tag strategic" data-value="strategic">战略级</span>
+                            <span class="info-filter-tag important" data-value="important">重要级</span>
+                            <span class="info-filter-tag reference" data-value="reference">参考级</span>
+                            <span class="info-filter-tag unrated" data-value="unrated">未评级</span>
+                        </div>
+                    </div>
+
+                    <div class="info-filter-group">
+                        <div class="info-filter-label-text">时间范围</div>
+                        <div class="info-filter-tags" data-filter="time">
+                            <span class="info-filter-tag active" data-value="all">全部</span>
+                            <span class="info-filter-tag" data-value="today">今日</span>
+                            <span class="info-filter-tag" data-value="week">7天</span>
+                            <span class="info-filter-tag" data-value="month">30天</span>
+                        </div>
+                    </div>
+
+                    <div class="info-filter-group">
+                        <div class="info-filter-label-text">研判状态</div>
+                        <div class="info-filter-tags" data-filter="status">
+                            <span class="info-filter-tag active" data-value="all">全部</span>
+                            <span class="info-filter-tag" data-value="analyzed">已研判</span>
+                            <span class="info-filter-tag" data-value="unanalyzed">未研判</span>
+                        </div>
+                    </div>
+
+                    <div class="info-result-count">命中 <span id="infoResultCount">750</span> 条资讯</div>
+                </div>
+
+                <!-- 右侧资讯列表 -->
+                <div class="info-content">
+                    <div class="info-grid" id="infoGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 系统时间 ==========
+        function updateTime() {
+            const now = new Date();
+            const str = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0') + ':' +
+                String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('systemTime').textContent = str;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // ========== 模拟数据 ==========
+        const themeData = {
+            all: {
+                infoCount: '128,456',
+                topicCount: '3,842',
+                keywordCount: '15,627',
+                countryCount: '97'
+            },
+            military: {
+                infoCount: '42,318',
+                topicCount: '1,256',
+                keywordCount: '5,832',
+                countryCount: '68'
+            },
+            economy: {
+                infoCount: '56,942',
+                topicCount: '1,508',
+                keywordCount: '6,741',
+                countryCount: '82'
+            },
+            humanrights: {
+                infoCount: '29,196',
+                topicCount: '1,078',
+                keywordCount: '3,054',
+                countryCount: '54'
+            }
+        };
+
+        // 国家坐标数据
+        const countryCoords = {
+            '中国': [104.195, 35.8617],
+            '美国': [-95.7129, 37.0902],
+            '俄罗斯': [105.3188, 61.5240],
+            '英国': [-3.4360, 55.3781],
+            '德国': [10.4515, 51.1657],
+            '法国': [2.2137, 46.2276],
+            '日本': [138.2529, 36.2048],
+            '印度': [78.9629, 20.5937],
+            '伊朗': [53.6880, 32.4279],
+            '以色列': [34.8516, 31.0461],
+            '乌克兰': [31.1656, 48.3794],
+            '朝鲜': [127.5101, 40.3399],
+            '韩国': [127.7669, 35.9078],
+            '澳大利亚': [133.7751, -25.2744],
+            '巴西': [-51.9253, -14.2350],
+            '加拿大': [-106.3468, 56.1304],
+            '土耳其': [35.2433, 38.9637],
+            '沙特阿拉伯': [45.0792, 23.8859],
+            '埃及': [30.8025, 26.8206],
+            '南非': [22.9375, -30.5595]
+        };
+
+        // 中文国家名 → ECharts 世界地图 GeoJSON 英文名称映射
+        const countryNameMap = {
+            '中国': 'China',
+            '美国': 'United States',
+            '俄罗斯': 'Russia',
+            '英国': 'United Kingdom',
+            '德国': 'Germany',
+            '法国': 'France',
+            '日本': 'Japan',
+            '印度': 'India',
+            '伊朗': 'Iran',
+            '以色列': 'Israel',
+            '乌克兰': 'Ukraine',
+            '朝鲜': 'Dem. Rep. Korea',
+            '韩国': 'Korea',
+            '澳大利亚': 'Australia',
+            '巴西': 'Brazil',
+            '加拿大': 'Canada',
+            '土耳其': 'Turkey',
+            '沙特阿拉伯': 'Saudi Arabia',
+            '埃及': 'Egypt',
+            '南非': 'South Africa'
+        };
+        const englishToChineseMap = Object.fromEntries(
+            Object.entries(countryNameMap).map(([cn, en]) => [en, cn])
+        );
+
+        // 热点话题数据
+        const topics = [
+            {
+                id: 1,
+                name: '某国关键基础设施遭受大规模网络攻击',
+                hot: 98,
+                countries: ['美国', '俄罗斯', '中国'],
+                theme: 'military',
+                time: '10分钟前',
+                flows: [['俄罗斯', '美国'], ['朝鲜', '美国']]
+            },
+            {
+                id: 2,
+                name: '半导体供应链数据泄露事件持续发酵',
+                hot: 92,
+                countries: ['中国', '美国', '韩国', '日本'],
+                theme: 'economy',
+                time: '25分钟前',
+                flows: [['美国', '中国'], ['韩国', '日本']]
+            },
+            {
+                id: 3,
+                name: '社交媒体平台虚假信息传播监测',
+                hot: 87,
+                countries: ['英国', '德国', '法国'],
+                theme: 'humanrights',
+                time: '42分钟前',
+                flows: [['俄罗斯', '英国'], ['俄罗斯', '德国']]
+            },
+            {
+                id: 4,
+                name: '能源行业勒索软件攻击态势升级',
+                hot: 85,
+                countries: ['德国', '美国', '加拿大'],
+                theme: 'economy',
+                time: '1小时前',
+                flows: [['伊朗', '美国'], ['俄罗斯', '德国']]
+            },
+            {
+                id: 5,
+                name: '东亚地区军事通信网络异常活动',
+                hot: 82,
+                countries: ['日本', '韩国', '朝鲜'],
+                theme: 'military',
+                time: '1.5小时前',
+                flows: [['朝鲜', '韩国'], ['中国', '日本']]
+            },
+            {
+                id: 6,
+                name: '跨境金融制裁相关舆情监测',
+                hot: 78,
+                countries: ['伊朗', '土耳其', '俄罗斯'],
+                theme: 'economy',
+                time: '2小时前',
+                flows: [['伊朗', '土耳其'], ['俄罗斯', '伊朗']]
+            },
+            {
+                id: 7,
+                name: '人权组织数字安全威胁报告',
+                hot: 74,
+                countries: ['沙特阿拉伯', '埃及', '以色列'],
+                theme: 'humanrights',
+                time: '3小时前',
+                flows: [['以色列', '伊朗'], ['沙特阿拉伯', '埃及']]
+            },
+            {
+                id: 8,
+                name: '非洲地区选举期间网络干扰事件',
+                hot: 71,
+                countries: ['南非', '埃及', '巴西'],
+                theme: 'humanrights',
+                time: '4小时前',
+                flows: [['俄罗斯', '南非'], ['中国', '巴西']]
+            }
+        ];
+
+        // 根据主题过滤话题
+        function getTopicsByTheme(theme) {
+            if (theme === 'all') return topics;
+            return topics.filter(t => t.theme === theme);
+        }
+
+        // ========== 渲染话题列表 ==========
+        function renderTopics(theme) {
+            const list = document.getElementById('topicList');
+            const filtered = getTopicsByTheme(theme);
+            list.innerHTML = filtered.map(topic => `
+                <div class="topic-item" data-id="${topic.id}" onclick="highlightTopic(${topic.id})">
+                    <div class="topic-header">
+                        <div class="topic-name">${topic.name}</div>
+                        <div class="topic-hot">${topic.hot}</div>
+                    </div>
+                    <div class="topic-meta">
+                        <div class="topic-countries">
+                            ${topic.countries.map(c => `<span class="topic-country-tag">${c}</span>`).join('')}
+                        </div>
+                        <div class="topic-time">${topic.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ========== 主题筛选交互 ==========
+        let currentTheme = 'all';
+        document.querySelectorAll('.theme-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                document.querySelectorAll('.theme-tag').forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+                currentTheme = tag.dataset.theme;
+
+                // 更新统计数据
+                const data = themeData[currentTheme];
+                document.getElementById('infoCount').textContent = data.infoCount;
+                document.getElementById('topicCount').textContent = data.topicCount;
+                document.getElementById('keywordCount').textContent = data.keywordCount;
+                document.getElementById('countryCount').textContent = data.countryCount;
+
+                // 重新渲染话题
+                renderTopics(currentTheme);
+
+                // 更新地图
+                updateMap(currentTheme);
+            });
+        });
+
+        // ========== 初始化地图 ==========
+        let mapChart = null;
+        let worldGeoJson = null;
+
+        function getHeatData(theme) {
+            // 根据主题生成不同国家的热度数据
+            const baseData = {
+                'all': { '美国': 95, '中国': 88, '俄罗斯': 82, '德国': 75, '英国': 72, '日本': 68, '伊朗': 65, '以色列': 62, '印度': 58, '朝鲜': 55, '韩国': 52, '乌克兰': 50, '土耳其': 48, '沙特阿拉伯': 45, '法国': 42 },
+                'military': { '美国': 98, '俄罗斯': 92, '中国': 85, '朝鲜': 80, '以色列': 75, '伊朗': 70, '乌克兰': 68, '日本': 60, '韩国': 58, '英国': 55 },
+                'economy': { '中国': 95, '美国': 90, '德国': 78, '日本': 72, '韩国': 68, '印度': 62, '伊朗': 58, '土耳其': 55, '俄罗斯': 52, '加拿大': 48 },
+                'humanrights': { '英国': 88, '德国': 82, '法国': 78, '美国': 75, '沙特阿拉伯': 70, '埃及': 65, '以色列': 60, '伊朗': 58, '俄罗斯': 55, '南非': 50 }
+            };
+            const themeData = baseData[theme] || baseData['all'];
+            // 遍历所有国家坐标，确保每个国家节点都有颜色
+            return Object.entries(countryCoords).map(([name, coord]) => {
+                const value = themeData[name] || 20;
+                return {
+                    name: name,
+                    value: [...coord, value],
+                    itemStyle: { color: getHeatColor(value) }
+                };
+            });
+        }
+
+        function getHeatColor(value) {
+            if (value >= 90) return '#ff4d4f';
+            if (value >= 75) return '#ffcc00';
+            if (value >= 60) return '#00d4ff';
+            return '#1a4d6e';
+        }
+
+        function getGeoRegions(theme) {
+            // 生成 geo.regions 数据，用于给指定国家地图区块填充颜色
+            return getHeatData(theme).map(item => {
+                const englishName = countryNameMap[item.name];
+                if (!englishName) return null;
+                return {
+                    name: englishName,
+                    itemStyle: { areaColor: item.itemStyle.color },
+                    emphasis: {
+                        itemStyle: { areaColor: '#ff4d4f' }
+                    }
+                };
+            }).filter(Boolean);
+        }
+
+        function getScatterData(theme) {
+            // 生成散点标签数据（仅用于显示国家名称）
+            return getHeatData(theme).map(item => ({
+                name: item.name,
+                value: item.value
+            }));
+        }
+
+        function getCountryHeatValue(cnName, theme) {
+            const item = getHeatData(theme).find(i => i.name === cnName);
+            return item ? item.value[2] : null;
+        }
+
+        function getFlowData(theme) {
+            // 根据主题生成流向数据
+            const filteredTopics = getTopicsByTheme(theme);
+            const flows = [];
+            filteredTopics.forEach(topic => {
+                topic.flows.forEach(([from, to]) => {
+                    const fromCoord = countryCoords[from];
+                    const toCoord = countryCoords[to];
+                    if (fromCoord && toCoord) {
+                        flows.push({
+                            coords: [fromCoord, toCoord],
+                            lineStyle: {
+                                width: 1 + topic.hot / 40,
+                                curveness: 0.2
+                            },
+                            effect: {
+                                period: 3 + Math.random() * 2,
+                                symbolSize: 3 + topic.hot / 30
+                            }
+                        });
+                    }
+                });
+            });
+            return flows;
+        }
+
+        function initMap() {
+            mapChart = echarts.init(document.getElementById('worldMap'));
+
+            // 多个世界地图 GeoJSON 备用源
+            const mapUrls = [
+                'https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/json/world.json',
+                'https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/json/world.json',
+                'https://unpkg.com/echarts@4.9.0/map/json/world.json'
+            ];
+
+            function tryLoadMap(index) {
+                if (index >= mapUrls.length) {
+                    document.getElementById('worldMap').innerHTML = `
+                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#8896b3;padding:20px;text-align:center;">
+                            <div style="font-size:16px;margin-bottom:10px;">⚠ 地图数据加载失败</div>
+                            <div style="font-size:13px;line-height:1.6;">请检查网络连接，或通过本地服务器打开本页面（如 python -m http.server）</div>
+                        </div>`;
+                    return;
+                }
+                fetch(mapUrls[index])
+                    .then(response => {
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        return response.json();
+                    })
+                    .then(geoJson => {
+                        worldGeoJson = geoJson;
+                        echarts.registerMap('world', geoJson);
+                        updateMap('all');
+                    })
+                    .catch(err => {
+                        console.warn('地图源 ' + (index + 1) + ' 加载失败:', err);
+                        tryLoadMap(index + 1);
+                    });
+            }
+
+            tryLoadMap(0);
+        }
+
+        function updateMap(theme) {
+            if (!mapChart || !worldGeoJson) return;
+
+            const regions = getGeoRegions(theme);
+            const scatterData = getScatterData(theme);
+            const flowData = getFlowData(theme);
+
+            const option = {
+                backgroundColor: 'transparent',
+                title: {
+                    text: '全球事件热力图',
+                    left: 'center',
+                    top: 10,
+                    textStyle: {
+                        color: '#00d4ff',
+                        fontSize: 16,
+                        fontWeight: 'bold',
+                        fontFamily: 'PingFang SC, Microsoft YaHei, sans-serif'
+                    }
+                },
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(6, 16, 32, 0.95)',
+                    borderColor: 'rgba(0, 212, 255, 0.3)',
+                    textStyle: { color: '#fff' },
+                    formatter: function(params) {
+                        if (params.seriesType === 'scatter') {
+                            return `<div style="font-weight:600;">${params.name}</div><div style="color:#8896b3;">热度指数：${params.value[2]}</div>`;
+                        }
+                        if (params.seriesType === 'lines') {
+                            return `<div style="font-weight:600;">${params.data.from} → ${params.data.to}</div><div style="color:#8896b3;">资讯传播强度：高</div>`;
+                        }
+                        if (params.componentType === 'geo') {
+                            const cnName = englishToChineseMap[params.name] || params.name;
+                            const value = getCountryHeatValue(cnName, currentTheme);
+                            return `<div style="font-weight:600;">${cnName}</div><div style="color:#8896b3;">热度指数：${value !== null ? value : '-'}</div>`;
+                        }
+                        return params.name;
+                    }
+                },
+                geo: {
+                    map: 'world',
+                    roam: true,
+                    zoom: 1.2,
+                    center: [10, 20],
+                    label: {
+                        show: false
+                    },
+                    itemStyle: {
+                        areaColor: 'rgba(10, 40, 70, 0.6)',
+                        borderColor: 'rgba(0, 212, 255, 0.15)',
+                        borderWidth: 0.5
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            areaColor: 'rgba(0, 212, 255, 0.2)'
+                        },
+                        label: { show: false }
+                    },
+                    regions: regions
+                },
+                series: [
+                    {
+                        name: '国家标签',
+                        type: 'scatter',
+                        coordinateSystem: 'geo',
+                        data: scatterData,
+                        symbol: 'circle',
+                        symbolSize: function() {
+                            return 4;
+                        },
+                        itemStyle: {
+                            color: 'rgba(255, 255, 255, 0.7)',
+                            shadowBlur: 5,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        },
+                        label: {
+                            show: true,
+                            formatter: '{b}',
+                            position: 'right',
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            fontSize: 10,
+                            distance: 5
+                        },
+                        emphasis: {
+                            scale: 1.8,
+                            label: {
+                                color: '#fff',
+                                fontSize: 12,
+                                fontWeight: 'bold'
+                            },
+                            itemStyle: {
+                                color: '#fff',
+                                shadowBlur: 10,
+                                shadowColor: '#fff'
+                            }
+                        },
+                        zlevel: 2
+                    },
+                    {
+                        name: '资讯流向',
+                        type: 'lines',
+                        coordinateSystem: 'geo',
+                        zlevel: 1,
+                        data: flowData,
+                        effect: {
+                            show: true,
+                            trailLength: 0.5,
+                            color: '#00ffcc',
+                            symbol: 'arrow',
+                            symbolSize: 6
+                        },
+                        lineStyle: {
+                            color: '#00ffcc',
+                            opacity: 0.6,
+                            curveness: 0.2
+                        }
+                    }
+                ]
+            };
+
+            mapChart.setOption(option, true);
+        }
+
+        // ========== 话题与地图联动 ==========
+        let activeTopicId = null;
+        window.highlightTopic = function(topicId) {
+            const topic = topics.find(t => t.id === topicId);
+            if (!topic) return;
+
+            // 更新话题列表激活状态
+            document.querySelectorAll('.topic-item').forEach(item => {
+                item.classList.toggle('active', parseInt(item.dataset.id) === topicId);
+            });
+            activeTopicId = topicId;
+
+            // 高亮地图上的相关国家
+            if (!mapChart || !worldGeoJson) return;
+
+            const highlightCountries = topic.countries.filter(c => countryCoords[c]);
+            const highlightEnglishNames = highlightCountries.map(c => countryNameMap[c]).filter(Boolean);
+
+            const scatterData = getScatterData(currentTheme).map(item => ({
+                ...item,
+                itemStyle: {
+                    color: highlightCountries.includes(item.name) ? '#ff4d4f' : 'rgba(255, 255, 255, 0.4)'
+                },
+                symbolSize: highlightCountries.includes(item.name) ? 14 : 4,
+                label: {
+                    show: true,
+                    color: highlightCountries.includes(item.name) ? '#ff4d4f' : 'rgba(255, 255, 255, 0.5)',
+                    fontWeight: highlightCountries.includes(item.name) ? 'bold' : 'normal'
+                }
+            }));
+
+            const regions = getGeoRegions(currentTheme).map(item => ({
+                ...item,
+                itemStyle: {
+                    areaColor: highlightEnglishNames.includes(item.name)
+                        ? '#ff4d4f'
+                        : item.itemStyle.areaColor,
+                    opacity: highlightEnglishNames.includes(item.name) ? 1 : 0.35
+                }
+            }));
+
+            const flowLines = topic.flows.map(([from, to]) => ({
+                coords: [countryCoords[from], countryCoords[to]],
+                from: from,
+                to: to,
+                lineStyle: { width: 4, color: '#ff4d4f', curveness: 0.2 },
+                effect: { show: true, period: 2, color: '#ff4d4f', symbolSize: 8, trailLength: 0.3 }
+            }));
+
+            mapChart.setOption({
+                geo: { regions: regions },
+                series: [
+                    { data: scatterData },
+                    { data: flowLines }
+                ]
+            });
+        };
+
+        // ========== 事件发展趋势及预测河流图 ==========
+        let trendRiverChart = null;
+
+        function generateRiverData() {
+            const months = ['2025-06', '2025-07', '2025-08', '2025-09', '2025-10', '2025-11',
+                            '2025-12', '2026-01', '2026-02', '2026-03', '2026-04', '2026-05',
+                            '2026-06', '2026-07', '2026-08', '2026-09'];
+            const countries = ['美国', '中国', '俄罗斯', '英国', '德国', '日本', '伊朗'];
+            const data = [];
+
+            // 各国基础量与增长趋势
+            const baseValues = { '美国': 100, '中国': 85, '俄罗斯': 70, '英国': 55, '德国': 50, '日本': 45, '伊朗': 40 };
+
+            countries.forEach(country => {
+                let base = baseValues[country];
+                months.forEach((month, idx) => {
+                    // 历史数据：带波动增长；预测数据（后3个月）：持续增长
+                    const isForecast = idx >= 13;
+                    const growth = isForecast ? 1.08 : (0.95 + Math.random() * 0.2);
+                    base = Math.round(base * growth);
+                    // 加入季节性波动
+                    const seasonal = Math.sin(idx / 2) * 10;
+                    const value = Math.max(15, Math.round(base + seasonal));
+                    data.push([month, value, country, isForecast ? '预测' : '历史']);
+                });
+            });
+
+            return { months, data, countries };
+        }
+
+        function initTrendRiverChart() {
+            const chartDom = document.getElementById('trendRiverChart');
+            if (!chartDom) return;
+            trendRiverChart = echarts.init(chartDom);
+            const { months, data, countries } = generateRiverData();
+
+            const colors = ['#00d4ff', '#ff4d4f', '#ffa940', '#00ffcc', '#8b5cf6', '#f472b6', '#22c55e'];
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'line', lineStyle: { color: 'rgba(255,255,255,0.3)' } },
+                    backgroundColor: 'rgba(6, 16, 32, 0.95)',
+                    borderColor: 'rgba(0, 212, 255, 0.3)',
+                    textStyle: { color: '#fff', fontSize: 12 },
+                    formatter: function(params) {
+                        if (!params.length) return '';
+                        const month = params[0].axisValue;
+                        let html = `<div style="font-weight:600;margin-bottom:6px;color:#00d4ff;">${month}</div>`;
+                        params.forEach(p => {
+                            html += `<div style="margin:3px 0;display:flex;align-items:center;gap:6px;">
+                                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${p.color};"></span>
+                                <span>${p.seriesName}：${p.value}</span>
+                            </div>`;
+                        });
+                        return html;
+                    }
+                },
+                legend: {
+                    data: countries,
+                    top: 0,
+                    right: 10,
+                    textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
+                    itemWidth: 12,
+                    itemHeight: 8
+                },
+                grid: { left: '3%', right: '4%', bottom: '12%', top: '14%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: months,
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    axisLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11 },
+                    axisTick: { show: false },
+                    splitLine: { show: false }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '资讯总量',
+                    nameTextStyle: { color: 'rgba(255,255,255,0.5)', fontSize: 11 },
+                    axisLine: { show: false },
+                    axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed' } }
+                },
+                series: countries.map((country, idx) => {
+                    const countryData = data.filter(d => d[2] === country).map(d => ({
+                        value: d[1],
+                        itemStyle: { opacity: d[3] === '预测' ? 0.7 : 1 }
+                    }));
+                    return {
+                        name: country,
+                        type: 'line',
+                        stack: 'Total',
+                        smooth: true,
+                        lineStyle: { width: 0 },
+                        showSymbol: false,
+                        areaStyle: {
+                            opacity: 0.8,
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: colors[idx] },
+                                { offset: 1, color: colors[idx] + '33' }
+                            ])
+                        },
+                        emphasis: { focus: 'series' },
+                        data: countryData,
+                        markArea: idx === 0 ? {
+                            silent: true,
+                            itemStyle: { color: 'rgba(255, 77, 79, 0.08)' },
+                            data: [[
+                                { name: '未来3个月预测', xAxis: '2026-07' },
+                                { xAxis: '2026-09' }
+                            ]]
+                        } : undefined
+                    };
+                })
+            };
+
+            trendRiverChart.setOption(option);
+        }
+
+        // ========== 热门来源 Top 10 ==========
+        let sourceTopChart = null;
+
+        function initSourceTopChart() {
+            const chartDom = document.getElementById('sourceTopChart');
+            if (!chartDom) return;
+            sourceTopChart = echarts.init(chartDom);
+
+            const data = [
+                { name: 'OpenAI', value: 19 },
+                { name: 'security affairs', value: 23 },
+                { name: '安全419', value: 24 },
+                { name: '美国半导体协会', value: 24 },
+                { name: '全国信息安全标准化技...', value: 30 },
+                { name: 'airforcetimes', value: 33 },
+                { name: 'hacker news', value: 49 },
+                { name: 'hacker news', value: 53 },
+                { name: 'CN-SEC中文网', value: 80 },
+                { name: '美国联邦新闻网站', value: 131 }
+            ];
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: 'rgba(6, 16, 32, 0.95)',
+                    borderColor: 'rgba(0, 212, 255, 0.3)',
+                    textStyle: { color: '#fff', fontSize: 12 },
+                    formatter: function(params) {
+                        const p = params[0];
+                        return `<div style="font-weight:600;">${p.name}</div>
+                                <div style="color:#8896b3;">数量：${p.value}</div>`;
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '8%',
+                    bottom: '3%',
+                    top: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    splitLine: {
+                        lineStyle: { color: 'rgba(255,255,255,0.08)' }
+                    },
+                    axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 },
+                    max: 150
+                },
+                yAxis: {
+                    type: 'category',
+                    data: data.map(item => item.name),
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: {
+                        color: 'rgba(255,255,255,0.75)',
+                        fontSize: 12,
+                        width: 130,
+                        overflow: 'truncate'
+                    }
+                },
+                series: [{
+                    type: 'bar',
+                    data: data.map(item => item.value),
+                    barWidth: 14,
+                    label: {
+                        show: true,
+                        position: 'right',
+                        color: '#fff',
+                        fontSize: 12,
+                        fontWeight: 600
+                    },
+                    itemStyle: {
+                        borderRadius: [0, 7, 7, 0],
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: '#00b894' },
+                            { offset: 1, color: '#00d4ff' }
+                        ])
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                { offset: 0, color: '#00d4ff' },
+                                { offset: 1, color: '#00ffcc' }
+                            ])
+                        }
+                    }
+                }]
+            };
+
+            sourceTopChart.setOption(option);
+        }
+
+        // ========== 来源网站社交拓扑图 ==========
+        let socialGraphChart = null;
+
+        function initSocialGraphChart() {
+            const chartDom = document.getElementById('socialGraphChart');
+            if (!chartDom) return;
+            socialGraphChart = echarts.init(chartDom);
+
+            const categories = [
+                { name: '社交平台', itemStyle: { color: '#00d4ff' } },
+                { name: '即时通讯', itemStyle: { color: '#ffa940' } },
+                { name: '新闻网站', itemStyle: { color: '#00ffcc' } },
+                { name: '视频/直播', itemStyle: { color: '#ff4d4f' } }
+            ];
+
+            const nodes = [
+                { name: 'Twitter/X', value: 2850, category: 0, symbolSize: 56 },
+                { name: 'Facebook', value: 2320, category: 0, symbolSize: 50 },
+                { name: 'Reddit', value: 1680, category: 0, symbolSize: 42 },
+                { name: 'YouTube', value: 1940, category: 3, symbolSize: 46 },
+                { name: 'Telegram', value: 2100, category: 1, symbolSize: 48 },
+                { name: 'WhatsApp', value: 1450, category: 1, symbolSize: 38 },
+                { name: 'BBC', value: 980, category: 2, symbolSize: 32 },
+                { name: 'CNN', value: 860, category: 2, symbolSize: 30 },
+                { name: 'Reuters', value: 720, category: 2, symbolSize: 26 },
+                { name: '新华网', value: 780, category: 2, symbolSize: 28 },
+                { name: 'TikTok', value: 1620, category: 3, symbolSize: 40 },
+                { name: 'LinkedIn', value: 680, category: 0, symbolSize: 24 }
+            ];
+
+            const links = [
+                { source: 'Twitter/X', target: 'Facebook', value: 85, relation: '转发' },
+                { source: 'Twitter/X', target: 'Telegram', value: 72, relation: '提及' },
+                { source: 'Twitter/X', target: 'Reddit', value: 68, relation: '评论' },
+                { source: 'Facebook', target: 'Twitter/X', value: 64, relation: '转发' },
+                { source: 'Facebook', target: 'YouTube', value: 58, relation: '分享' },
+                { source: 'Reddit', target: 'Twitter/X', value: 52, relation: '转发' },
+                { source: 'Reddit', target: 'YouTube', value: 45, relation: '提及' },
+                { source: 'Telegram', target: 'Twitter/X', value: 70, relation: '转发' },
+                { source: 'Telegram', target: 'WhatsApp', value: 55, relation: '转发' },
+                { source: 'YouTube', target: 'Twitter/X', value: 62, relation: '评论' },
+                { source: 'YouTube', target: 'Facebook', value: 48, relation: '分享' },
+                { source: 'TikTok', target: 'Twitter/X', value: 75, relation: '转发' },
+                { source: 'TikTok', target: 'YouTube', value: 60, relation: '提及' },
+                { source: 'BBC', target: 'Twitter/X', value: 42, relation: '引用' },
+                { source: 'BBC', target: 'Facebook', value: 38, relation: '分享' },
+                { source: 'CNN', target: 'Twitter/X', value: 40, relation: '引用' },
+                { source: 'Reuters', target: 'Twitter/X', value: 35, relation: '引用' },
+                { source: '新华网', target: 'Twitter/X', value: 32, relation: '引用' },
+                { source: '新华网', target: 'Facebook', value: 28, relation: '分享' },
+                { source: 'LinkedIn', target: 'Twitter/X', value: 25, relation: '分享' }
+            ];
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    backgroundColor: 'rgba(6, 16, 32, 0.95)',
+                    borderColor: 'rgba(0, 212, 255, 0.3)',
+                    textStyle: { color: '#fff', fontSize: 12 },
+                    formatter: function(params) {
+                        if (params.dataType === 'edge') {
+                            return `<div style="font-weight:600;">${params.data.source} → ${params.data.target}</div>
+                                    <div style="color:#8896b3;">关系：${params.data.relation}</div>
+                                    <div style="color:#8896b3;">强度：${params.data.value}</div>`;
+                        }
+                        return `<div style="font-weight:600;">${params.name}</div>
+                                <div style="color:#8896b3;">类别：${categories[params.data.category].name}</div>
+                                <div style="color:#8896b3;">提及量：${params.value}</div>`;
+                    }
+                },
+                legend: {
+                    data: categories.map(c => c.name),
+                    top: 0,
+                    right: 10,
+                    textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
+                    itemWidth: 12,
+                    itemHeight: 8
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: nodes,
+                    links: links,
+                    categories: categories,
+                    roam: true,
+                    draggable: true,
+                    label: {
+                        show: true,
+                        position: 'right',
+                        color: 'rgba(255,255,255,0.85)',
+                        fontSize: 11
+                    },
+                    force: {
+                        repulsion: 380,
+                        edgeLength: [60, 140],
+                        gravity: 0.1
+                    },
+                    symbol: 'circle',
+                    itemStyle: {
+                        borderColor: '#fff',
+                        borderWidth: 1,
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 212, 255, 0.3)'
+                    },
+                    lineStyle: {
+                        color: 'source',
+                        curveness: 0.2,
+                        opacity: 0.5
+                    },
+                    emphasis: {
+                        focus: 'adjacency',
+                        lineStyle: { width: 4, opacity: 1 }
+                    },
+                    edgeLabel: {
+                        show: false
+                    },
+                    edgeSymbol: ['circle', 'arrow'],
+                    edgeSymbolSize: [4, 8]
+                }]
+            };
+
+            socialGraphChart.setOption(option);
+        }
+
+        // ========== 事件扫描 ==========
+        let radarChart = null;
+        let scanEventIdCounter = 20;
+        let scanInterval = null;
+        let lastScanTime = Date.now();
+        let isManualScanning = false;
+
+        const scanEventTemplates = [
+            { name: '某国关键基础设施遭受大规模网络攻击', type: 'military', source: '暗网情报', countries: ['美国', '俄罗斯', '中国'], infoCount: 1245 },
+            { name: '半导体供应链数据泄露事件持续发酵', type: 'economy', source: '行业监控', countries: ['中国', '美国', '韩国', '日本'], infoCount: 892 },
+            { name: '社交媒体平台虚假信息传播监测', type: 'humanrights', source: '舆情系统', countries: ['英国', '德国', '法国'], infoCount: 567 },
+            { name: '能源行业勒索软件攻击态势升级', type: 'economy', source: '安全厂商', countries: ['德国', '美国', '加拿大'], infoCount: 723 },
+            { name: '东亚地区军事通信网络异常活动', type: 'military', source: '信号情报', countries: ['日本', '韩国', '朝鲜'], infoCount: 1056 },
+            { name: '跨境金融制裁相关舆情监测', type: 'economy', source: '金融情报', countries: ['伊朗', '土耳其', '俄罗斯'], infoCount: 634 },
+            { name: '人权组织数字安全威胁报告', type: 'humanrights', source: 'NGO 报告', countries: ['沙特阿拉伯', '埃及', '以色列'], infoCount: 489 },
+            { name: '非洲地区选举期间网络干扰事件', type: 'humanrights', source: '选举观察', countries: ['南非', '埃及', '巴西'], infoCount: 412 },
+            { name: '政府网站遭受 DDoS 攻击', type: 'military', source: '网络威胁联盟', countries: ['美国', '英国', '乌克兰'], infoCount: 978 },
+            { name: '医疗行业患者数据泄露', type: 'economy', source: '数据泄露库', countries: ['印度', '澳大利亚', '加拿大'], infoCount: 556 },
+            { name: '关键交通系统控制系统异常', type: 'military', source: '工控安全', countries: ['中国', '德国', '俄罗斯'], infoCount: 867 },
+            { name: '外交人员通信被窃听报告', type: 'humanrights', source: '外交渠道', countries: ['法国', '伊朗', '以色列'], infoCount: 345 }
+        ];
+
+        const typeLabels = {
+            military: '军事',
+            economy: '经济',
+            humanrights: '人权'
+        };
+
+        // 事件类型 → 雷达六个维度的分值映射（军事威胁、经济安全、舆情人权、网络攻击、政治动向、能源设施）
+        const eventTypeDimensions = {
+            military: [85, 15, 10, 70, 60, 40],
+            economy: [10, 80, 10, 30, 40, 75],
+            humanrights: [15, 25, 90, 20, 70, 10]
+        };
+
+        function getEventDimensionValues(events) {
+            if (!events.length) return [0, 0, 0, 0, 0, 0];
+            const sums = [0, 0, 0, 0, 0, 0];
+            events.forEach(e => {
+                const dims = eventTypeDimensions[e.type] || [50, 50, 50, 50, 50, 50];
+                dims.forEach((v, i) => sums[i] += v);
+            });
+            return sums.map(s => Math.min(100, Math.round(s / events.length)));
+        }
+
+        let currentNewValues = [0, 0, 0, 0, 0, 0];
+        let currentHistoricalValues = [0, 0, 0, 0, 0, 0];
+
+        function updateRadarEventValues() {
+            const weekStart = Date.now() - 7 * 24 * 60 * 60 * 1000;
+            const newEvents = scanEvents.filter(e => e.activeTime >= weekStart);
+            const historicalEvents = scanEvents.filter(e => e.activeTime < weekStart);
+            currentNewValues = getEventDimensionValues(newEvents);
+            currentHistoricalValues = getEventDimensionValues(historicalEvents);
+        }
+
+        let scanEvents = [
+            ...Array.from({ length: 12 }, (_, i) => generateScanEvent(i + 1, true)),
+            {
+                id: 13,
+                name: '某国关键基础设施遭受大规模网络攻击',
+                type: 'military',
+                source: '暗网情报',
+                countries: ['美国', '俄罗斯', '中国'],
+                infoCount: 1356,
+                score: 98,
+                startTime: Date.now() - 1000 * 60 * 60 * 2,
+                activeTime: Date.now() - 1000 * 60 * 5
+            },
+            {
+                id: 14,
+                name: '能源行业勒索软件攻击态势升级',
+                type: 'economy',
+                source: '安全厂商',
+                countries: ['德国', '美国', '加拿大'],
+                infoCount: 823,
+                score: 94,
+                startTime: Date.now() - 1000 * 60 * 60 * 4,
+                activeTime: Date.now() - 1000 * 60 * 12
+            },
+            {
+                id: 15,
+                name: '东亚地区军事通信网络异常活动',
+                type: 'military',
+                source: '信号情报',
+                countries: ['日本', '韩国', '朝鲜'],
+                infoCount: 1120,
+                score: 91,
+                startTime: Date.now() - 1000 * 60 * 90,
+                activeTime: Date.now() - 1000 * 60 * 28
+            },
+            {
+                id: 16,
+                name: '跨境金融制裁相关舆情监测',
+                type: 'economy',
+                source: '金融情报',
+                countries: ['伊朗', '土耳其', '俄罗斯'],
+                infoCount: 678,
+                score: 90,
+                startTime: Date.now() - 1000 * 60 * 120,
+                activeTime: Date.now() - 1000 * 60 * 45
+            }
+        ];
+        scanEventIdCounter = 16;
+
+        function generateScanEvent(id, historical = false) {
+            const template = scanEventTemplates[Math.floor(Math.random() * scanEventTemplates.length)];
+            const score = Math.floor(Math.random() * 60) + 40;
+            const timeOffset = historical
+                ? Math.random() * 1000 * 60 * 60 * 24 * 30
+                : 0;
+            const activeTime = Date.now() - timeOffset;
+            const startTimeOffset = Math.random() * 1000 * 60 * 60 * 24 * 3 + 1000 * 60 * 30;
+            return {
+                id: id,
+                name: template.name,
+                type: template.type,
+                source: template.source,
+                countries: template.countries,
+                infoCount: template.infoCount + Math.floor(Math.random() * 200) - 100,
+                score: score,
+                startTime: activeTime - startTimeOffset,
+                activeTime: activeTime
+            };
+        }
+
+        function formatScanTime(timestamp) {
+            const d = new Date(timestamp);
+            return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+        }
+
+        function renderWarnings() {
+            const list = document.getElementById('warningList');
+            const warnings = scanEvents.filter(e => e.score >= 90).sort((a, b) => b.score - a.score);
+            if (warnings.length === 0) {
+                list.innerHTML = '<div class="warning-empty">暂无预警事件</div>';
+                return;
+            }
+            list.innerHTML = warnings.map(e => `
+                <div class="warning-item">
+                    <div class="warning-header">
+                        <div class="warning-score">${e.score}</div>
+                        <div class="warning-badge">高危预警</div>
+                    </div>
+                    <div class="warning-title">${e.name}</div>
+                    <div class="warning-meta">${typeLabels[e.type]} · ${e.source} · ${formatScanTime(e.activeTime)}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderRealtimeEvents() {
+            const list = document.getElementById('realtimeEventsList');
+            const weekStart = Date.now() - 7 * 24 * 60 * 60 * 1000;
+            const recent = [...scanEvents]
+                .filter(e => e.activeTime >= weekStart)
+                .sort((a, b) => b.activeTime - a.activeTime)
+                .slice(0, 15);
+            if (recent.length === 0) {
+                list.innerHTML = '<div class="warning-empty">本周暂无事件</div>';
+                return;
+            }
+            list.innerHTML = recent.map(e => `
+                <div class="scan-event-item ${e.score >= 90 ? 'warning' : ''}">
+                    <div class="scan-event-header">
+                        <div class="scan-event-name">${e.name}</div>
+                        <div class="scan-event-score">${e.score}</div>
+                    </div>
+                    <div class="scan-event-meta">
+                        <span class="scan-event-tag">${typeLabels[e.type]}</span>
+                        <span>${formatScanTime(e.activeTime)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        let currentHistoryFilter = 'all';
+
+        function renderHistoryTable(typeFilter = currentHistoryFilter) {
+            const tbody = document.querySelector('#historyTable tbody');
+            let filtered = [...scanEvents];
+            if (typeFilter !== 'all') {
+                filtered = filtered.filter(e => e.type === typeFilter);
+            }
+            const sorted = filtered.sort((a, b) => b.activeTime - a.activeTime);
+            tbody.innerHTML = sorted.map(e => `
+                <tr>
+                    <td>${e.id}</td>
+                    <td>${e.name}</td>
+                    <td><span class="history-type ${e.type}">${typeLabels[e.type]}</span></td>
+                    <td><span class="history-score ${e.score >= 90 ? 'high' : ''}">${e.score}</span></td>
+                    <td class="history-countries">${(e.countries || []).join('、')}</td>
+                    <td>${formatScanTime(e.startTime || e.activeTime)}</td>
+                    <td>${formatScanTime(e.activeTime)}</td>
+                    <td>${(e.infoCount || 0).toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateLastScanTime() {
+            const el = document.getElementById('lastScanTime');
+            if (el) el.textContent = '最近扫描：' + formatScanTime(lastScanTime);
+        }
+
+        function addRealtimeScanEvent() {
+            scanEventIdCounter++;
+            const template = scanEventTemplates[Math.floor(Math.random() * scanEventTemplates.length)];
+            const score = Math.floor(Math.random() * 70) + 30;
+            const activeTime = Date.now();
+            const startTimeOffset = Math.random() * 1000 * 60 * 60 * 3 + 1000 * 60 * 10;
+            const newEvent = {
+                id: scanEventIdCounter,
+                name: template.name,
+                type: template.type,
+                source: template.source,
+                countries: template.countries,
+                infoCount: template.infoCount + Math.floor(Math.random() * 200) - 100,
+                score: score,
+                startTime: activeTime - startTimeOffset,
+                activeTime: activeTime
+            };
+            scanEvents.unshift(newEvent);
+            if (scanEvents.length > 100) scanEvents.pop();
+            lastScanTime = Date.now();
+            updateLastScanTime();
+            updateRadarEventValues();
+            renderWarnings();
+            renderRealtimeEvents();
+            renderHistoryTable();
+        }
+
+        function triggerRadarPulse() {
+            isManualScanning = true;
+            setTimeout(() => { isManualScanning = false; }, 1000);
+        }
+
+        function manualScan() {
+            addRealtimeScanEvent();
+            triggerRadarPulse();
+        }
+
+        function startScanSimulation() {
+            if (scanInterval) clearInterval(scanInterval);
+            scanInterval = setInterval(() => {
+                addRealtimeScanEvent();
+            }, 3500);
+        }
+
+        function stopScanSimulation() {
+            if (scanInterval) {
+                clearInterval(scanInterval);
+                scanInterval = null;
+            }
+        }
+
+        function initRadarChart() {
+            const chartDom = document.getElementById('radarChart');
+            if (!chartDom) return;
+            radarChart = echarts.init(chartDom);
+
+            const indicators = [
+                { name: '军事威胁', max: 100 },
+                { name: '经济安全', max: 100 },
+                { name: '舆情人权', max: 100 },
+                { name: '网络攻击', max: 100 },
+                { name: '政治动向', max: 100 },
+                { name: '能源设施', max: 100 }
+            ];
+
+            const option = {
+                backgroundColor: 'transparent',
+                legend: {
+                    data: ['本周新增事件', '历史存在事件'],
+                    bottom: 0,
+                    textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
+                    itemWidth: 12,
+                    itemHeight: 8
+                },
+                radar: {
+                    indicator: indicators,
+                    shape: 'circle',
+                    radius: '58%',
+                    center: ['50%', '50%'],
+                    splitNumber: 4,
+                    axisName: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
+                    splitLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.15)' } },
+                    splitArea: { areaStyle: { color: ['rgba(0,212,255,0.02)', 'rgba(0,212,255,0.06)'] } },
+                    axisLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.2)' } }
+                },
+                series: [
+                    {
+                        type: 'radar',
+                        name: '历史存在事件',
+                        data: [{
+                            value: currentHistoricalValues,
+                            name: '历史存在事件',
+                            areaStyle: { color: 'rgba(0, 212, 255, 0.15)' },
+                            lineStyle: { color: '#00d4ff', width: 2 },
+                            itemStyle: { color: '#00d4ff' }
+                        }],
+                        animationDuration: 800
+                    },
+                    {
+                        type: 'radar',
+                        name: '本周新增事件',
+                        data: [{
+                            value: currentNewValues,
+                            name: '本周新增事件',
+                            areaStyle: { color: 'rgba(255, 77, 79, 0.2)' },
+                            lineStyle: { color: '#ff4d4f', width: 2 },
+                            itemStyle: { color: '#ff4d4f' }
+                        }],
+                        animationDuration: 800,
+                        z: 5
+                    },
+                    {
+                        type: 'radar',
+                        name: '扫描波',
+                        data: [{
+                            value: [85, 85, 85, 85, 85, 85],
+                            name: '扫描波',
+                            lineStyle: { color: 'rgba(0, 255, 204, 0.35)', width: 1 },
+                            areaStyle: { color: 'rgba(0, 255, 204, 0.04)' },
+                            symbol: 'none'
+                        }],
+                        z: 10,
+                        animationDuration: 300
+                    }
+                ]
+            };
+
+            radarChart.setOption(option);
+
+            // 扇形扫描线
+            const getSectorRadius = () => {
+                if (!radarChart) return 80;
+                return Math.min(radarChart.getWidth(), radarChart.getHeight()) * 0.58 / 2;
+            };
+
+            radarChart.setOption({
+                graphic: [{
+                    id: 'radarSector',
+                    type: 'sector',
+                    left: 'center',
+                    top: 'center',
+                    shape: {
+                        cx: 0,
+                        cy: 0,
+                        r: getSectorRadius(),
+                        r0: 0,
+                        startAngle: -Math.PI / 10,
+                        endAngle: Math.PI / 10
+                    },
+                    style: {
+                        fill: 'rgba(0, 255, 204, 0.12)',
+                        stroke: 'rgba(0, 255, 204, 0.45)',
+                        lineWidth: 1
+                    },
+                    origin: [0, 0],
+                    rotation: 0
+                }]
+            });
+
+            let tick = 0;
+            let sectorAngle = 0;
+            if (window.radarScanTimer) clearInterval(window.radarScanTimer);
+            window.radarScanTimer = setInterval(() => {
+                tick += 1;
+                sectorAngle += 0.08;
+                const scanValues = indicators.map((_, i) => {
+                    if (isManualScanning) return 95;
+                    const wave = Math.abs(Math.sin((tick * 15 + i * 60) * Math.PI / 180));
+                    return 25 + wave * 55;
+                });
+                const scanLineColor = isManualScanning ? 'rgba(0, 255, 204, 0.9)' : 'rgba(0, 255, 204, 0.35)';
+                const scanAreaColor = isManualScanning ? 'rgba(0, 255, 204, 0.2)' : 'rgba(0, 255, 204, 0.04)';
+                const scanLineWidth = isManualScanning ? 2 : 1;
+                const sectorFill = isManualScanning ? 'rgba(0, 255, 204, 0.22)' : 'rgba(0, 255, 204, 0.12)';
+                radarChart.setOption({
+                    graphic: [{
+                        id: 'radarSector',
+                        rotation: sectorAngle,
+                        shape: { r: getSectorRadius() },
+                        style: { fill: sectorFill }
+                    }],
+                    series: [
+                        {
+                            data: [{
+                                value: currentHistoricalValues,
+                                name: '历史存在事件',
+                                areaStyle: { color: 'rgba(0, 212, 255, 0.15)' },
+                                lineStyle: { color: '#00d4ff', width: 2 },
+                                itemStyle: { color: '#00d4ff' }
+                            }]
+                        },
+                        {
+                            data: [{
+                                value: currentNewValues,
+                                name: '本周新增事件',
+                                areaStyle: { color: 'rgba(255, 77, 79, 0.2)' },
+                                lineStyle: { color: '#ff4d4f', width: 2 },
+                                itemStyle: { color: '#ff4d4f' }
+                            }]
+                        },
+                        {
+                            data: [{
+                                value: scanValues,
+                                name: '扫描波',
+                                lineStyle: { color: scanLineColor, width: scanLineWidth },
+                                areaStyle: { color: scanAreaColor },
+                                symbol: 'none'
+                            }]
+                        }
+                    ]
+                });
+            }, 400);
+        }
+
+        // ========== 事件详情分析 ==========
+        let detailRadarChart = null;
+
+        const sampleDetailEvent = {
+            id: 1,
+            name: '美以对伊朗实施军事打击引发大规模网络战争升级',
+            heat: 98,
+            score: 14,
+            scoreMax: 15,
+            level: '战略级',
+            type: 'military',
+            countries: {
+                initiator: ['美国', '以色列'],
+                victim: ['伊朗'],
+                affected: ['中东多国', '加拿大']
+            },
+            infoCount: 2847,
+            dimensions: [
+                { name: '影响范围', value: 3, max: 3, desc: '事件涉及美国、以色列、伊朗、中东多国政府、加拿大非政府组织等，影响范围具有显著全球性，评3分' },
+                { name: '中国关联', value: 2, max: 3, desc: '中国关联APT组织Mustang Panda在事件期间借势开展情报收集，间接关联我国网络行为体及国家利益，评2分' },
+                { name: '严重程度', value: 3, max: 3, desc: '涉及国家级APT组织对关键基础设施实施破坏性擦除攻击、凭证窃取及数据外泄，伊朗最高领袖遭击毙引发全面网络战，严重程度极高，评3分' },
+                { name: '时效性', value: 3, max: 3, desc: '事件持续发生于2026年2月至5月，文章发布于2026年5月27日，属正在进行中的实时威胁，时效性最强，评3分' },
+                { name: '战略价值', value: 3, max: 3, desc: '该事件揭示国家级网络战在极端条件下的作战韧性、无恶意软件攻击新范式及多行为体协同模式，对我国网络战略研判与防御体系建设具有重大参考价值，评3分' }
+            ],
+            summary: '本事件涉及美以对伊朗实施军事打击后引发的大规模网络战争升级，伊朗最高领袖遭打击身亡，多个国家级APT组织同步展开网络攻势，影响范围覆盖美国、以色列、中东、土耳其、非洲及加拿大等多个国家与地区，具有典型的全球溢出效应。中国关联方面，中国关联组织Mustang Panda借势开展情报收集活动，间接关联我国网络空间安全态势。伊朗在断网条件下依托境外预置基础设施持续作战、首次实现无恶意软件破坏性擦除攻击等战术演进，代表重大战略威胁升级。事件发生于2026年2月至5月，属近期持续进行中的热点冲突，时效性极强。该事件对我国研判大国网络战模式、评估中东网络冲突外溢风险及审视我方网络安全体系韧性均具有重大参考价值，综合评定为战略级。',
+            background: '2026年4月至5月间，中东地缘政治 tensions 持续升温。美国与以色列针对伊朗核设施及军事目标实施多轮精准军事打击，伊朗政权高层遭重创。作为报复与反制，伊朗及其支持的多个国家级APT组织（包括APT34、APT35、Lazarus关联分支等）迅速启动预置的网络攻击基础设施，对美军、以色列政府、金融、能源、交通等关键部门展开协同网络攻势。与此同时，亲伊朗黑客组织及全球网络犯罪生态也被激活，形成国家行为体与非国家行为体混合作战的复杂局面。',
+            timeline: [
+                { time: '2026-04-18 08:30', title: '军事打击序幕拉开', desc: '美以联合对伊朗纳坦兹核设施及多个军事基地实施空袭，伊朗官方宣称将展开“全方位报复”。' },
+                { time: '2026-04-22 14:15', title: '伊朗关键基础设施遭网络攻击', desc: '伊朗石油部、港口系统遭受大规模DDoS及破坏性擦除攻击，疑似以色列网络战部队参与。' },
+                { time: '2026-05-03 09:45', title: 'APT组织同步展开反制', desc: 'APT34、APT35等组织针对美国金融机构、以色列政府部门发起凭证窃取与数据泄露攻击。' },
+                { time: '2026-05-14 21:20', title: '伊朗最高领袖遭打击身亡', desc: '冲突急剧升级，伊朗宣布进入全面战争状态，网络战态势同步白热化。' },
+                { time: '2026-05-27 16:00', title: '全球溢出效应显现', desc: 'Mustang Panda等中国关联APT组织借势开展情报收集，欧洲、非洲多国关键基础设施出现异常流量。' }
+            ],
+            impact: {
+                global: '事件引发全球关键基础设施网络威胁显著上升，能源、金融、交通、通信等行业成为主要攻击目标。多国政府提升网络安全警戒等级，国际能源市场波动加剧，全球供应链面临中断风险。网络战与实体军事行动的深度融合，标志着国家间冲突形态进入新阶段。',
+                china: '我国部分跨国企业、驻外机构及“一带一路”沿线项目可能受到波及。Mustang Panda等组织借势活动，可能导致我国网络行为体被误判或关联，影响国际舆论环境。同时，我国能源进口通道及海外资产安全面临间接压力。',
+                risk: '建议重点防范针对能源、金融、交通、通信等关键信息基础设施的APT攻击与供应链污染；加强涉外机构网络安全监测；提升工控系统韧性；完善网络战态势研判与应急响应机制；防范因国际冲突外溢导致的舆论与外交风险。'
+            },
+            relatedInfo: [
+                { title: '美以联合空袭伊朗核设施，中东网络战一触即发', source: 'Reuters', time: '2026-04-18 09:12' },
+                { title: '伊朗石油部系统遭大规模网络攻击，官方指责以色列', source: 'BBC', time: '2026-04-22 15:30' },
+                { title: 'APT34、APT35针对美以金融机构展开新一轮攻击', source: 'Recorded Future', time: '2026-05-04 11:25' },
+                { title: '伊朗最高领袖遇袭身亡，网络战态势急剧升级', source: 'CNN', time: '2026-05-15 02:18' },
+                { title: 'Mustang Panda借势中东冲突开展全球情报收集', source: 'FireEye', time: '2026-05-28 08:45' },
+                { title: '欧洲能源设施出现异常流量，疑似伊朗APT组织活动', source: 'ESET', time: '2026-05-29 14:00' },
+                { title: '我国驻外机构加强网络安全防护应对中东冲突外溢', source: '新华网', time: '2026-05-30 10:20' },
+                { title: '全球关键基础设施网络威胁告警等级全面提升', source: 'CISA', time: '2026-05-31 16:35' },
+                { title: '断网条件下破坏性擦除攻击技术分析', source: '奇安信', time: '2026-06-01 09:50' }
+            ]
+        };
+
+        function initDetailRadarChart(event) {
+            const chartDom = document.getElementById('detailRadarChart');
+            if (!chartDom) return;
+            detailRadarChart = echarts.init(chartDom);
+
+            const indicators = event.dimensions.map(d => ({
+                name: d.name,
+                max: d.max
+            }));
+            const values = event.dimensions.map(d => d.value);
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(6, 16, 32, 0.95)',
+                    borderColor: 'rgba(255, 77, 79, 0.3)',
+                    textStyle: { color: '#fff' },
+                    padding: 14,
+                    formatter: function(params) {
+                        const event = sampleDetailEvent;
+                        let html = `<div style="font-weight:600;margin-bottom:10px;color:#ff4d4f;font-size:14px;">五维度评分</div>`;
+                        event.dimensions.forEach(d => {
+                            html += `
+                                <div style="margin:8px 0;min-width:280px;">
+                                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                                        <span style="font-weight:500;font-size:13px;">${d.name}</span>
+                                        <span style="color:#ff4d4f;font-weight:bold;font-size:13px;">${d.value}/${d.max}</span>
+                                    </div>
+                                    <div style="font-size:12px;color:#8896b3;line-height:1.6;">${d.desc}</div>
+                                </div>`;
+                        });
+                        return html;
+                    }
+                },
+                radar: {
+                    indicator: indicators,
+                    shape: 'polygon',
+                    radius: '58%',
+                    center: ['50%', '50%'],
+                    splitNumber: 3,
+                    axisName: { color: 'rgba(255,255,255,0.75)', fontSize: 13 },
+                    splitLine: { lineStyle: { color: 'rgba(255, 77, 79, 0.15)' } },
+                    splitArea: { areaStyle: { color: ['rgba(255,77,79,0.03)', 'rgba(255,77,79,0.06)', 'rgba(255,77,79,0.09)'] } },
+                    axisLine: { lineStyle: { color: 'rgba(255, 77, 79, 0.25)' } }
+                },
+                series: [{
+                    type: 'radar',
+                    name: '五维度评分',
+                    data: [{
+                        value: values,
+                        name: '五维度评分',
+                        areaStyle: { color: 'rgba(255, 77, 79, 0.2)' },
+                        lineStyle: { color: '#ff4d4f', width: 2 },
+                        itemStyle: { color: '#ff4d4f' },
+                        symbol: 'circle',
+                        symbolSize: 6
+                    }],
+                    animationDuration: 1000,
+                    animationEasing: 'cubicOut'
+                }]
+            };
+
+            detailRadarChart.setOption(option);
+        }
+
+        let detailTrendRiverChart = null;
+        let detailSocialGraphChart = null;
+
+        function initDetailTrendRiverChart() {
+            const chartDom = document.getElementById('detailTrendRiverChart');
+            if (!chartDom) return;
+            detailTrendRiverChart = echarts.init(chartDom);
+
+            const months = ['2026-02', '2026-03', '2026-04', '2026-05', '2026-06'];
+            const sources = ['中国', '美国', '俄罗斯', '英国'];
+            const baseValues = { '中国': 320, '美国': 280, '俄罗斯': 150, '英国': 90 };
+            const colors = ['#00d4ff', '#ff4d4f', '#ffa940', '#00ffcc'];
+
+            const data = [];
+            sources.forEach(source => {
+                let base = baseValues[source];
+                months.forEach((month, idx) => {
+                    const growth = 1.1 + Math.random() * 0.3;
+                    base = Math.round(base * growth);
+                    data.push([month, base, source]);
+                });
+            });
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(6, 16, 32, 0.95)',
+                    borderColor: 'rgba(0, 212, 255, 0.3)',
+                    textStyle: { color: '#fff', fontSize: 12 }
+                },
+                legend: {
+                    data: sources,
+                    top: 0,
+                    right: 10,
+                    textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
+                    itemWidth: 12,
+                    itemHeight: 8
+                },
+                grid: { left: '3%', right: '4%', bottom: '10%', top: '14%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: months,
+                    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                    axisLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11 },
+                    axisTick: { show: false }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '资讯量',
+                    nameTextStyle: { color: 'rgba(255,255,255,0.5)', fontSize: 11 },
+                    axisLine: { show: false },
+                    axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 },
+                    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed' } }
+                },
+                series: sources.map((source, idx) => ({
+                    name: source,
+                    type: 'line',
+                    stack: 'Total',
+                    smooth: true,
+                    lineStyle: { width: 0 },
+                    showSymbol: false,
+                    areaStyle: {
+                        opacity: 0.8,
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                            { offset: 0, color: colors[idx] },
+                            { offset: 1, color: colors[idx] + '33' }
+                        ])
+                    },
+                    emphasis: { focus: 'series' },
+                    data: data.filter(d => d[2] === source).map(d => d[1])
+                }))
+            };
+
+            detailTrendRiverChart.setOption(option);
+        }
+
+        // ========== 事件分析 - 热门来源 Top 10 ==========
+        let detailSourceTopChart = null;
+
+        function initDetailSourceTopChart() {
+            const chartDom = document.getElementById('detailSourceTopChart');
+            if (!chartDom) return;
+            detailSourceTopChart = echarts.init(chartDom);
+
+            const data = [
+                { name: 'OpenAI', value: 19 },
+                { name: 'security affairs', value: 23 },
+                { name: '安全419', value: 24 },
+                { name: '美国半导体协会', value: 24 },
+                { name: '全国信息安全标准化技...', value: 30 },
+                { name: 'airforcetimes', value: 33 },
+                { name: 'hacker news', value: 49 },
+                { name: 'hacker news', value: 53 },
+                { name: 'CN-SEC中文网', value: 80 },
+                { name: '美国联邦新闻网站', value: 131 }
+            ];
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: 'rgba(6, 16, 32, 0.95)',
+                    borderColor: 'rgba(0, 212, 255, 0.3)',
+                    textStyle: { color: '#fff', fontSize: 12 }
+                },
+                grid: {
+                    left: '3%',
+                    right: '8%',
+                    bottom: '3%',
+                    top: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    splitLine: {
+                        lineStyle: { color: 'rgba(255,255,255,0.08)' }
+                    },
+                    axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 },
+                    max: 150
+                },
+                yAxis: {
+                    type: 'category',
+                    data: data.map(item => item.name),
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    axisLabel: {
+                        color: 'rgba(255,255,255,0.75)',
+                        fontSize: 12,
+                        width: 150,
+                        overflow: 'truncate'
+                    }
+                },
+                series: [{
+                    type: 'bar',
+                    data: data.map(item => item.value),
+                    barWidth: 16,
+                    label: {
+                        show: true,
+                        position: 'right',
+                        color: '#fff',
+                        fontSize: 12,
+                        fontWeight: 600
+                    },
+                    itemStyle: {
+                        borderRadius: [0, 8, 8, 0],
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                            { offset: 0, color: '#00b894' },
+                            { offset: 1, color: '#00d4ff' }
+                        ])
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                { offset: 0, color: '#00d4ff' },
+                                { offset: 1, color: '#00ffcc' }
+                            ])
+                        }
+                    }
+                }]
+            };
+
+            detailSourceTopChart.setOption(option);
+        }
+
+        function initDetailSocialGraphChart() {
+            const chartDom = document.getElementById('detailSocialGraphChart');
+            if (!chartDom) return;
+            detailSocialGraphChart = echarts.init(chartDom);
+
+            const categories = [
+                { name: '国际媒体', itemStyle: { color: '#00d4ff' } },
+                { name: '社交平台', itemStyle: { color: '#ff4d4f' } },
+                { name: '安全厂商', itemStyle: { color: '#ffa940' } },
+                { name: '智库机构', itemStyle: { color: '#00ffcc' } }
+            ];
+
+            const nodes = [
+                { name: 'Reuters', value: 1250, category: 0, symbolSize: 48 },
+                { name: 'BBC', value: 980, category: 0, symbolSize: 42 },
+                { name: 'CNN', value: 860, category: 0, symbolSize: 38 },
+                { name: 'Twitter/X', value: 2100, category: 1, symbolSize: 56 },
+                { name: 'Telegram', value: 1650, category: 1, symbolSize: 50 },
+                { name: 'Reddit', value: 1120, category: 1, symbolSize: 40 },
+                { name: 'Recorded Future', value: 780, category: 2, symbolSize: 34 },
+                { name: 'FireEye', value: 720, category: 2, symbolSize: 32 },
+                { name: 'ESET', value: 650, category: 2, symbolSize: 30 },
+                { name: '奇安信', value: 580, category: 2, symbolSize: 28 },
+                { name: 'CFR', value: 420, category: 3, symbolSize: 24 },
+                { name: '兰德公司', value: 380, category: 3, symbolSize: 22 }
+            ];
+
+            const links = [
+                { source: 'Reuters', target: 'Twitter/X', value: 85 },
+                { source: 'BBC', target: 'Twitter/X', value: 72 },
+                { source: 'CNN', target: 'Twitter/X', value: 68 },
+                { source: 'Twitter/X', target: 'Telegram', value: 75 },
+                { source: 'Telegram', target: 'Reddit', value: 55 },
+                { source: 'Recorded Future', target: 'Twitter/X', value: 62 },
+                { source: 'FireEye', target: 'Reuters', value: 48 },
+                { source: 'ESET', target: 'BBC', value: 42 },
+                { source: '奇安信', target: 'Twitter/X', value: 38 },
+                { source: 'CFR', target: 'CNN', value: 35 },
+                { source: '兰德公司', target: 'Reuters', value: 32 }
+            ];
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    backgroundColor: 'rgba(6, 16, 32, 0.95)',
+                    borderColor: 'rgba(0, 212, 255, 0.3)',
+                    textStyle: { color: '#fff', fontSize: 12 }
+                },
+                legend: {
+                    data: categories.map(c => c.name),
+                    top: 0,
+                    right: 10,
+                    textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
+                    itemWidth: 12,
+                    itemHeight: 8
+                },
+                series: [{
+                    type: 'graph',
+                    layout: 'force',
+                    data: nodes,
+                    links: links,
+                    categories: categories,
+                    roam: true,
+                    draggable: true,
+                    label: {
+                        show: true,
+                        position: 'right',
+                        color: 'rgba(255,255,255,0.85)',
+                        fontSize: 11
+                    },
+                    force: {
+                        repulsion: 350,
+                        edgeLength: [60, 140],
+                        gravity: 0.1
+                    },
+                    symbol: 'circle',
+                    itemStyle: {
+                        borderColor: '#fff',
+                        borderWidth: 1,
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0, 212, 255, 0.3)'
+                    },
+                    lineStyle: {
+                        color: 'source',
+                        curveness: 0.2,
+                        opacity: 0.5
+                    },
+                    emphasis: {
+                        focus: 'adjacency',
+                        lineStyle: { width: 4, opacity: 1 }
+                    },
+                    edgeSymbol: ['circle', 'arrow'],
+                    edgeSymbolSize: [4, 8]
+                }]
+            };
+
+            detailSocialGraphChart.setOption(option);
+        }
+
+        function renderEventDetail() {
+            const event = sampleDetailEvent;
+
+            document.getElementById('detailName').textContent = event.name;
+            document.getElementById('detailLevel').textContent = event.level;
+            document.getElementById('detailScore').textContent = event.score;
+            document.getElementById('detailScoreMax').textContent = '/' + event.scoreMax;
+
+            const warningScore = Math.round((event.heat * 0.6) + (event.score / event.scoreMax * 100 * 0.4));
+            const warningColor = warningScore >= 80 ? 'var(--danger)' : (warningScore >= 60 ? '#ffa940' : 'var(--primary)');
+
+            const infoGrid = document.getElementById('detailInfoGrid');
+            infoGrid.innerHTML = `
+                <div class="detail-info-card">
+                    <div class="detail-info-label">事件热度</div>
+                    <div class="detail-info-value heat">${event.heat}</div>
+                </div>
+                <div class="detail-info-card">
+                    <div class="detail-info-label">综合评分</div>
+                    <div class="detail-info-value score">${event.score}/${event.scoreMax}</div>
+                </div>
+                <div class="detail-info-card">
+                    <div class="detail-info-label">事件类型</div>
+                    <div class="detail-info-value">${typeLabels[event.type]}</div>
+                </div>
+                <div class="detail-info-card">
+                    <div class="detail-info-label">资讯数量</div>
+                    <div class="detail-info-value">${event.infoCount.toLocaleString()}</div>
+                </div>
+                <div class="detail-info-card" style="grid-column: span 2;">
+                    <div class="detail-info-label">涉及国家</div>
+                    <div class="detail-countries-wrap">
+                        <div class="detail-country-row">
+                            <span class="detail-country-tag-label">发起国</span>
+                            <span class="detail-country-tag-value">${event.countries.initiator.join('、')}</span>
+                        </div>
+                        <div class="detail-country-row">
+                            <span class="detail-country-tag-label">受害国</span>
+                            <span class="detail-country-tag-value">${event.countries.victim.join('、')}</span>
+                        </div>
+                        <div class="detail-country-row">
+                            <span class="detail-country-tag-label">波及国</span>
+                            <span class="detail-country-tag-value">${event.countries.affected.join('、')}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="detail-info-card" style="grid-column: span 2;">
+                    <div class="detail-info-label">预警分数</div>
+                    <div class="detail-info-value" style="color: ${warningColor};">${warningScore}</div>
+                </div>
+            `;
+
+            document.getElementById('detailSummary').textContent = event.summary;
+
+            if (!detailRadarChart) {
+                initDetailRadarChart(event);
+            } else {
+                detailRadarChart.setOption({
+                    radar: {
+                        indicator: event.dimensions.map(d => ({ name: d.name, max: d.max }))
+                    },
+                    series: [{
+                        data: [{
+                            value: event.dimensions.map(d => d.value),
+                            name: '五维度评分'
+                        }]
+                    }]
+                });
+            }
+
+            // 背景与动因
+            document.getElementById('detailBackground').textContent = event.background;
+
+            // 最新资讯
+            const timelineContainer = document.getElementById('detailTimeline');
+            timelineContainer.innerHTML = event.timeline.map(item => `
+                <div class="detail-timeline-item">
+                    <div class="detail-timeline-dot"></div>
+                    <div class="detail-timeline-content">
+                        <div class="detail-timeline-time">${item.time}</div>
+                        <div class="detail-timeline-title">${item.title}</div>
+                        <div class="detail-timeline-desc">${item.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // 影响与风险研判
+            const impactGrid = document.getElementById('detailImpactGrid');
+            impactGrid.innerHTML = `
+                <div class="detail-impact-card">
+                    <div class="detail-impact-title">🌍 对全球的影响</div>
+                    <div class="detail-impact-text">${event.impact.global}</div>
+                </div>
+                <div class="detail-impact-card">
+                    <div class="detail-impact-title">🇨🇳 对我国的影响</div>
+                    <div class="detail-impact-text">${event.impact.china}</div>
+                </div>
+                <div class="detail-impact-card">
+                    <div class="detail-impact-title">⚠️ 我国风险研判</div>
+                    <div class="detail-impact-text">${event.impact.risk}</div>
+                </div>
+            `;
+
+            // 相关资讯
+            const infoCards = document.getElementById('detailInfoCards');
+            infoCards.innerHTML = event.relatedInfo.map(info => `
+                <div class="detail-info-card-item">
+                    <div class="detail-info-card-title">${info.title}</div>
+                    <div class="detail-info-card-meta">
+                        <span class="detail-info-card-source">${info.source}</span>
+                        <span>${info.time}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // 初始化详情页图表
+            if (!detailTrendRiverChart) initDetailTrendRiverChart();
+            if (!detailSourceTopChart) initDetailSourceTopChart();
+            if (!detailSocialGraphChart) initDetailSocialGraphChart();
+        }
+
+        // ========== 资讯检索 ==========
+        const infoData = [
+            {
+                id: 1,
+                title: '我国首批自研海洋工程柔性智能焊接机器人投用',
+                summary: '2026年6月14日，海洋石油工程股份有限公司发布消息，我国首批自主研发海洋工程柔性制造智能焊接机器人设备系统在天津投用。该系统将应用于深海油气平台、FPSO 等高端海工装备建造，提升我国海洋工程装备智能制造水平。',
+                source: '央广网',
+                time: '13 小时前',
+                level: 'strategic',
+                module: 'ai-security',
+                topic: 'AI+网安',
+                analyzed: true
+            },
+            {
+                id: 2,
+                title: 'Anthropic suspends top AI models after U.S. export control order',
+                summary: '2026年6月14日，美国商务部以国家安全为由对Anthropic公司发布出口管制令，要求立即禁止任何外籍人士（包括美国境内外籍人士及境外用户）访问其最先进的Claude系列模型。此举引发全球AI产业对技术封锁与供应链安全的广泛讨论。',
+                source: '媒体',
+                time: '13 小时前',
+                level: 'strategic',
+                module: 'ai',
+                topic: 'AI',
+                analyzed: true
+            },
+            {
+                id: 3,
+                title: '啄木鸟消费投诉｜别克昂科威Plus多车前后门“打架” 厂家经“云诊断”称车衣所致',
+                summary: '上汽通用别克昂科威Plus车型出现多起车门干涉变形问题。沈阳、营口、丹东等地至少三位车主反映，其车辆左（或右）侧前后车门相互挤压、漆面磨损，厂家远程“云诊断”后却称系车主贴车衣导致。消费者质疑厂家推诿责任。',
+                source: '央广网',
+                time: '1 天前',
+                level: 'important',
+                module: 'security',
+                topic: '网安',
+                analyzed: false
+            },
+            {
+                id: 4,
+                title: '韩意商定加强AI、量子及机器人合作 | 韩联社',
+                summary: '2026年6月12日，韩国科学技术信息通信部与意大利大学与研究部在罗马签署科技与信息通信技术合作谅解备忘录。协议涵盖人工智能、量子技术、机器人、半导体等领域，双方将推动联合研究、人才交流与产业对接。',
+                source: '韩联社',
+                time: '1 天前',
+                level: 'important',
+                module: 'ai',
+                topic: 'AI',
+                analyzed: true
+            },
+            {
+                id: 5,
+                title: 'Somali soccer referee denied entry to US for World Cup is welcomed home as a hero | The Associated Press',
+                summary: '2026年6月，索马里足球裁判奥马尔·阿尔坦在被美国以"审查疑虑"为由拒绝入境、无缘世界杯执法后，返回摩加迪沙受到英雄般欢迎。索马里足协及多名官员谴责美方决定缺乏透明度，并呼吁国际足联介入调查。',
+                source: 'The Associated Press',
+                time: '2 天前',
+                level: 'important',
+                module: 'security',
+                topic: '网安',
+                analyzed: false
+            },
+            {
+                id: 6,
+                title: 'An ancient whale graveyard in the Indian Ocean teems with life | The Associated Press',
+                summary: '国际研究团队在印度洋东南部深海（7公里以下）发现迄今规模最大、保存最完好的古代鲸鱼墓地，至少有数十具鲸鱼骨骼。该遗址为研究深海生态系统、碳循环及鲸落生态提供了珍贵样本，相关成果已发表于《自然》子刊。',
+                source: 'The Associated Press',
+                time: '2 天前',
+                level: 'reference',
+                module: 'security',
+                topic: '网安',
+                analyzed: true
+            },
+            {
+                id: 7,
+                title: '美国商务部将多家中国量子技术企业列入实体清单',
+                summary: '2026年6月13日，美国商务部工业与安全局以"涉及军事最终用途"为由，将多家从事量子计算、量子通信及超导技术研究的中国企业与研究机构列入实体清单，限制其获取美国原产技术与设备。',
+                source: '路透社',
+                time: '14 小时前',
+                level: 'strategic',
+                module: 'ai-security',
+                topic: 'AI+网安',
+                analyzed: true
+            },
+            {
+                id: 8,
+                title: '欧盟通过《人工智能责任指令》最终文本',
+                summary: '2026年6月11日，欧盟理事会正式通过《人工智能责任指令》，明确高风险AI系统造成损害时的举证责任与赔偿框架。该指令与《AI法案》相辅相成，预计将对全球AI治理与合规实践产生深远影响。',
+                source: 'Politico EU',
+                time: '2 天前',
+                level: 'important',
+                module: 'ai',
+                topic: 'AI',
+                analyzed: true
+            },
+            {
+                id: 9,
+                title: '某国关键基础设施遭疑似国家级APT组织攻击',
+                summary: '2026年6月10日，某国能源与交通部门检测到持续性网络入侵活动，攻击者使用定制化后门与零日漏洞，疑似与某国家级APT组织有关。目前受影响系统已被隔离，多国网络安全机构已发布联合预警。',
+                source: 'CN-SEC中文网',
+                time: '3 天前',
+                level: 'strategic',
+                module: 'security',
+                topic: '网安',
+                analyzed: true
+            },
+            {
+                id: 10,
+                title: 'OpenAI 发布新一代多模态安全评估框架',
+                summary: 'OpenAI 公布其新一代多模态模型安全评估框架，涵盖文本、图像、音频与视频内容的毒性、偏见、越狱风险等维度。该框架将向研究机构开放部分工具与数据集，以推动行业安全基准建设。',
+                source: 'OpenAI Blog',
+                time: '4 天前',
+                level: 'reference',
+                module: 'ai',
+                topic: 'AI',
+                analyzed: false
+            }
+        ];
+
+        let currentInfoFilters = {
+            module: 'all',
+            level: 'all',
+            time: 'all',
+            status: 'all'
+        };
+        let currentInfoSearch = '';
+
+        function renderInfoGrid() {
+            const grid = document.getElementById('infoGrid');
+            if (!grid) return;
+
+            const keyword = currentInfoSearch.trim().toLowerCase();
+            let filtered = infoData.filter(item => {
+                if (currentInfoFilters.module !== 'all' && item.module !== currentInfoFilters.module) return false;
+                if (currentInfoFilters.level !== 'all' && item.level !== currentInfoFilters.level) return false;
+                if (currentInfoFilters.status !== 'all') {
+                    const analyzed = currentInfoFilters.status === 'analyzed';
+                    if (item.analyzed !== analyzed) return false;
+                }
+                if (currentInfoFilters.time !== 'all') {
+                    const hoursMatch = item.time.includes('小时前');
+                    const dayMatch = item.time.match(/(\d+)\s*天前/);
+                    const days = dayMatch ? parseInt(dayMatch[1]) : null;
+                    if (currentInfoFilters.time === 'today' && !hoursMatch) return false;
+                    if (currentInfoFilters.time === 'week' && !hoursMatch && (days === null || days > 7)) return false;
+                    if (currentInfoFilters.time === 'month' && !hoursMatch && days === null) return false;
+                }
+                if (keyword && !item.title.toLowerCase().includes(keyword) && !item.summary.toLowerCase().includes(keyword)) return false;
+                return true;
+            });
+
+            document.getElementById('infoResultCount').textContent = filtered.length;
+
+            grid.innerHTML = filtered.map(item => {
+                const levelClass = `level-${item.level}`;
+                const topicClass = item.module === 'ai' ? 'topic-ai' : (item.module === 'security' ? 'topic-security' : 'topic-ai');
+                const levelText = { strategic: '战略级', important: '重要级', reference: '参考级', unrated: '未评级' }[item.level];
+
+                return `
+                    <div class="info-card">
+                        <div class="info-card-tags">
+                            <span class="info-card-tag ${levelClass}">${levelText}</span>
+                            <span class="info-card-tag ${topicClass}">${item.topic}</span>
+                        </div>
+                        <div class="info-card-title">${item.title}</div>
+                        <div class="info-card-summary">${item.summary}</div>
+                        <div class="info-card-meta">
+                            <span class="info-card-source">${item.source}</span>
+                            <span class="info-card-time">
+                                <span>🕐</span>
+                                <span>${item.time}</span>
+                                <a href="#" class="info-card-link" title="查看原文">↗</a>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function initInfoFilters() {
+            document.querySelectorAll('.info-filter-tags').forEach(group => {
+                group.addEventListener('click', (e) => {
+                    if (!e.target.classList.contains('info-filter-tag')) return;
+                    const filterType = group.dataset.filter;
+                    const value = e.target.dataset.value;
+                    currentInfoFilters[filterType] = value;
+                    group.querySelectorAll('.info-filter-tag').forEach(tag => tag.classList.remove('active'));
+                    e.target.classList.add('active');
+                    renderInfoGrid();
+                });
+            });
+
+            const searchInput = document.querySelector('.info-search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    currentInfoSearch = e.target.value;
+                    renderInfoGrid();
+                });
+            }
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.view === viewName);
+            });
+            document.getElementById('homeView').style.display = viewName === 'home' ? 'grid' : 'none';
+            document.getElementById('scanView').style.display = viewName === 'scan' ? 'flex' : 'none';
+            document.getElementById('infoView').style.display = viewName === 'info' ? 'flex' : 'none';
+            document.getElementById('detailView').style.display = viewName === 'detail' ? 'flex' : 'none';
+
+            if (viewName === 'info') {
+                renderInfoGrid();
+            }
+
+            if (viewName === 'scan') {
+                startScanSimulation();
+                updateRadarEventValues();
+                if (!radarChart) initRadarChart();
+                updateLastScanTime();
+                renderWarnings();
+                renderRealtimeEvents();
+                renderHistoryTable();
+                setTimeout(() => {
+                    if (radarChart) radarChart.resize();
+                }, 50);
+            } else {
+                stopScanSimulation();
+            }
+
+            if (viewName === 'detail') {
+                renderEventDetail();
+                setTimeout(() => {
+                    if (detailRadarChart) detailRadarChart.resize();
+                    if (detailTrendRiverChart) detailTrendRiverChart.resize();
+                    if (detailSourceTopChart) detailSourceTopChart.resize();
+                    if (detailSocialGraphChart) detailSocialGraphChart.resize();
+                }, 50);
+            }
+        }
+
+        document.getElementById('manualScanBtn')?.addEventListener('click', () => {
+            manualScan();
+        });
+
+        document.querySelectorAll('.history-filter-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                document.querySelectorAll('.history-filter-tag').forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+                currentHistoryFilter = tag.dataset.type;
+                renderHistoryTable(currentHistoryFilter);
+            });
+        });
+
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', () => switchView(tab.dataset.view));
+        });
+
+        // ========== 初始化 ==========
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTopics('all');
+            initMap();
+            initTrendRiverChart();
+            initSourceTopChart();
+            initSocialGraphChart();
+            initInfoFilters();
+        });
+
+        window.addEventListener('resize', () => {
+            if (mapChart) mapChart.resize();
+            if (trendRiverChart) trendRiverChart.resize();
+            if (sourceTopChart) sourceTopChart.resize();
+            if (socialGraphChart) socialGraphChart.resize();
+            if (radarChart) radarChart.resize();
+            if (detailRadarChart) detailRadarChart.resize();
+            if (detailTrendRiverChart) detailTrendRiverChart.resize();
+            if (detailSourceTopChart) detailSourceTopChart.resize();
+            if (detailSocialGraphChart) detailSocialGraphChart.resize();
+        });
+    </script>
+</body>
+</html>

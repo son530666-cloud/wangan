@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>技术变革地平线全景扫描系统 - 决策分析</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #080e1a;
+    --panel: rgba(10, 28, 58, 0.55);
+    --border: rgba(0, 212, 255, 0.12);
+    --primary: #00d4ff;
+    --text: #fff;
+    --text-secondary: rgba(255,255,255,0.55);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: linear-gradient(180deg, #080e1a 0%, #0a1628 100%);
+    font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .top-header {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px; padding: 0 24px;
+    background: rgba(6,20,40,0.7);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { display: flex; flex-direction: column; }
+  .logo-title { font-size: 20px; font-weight: 700; color: var(--primary); line-height: 1.2; letter-spacing: 1px; }
+  .logo-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .main-nav { display: flex; gap: 8px; }
+  .main-nav a {
+    padding: 8px 20px; color: var(--text-secondary); text-decoration: none; font-size: 14px;
+    border-radius: 4px; transition: all 0.2s;
+  }
+  .main-nav a:hover { color: var(--text); background: rgba(0,212,255,0.08); }
+  .main-nav a.active {
+    color: var(--primary); background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.25);
+  }
+  .user-info { font-size: 13px; color: var(--text-secondary); display: flex; gap: 12px; align-items: center; }
+  .user-info a { color: var(--primary); text-decoration: none; }
+
+  /* Dashboard Grid */
+  .dashboard {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; padding: 20px;
+  }
+
+  /* Common Module */
+  .module {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+    padding: 20px; backdrop-filter: blur(4px);
+  }
+  .module-title {
+    font-size: 16px; font-weight: 600; color: var(--primary);
+    display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+  }
+  .module-title::before {
+    content: ''; width: 3px; height: 16px;
+    background: linear-gradient(180deg, var(--primary), #0099ff); border-radius: 2px;
+  }
+  .module-subtitle {
+    font-size: 12px; color: var(--text-secondary); font-weight: normal; margin-left: 8px;
+  }
+
+  /* Maturity Assessment */
+  .maturity-header {
+    display: flex; align-items: center; gap: 24px;
+    background: rgba(0,0,0,0.2); border: 1px solid rgba(0,212,255,0.1);
+    border-radius: 6px; padding: 12px 16px; margin-bottom: 16px;
+  }
+  .maturity-tech { font-size: 15px; font-weight: 700; color: var(--primary); }
+  .maturity-avg, .maturity-trl { display: flex; flex-direction: column; gap: 2px; }
+  .avg-label, .trl-label { font-size: 11px; color: var(--text-secondary); }
+  .avg-score { font-size: 20px; font-weight: 700; color: var(--primary); }
+  .trl-stage { font-size: 13px; font-weight: 600; color: #ffcc00; }
+
+  .maturity-body {
+    display: grid; grid-template-columns: 1fr 180px; gap: 16px;
+  }
+  .maturity-radar { width: 100%; height: 300px; }
+  .maturity-rank { background: rgba(0,0,0,0.15); border-radius: 6px; padding: 12px; }
+  .rank-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 10px; text-align: center; }
+  .rank-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .rank-table th { color: var(--text-secondary); font-weight: normal; padding: 6px 4px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: center; }
+  .rank-table td { padding: 7px 4px; border-bottom: 1px solid rgba(255,255,255,0.04); text-align: center; color: rgba(255,255,255,0.8); }
+  .rank-table tr:last-child td { border-bottom: none; }
+  .rank-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); }
+  .rank-num.top1 { background: rgba(255,204,0,0.2); color: #ffcc00; }
+  .rank-num.top2 { background: rgba(0,212,255,0.2); color: #00d4ff; }
+  .rank-num.top3 { background: rgba(0,255,204,0.15); color: #00ffcc; }
+  .rank-score-td { font-weight: 700; color: var(--primary); }
+
+  /* Filter Bar */
+  .filter-bar {
+    display: flex; gap: 12px; padding: 12px 20px;
+    background: rgba(6,20,40,0.5); border-bottom: 1px solid var(--border);
+  }
+  .filter-bar select {
+    background: rgba(0,0,0,0.25); border: 1px solid rgba(0,212,255,0.25);
+    color: rgba(255,255,255,0.85); padding: 7px 32px 7px 12px; border-radius: 4px;
+    font-size: 13px; appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2300d4ff' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 10px center;
+  }
+  .filter-bar select:focus { outline: none; border-color: rgba(0,212,255,0.5); }
+  .filter-bar select option { background: #0a1c3a; color: #fff; }
+
+  .talent-filter-bar { margin-bottom: 10px; }
+  .talent-filter-bar select {
+    background: rgba(0,0,0,0.25); border: 1px solid rgba(0,212,255,0.25);
+    color: rgba(255,255,255,0.85); padding: 5px 28px 5px 10px; border-radius: 4px;
+    font-size: 12px; appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2300d4ff' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+  }
+  .talent-table-wrap { max-height: 280px; overflow-y: auto; }
+  .talent-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .talent-table th {
+    color: var(--text-secondary); font-weight: normal;
+    padding: 8px 6px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    text-align: left;
+  }
+  .talent-table td {
+    padding: 7px 6px; border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.75);
+  }
+  .talent-table tr:last-child td { border-bottom: none; }
+  .talent-table tbody tr:hover { background: rgba(0,212,255,0.06); cursor: default; }
+
+  /* Scenario Cards */
+  .scenario-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .scenario-card { background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 14px; }
+  .scenario-tag { font-size: 13px; font-weight: 600; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 10px; }
+  .tag-scene { background: rgba(0,212,255,0.12); color: #00d4ff; }
+  .tag-cap { background: rgba(0,255,204,0.12); color: #00ffcc; }
+  .tag-value { background: rgba(255,204,0,0.12); color: #ffcc00; }
+  .tag-feas { background: rgba(255,107,107,0.12); color: #ff6b6b; }
+  .scenario-list { list-style: none; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.65); }
+  .scenario-list li { padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .scenario-list li:last-child { border-bottom: none; }
+  .scenario-list li strong { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+  /* Tech Rank List */
+  .tech-rank-list { display: flex; flex-direction: column; gap: 10px; }
+  .tech-rank-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: rgba(0,0,0,0.15); border-radius: 6px; cursor: pointer; transition: background 0.2s; position: relative; }
+  .tech-rank-item:hover { background: rgba(0,212,255,0.08); }
+  .tech-info { display: flex; align-items: center; gap: 8px; width: 150px; flex-shrink: 0; }
+  .tech-rank-num { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 11px; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6); flex-shrink: 0; }
+  .tech-rank-num.top1 { background: rgba(255,204,0,0.2); color: #ffcc00; }
+  .tech-rank-num.top2 { background: rgba(0,212,255,0.2); color: #00d4ff; }
+  .tech-rank-num.top3 { background: rgba(0,255,204,0.15); color: #00ffcc; }
+  .tech-name { font-size: 13px; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tech-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .tech-bar div { height: 100%; background: linear-gradient(90deg, #00d4ff, #00ffcc); border-radius: 3px; }
+  .tech-score { font-size: 16px; font-weight: 700; color: var(--primary); width: 36px; text-align: right; flex-shrink: 0; }
+  .tech-tooltip { position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); background: rgba(6,26,61,0.98); border: 1px solid rgba(0,212,255,0.3); border-radius: 8px; padding: 12px; z-index: 100; opacity: 0; pointer-events: none; transition: all 0.2s; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .tech-rank-item:hover .tech-tooltip { opacity: 1; }
+  .tt-title { font-size: 13px; font-weight: 600; color: #00d4ff; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 6px; }
+  .tt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .tt-grid div { display: flex; flex-direction: column; gap: 2px; }
+  .tt-grid span { font-size: 10px; color: rgba(255,255,255,0.5); }
+  .tt-grid b { font-size: 13px; color: #fff; }
+
+  /* Career Track */
+  .career-list { display: flex; flex-direction: column; gap: 10px; }
+  .career-item { background: rgba(0,0,0,0.15); border-radius: 6px; padding: 12px 14px; }
+  .career-person { font-size: 13px; font-weight: 600; color: #00d4ff; margin-bottom: 8px; }
+  .career-track { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; }
+  .career-node { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 10px; background: rgba(0,212,255,0.08); border-radius: 4px; color: rgba(255,255,255,0.8); line-height: 1.3; }
+  .career-node.current { background: rgba(0,212,255,0.2); color: #00d4ff; border: 1px solid rgba(0,212,255,0.25); }
+  .career-node small { font-size: 10px; color: rgba(255,255,255,0.4); }
+  .career-arrow { color: rgba(0,212,255,0.5); font-size: 13px; }
+
+  /* Flow Table */
+  .flow-filter-bar { display: flex; gap: 10px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+  .flow-filter-bar select {
+    background: rgba(0,0,0,0.25); border: 1px solid rgba(0,212,255,0.25);
+    color: rgba(255,255,255,0.85); padding: 5px 28px 5px 10px; border-radius: 4px;
+    font-size: 12px; appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2300d4ff' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 8px center;
+  }
+  .flow-toggle { display: flex; gap: 4px; }
+  .flow-toggle button { padding: 5px 14px; background: rgba(0,0,0,0.2); border: 1px solid rgba(0,212,255,0.2); color: rgba(255,255,255,0.5); border-radius: 4px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+  .flow-toggle button.active { background: rgba(0,212,255,0.15); color: #00d4ff; border-color: rgba(0,212,255,0.4); }
+  .flow-table-wrap { max-height: 260px; overflow-y: auto; }
+  .flow-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .flow-table th { color: var(--text-secondary); font-weight: normal; padding: 8px 6px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left; }
+  .flow-table td { padding: 8px 6px; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.75); }
+  .flow-table td:last-child { font-weight: 600; color: var(--primary); text-align: right; }
+  .flow-table tr:last-child td { border-bottom: none; }
+  .flow-table tbody tr:hover { background: rgba(0,212,255,0.05); }
+
+  /* Section Title */
+  .section-title {
+    grid-column: 1 / -1;
+    font-size: 18px; font-weight: 700; color: var(--primary);
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 0; margin-top: 4px;
+  }
+  .section-title::before {
+    content: ''; width: 4px; height: 18px;
+    background: linear-gradient(180deg, var(--primary), #0099ff); border-radius: 2px;
+  }
+
+  /* 第一行：三列等宽 */
+  .top-row { display: contents; }
+
+  /* 第二行：全宽 */
+  .bottom-row {
+    grid-column: 1 / -1;
+  }
+
+  /* Chart containers */
+  .chart-box { width: 100%; height: 320px; }
+  .chart-box-tall { width: 100%; height: 380px; }
+
+  /* Maturity Cards */
+  .maturity-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 10px;
+  }
+  .maturity-card {
+    background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 6px; padding: 14px; text-align: center;
+  }
+  .maturity-card h6 {
+    font-size: 12px; color: var(--text-secondary); font-weight: normal; margin-bottom: 8px;
+  }
+  .maturity-score {
+    font-size: 22px; font-weight: 700; color: var(--primary); margin-bottom: 4px;
+  }
+  .maturity-bar {
+    width: 100%; height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden; margin-bottom: 6px;
+  }
+  .maturity-bar div { height: 100%; border-radius: 2px; }
+  .maturity-stage {
+    font-size: 11px; padding: 2px 8px; border-radius: 3px; display: inline-block;
+  }
+  .stage-intro { background: rgba(0,212,255,0.12); color: #00d4ff; }
+  .stage-growth { background: rgba(0,255,204,0.12); color: #00ffcc; }
+  .stage-mature { background: rgba(255,204,0,0.12); color: #ffcc00; }
+  .stage-decline { background: rgba(255,107,107,0.12); color: #ff6b6b; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.2); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header class="top-header">
+  <div class="logo">
+    <div class="logo-title">技术变革地平线</div>
+    <div class="logo-sub">全景扫描系统</div>
+  </div>
+  <nav class="main-nav">
+    <a href="#">技术检索</a>
+    <a href="#">技术扫描</a>
+    <a href="#">态势追踪</a>
+    <a href="#">技术图谱</a>
+    <a href="#" class="active">决策分析</a>
+    <a href="#">机构对比</a>
+  </nav>
+  <div class="user-info">
+    <span>admin</span>
+    <a href="#">退出</a>
+  </div>
+</header>
+
+<div class="filter-bar">
+  <select>
+    <option>新兴储能与下一代电池</option>
+    <option>氢能与燃料电池</option>
+    <option>新型光伏发电</option>
+    <option>智能电网与储能</option>
+  </select>
+  <select>
+    <option>固态锂电池技术</option>
+    <option>钠离子电池</option>
+    <option>液流电池</option>
+    <option>钙钛矿光伏</option>
+  </select>
+  <select>
+    <option>硫化物固态电解质</option>
+    <option>氧化物固态电解质</option>
+    <option>聚合物固态电解质</option>
+    <option>硅碳负极材料</option>
+  </select>
+</div>
+
+<div class="dashboard">
+
+  <div class="section-title">技术发展研判</div>
+
+  <!-- 功能1：技术布局监测 -->
+  <div class="module">
+    <div class="module-title">
+      技术布局监测
+      <span class="module-subtitle">多维度技术竞争力雷达</span>
+    </div>
+    <div id="layoutChart" class="chart-box"></div>
+  </div>
+
+  <!-- 功能2：发展轨迹追踪 -->
+  <div class="module">
+    <div class="module-title">
+      发展轨迹追踪
+      <span class="module-subtitle">核心技术专利论文年变化趋势</span>
+    </div>
+    <div id="trajectoryChart" class="chart-box"></div>
+  </div>
+
+  <!-- 功能3：成熟度评估 -->
+  <div class="module">
+    <div class="module-title">
+      成熟度评估
+      <span class="module-subtitle">多国家技术成熟度雷达对比</span>
+    </div>
+    <div class="maturity-header">
+      <div class="maturity-tech">硫化物固态电解质</div>
+      <div class="maturity-avg">
+        <span class="avg-label">成熟度平均分</span>
+        <span class="avg-score">78.4</span>
+      </div>
+      <div class="maturity-trl">
+        <span class="trl-label">TRL 阶段</span>
+        <span class="trl-stage">系统验证 (Level 8)</span>
+      </div>
+    </div>
+    <div class="maturity-body">
+      <div class="maturity-radar" id="maturityChart"></div>
+      <div class="maturity-rank">
+        <div class="rank-title">各国技术成熟度评分</div>
+        <table class="rank-table">
+          <thead>
+            <tr><th>排名</th><th>国家</th><th>总分</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><span class="rank-num top1">1</span></td><td>中国</td><td class="rank-score-td">86</td></tr>
+            <tr><td><span class="rank-num top2">2</span></td><td>美国</td><td class="rank-score-td">82</td></tr>
+            <tr><td><span class="rank-num top3">3</span></td><td>日本</td><td class="rank-score-td">78</td></tr>
+            <tr><td><span class="rank-num">4</span></td><td>德国</td><td class="rank-score-td">76</td></tr>
+            <tr><td><span class="rank-num">5</span></td><td>韩国</td><td class="rank-score-td">72</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">人才团队研判</div>
+
+  <!-- 人才1：全球科研团队清单 -->
+  <div class="module">
+    <div class="module-title">
+      全球科研团队清单
+      <span class="module-subtitle">重点技术领域核心人才一览</span>
+    </div>
+    <div class="talent-filter-bar">
+      <select id="talentCountryFilter">
+        <option value="all">全部国家</option>
+        <option value="中国">中国</option>
+        <option value="美国">美国</option>
+        <option value="日本">日本</option>
+        <option value="德国">德国</option>
+        <option value="韩国">韩国</option>
+      </select>
+    </div>
+    <div class="talent-table-wrap">
+      <table class="talent-table" id="talentTable">
+        <thead>
+          <tr><th>人才名称</th><th>所在机构</th><th>研究领域</th><th style="text-align:right;">成果数</th></tr>
+        </thead>
+        <tbody>
+          <tr data-country="中国"><td>张明华</td><td>中科院物理所</td><td>固态电解质</td><td style="text-align:right;">156</td></tr>
+          <tr data-country="中国"><td>李建国</td><td>清华大学</td><td>钠离子电池</td><td style="text-align:right;">128</td></tr>
+          <tr data-country="美国"><td>John Smith</td><td>MIT</td><td>燃料电池</td><td style="text-align:right;">142</td></tr>
+          <tr data-country="美国"><td>Emily Chen</td><td>斯坦福大学</td><td>钙钛矿光伏</td><td style="text-align:right;">115</td></tr>
+          <tr data-country="日本"><td>田中一郎</td><td>东京大学</td><td>固态电池</td><td style="text-align:right;">98</td></tr>
+          <tr data-country="德国"><td>Klaus Weber</td><td>马普所</td><td>液流电池</td><td style="text-align:right;">87</td></tr>
+          <tr data-country="韩国"><td>朴秀贤</td><td>KAIST</td><td>硅碳负极</td><td style="text-align:right;">76</td></tr>
+          <tr data-country="中国"><td>王志强</td><td>宁德时代</td><td>固态锂电池</td><td style="text-align:right;">203</td></tr>
+          <tr data-country="美国"><td>Michael Brown</td><td>伯克利</td><td>氢能催化</td><td style="text-align:right;">94</td></tr>
+          <tr data-country="日本"><td>佐藤健二</td><td>理化学研究所</td><td>储能材料</td><td style="text-align:right;">82</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 人才2：创新合作网络 -->
+  <div class="module">
+    <div class="module-title">
+      创新合作网络
+      <span class="module-subtitle">核心团队合作关系识别</span>
+    </div>
+    <div id="coopNetworkChart" class="chart-box-tall"></div>
+  </div>
+
+  <!-- 人才3：人才流动分析 -->
+  <div class="module">
+    <div class="module-title">
+      人才流动分析
+      <span class="module-subtitle">国家间人才流动数量统计</span>
+    </div>
+    <div class="flow-filter-bar">
+      <select id="flowCountry">
+        <option value="all">全部国家</option>
+        <option value="中国">中国</option>
+        <option value="美国">美国</option>
+        <option value="日本">日本</option>
+        <option value="德国">德国</option>
+        <option value="韩国">韩国</option>
+      </select>
+      <div class="flow-toggle">
+        <button class="active" data-dir="out">流出</button>
+        <button data-dir="in">流入</button>
+      </div>
+    </div>
+    <div id="flowChart" class="chart-box"></div>
+  </div>
+
+  <div class="section-title">应用潜力研判</div>
+
+  <!-- 应用1：应用场景推演 -->
+  <div class="module" style="grid-column: span 2;">
+    <div class="module-title">
+      应用场景推演
+      <span class="module-subtitle">技术应用场景多维分析</span>
+    </div>
+    <div style="font-size:12px;color:var(--primary);margin-bottom:12px;opacity:0.85;">当前技术：硫化物固态电解质</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;">
+      <div style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;padding:14px 16px;background:rgba(0,0,0,0.15);border:1px solid rgba(0,212,255,0.1);border-radius:6px;">
+        本推演围绕硫化物固态电解质，从<strong style="color:#00d4ff;">场景识别</strong>、<strong style="color:#00ffcc;">能力匹配</strong>、<strong style="color:#ffcc00;">价值评估</strong>、<strong style="color:#ff6b6b;">可行性分析</strong>四个维度展开：首先识别其在新能源汽车、储能电站及消费电子中的真实需求；其次评估能量密度、产线兼容等核心能力是否满足场景要求；再量化测算续航提升、成本下降与投资回报；最后综合实施难度与风险安全，判断该技术已具备中高可行性，预计2027年将在高端车型与电网储能领域率先规模化落地。<br><br>
+        从应用场景演化脉络来看，硫化物固态电解质经历了从<strong style="color:#00d4ff;">实验室材料探索</strong>到<strong style="color:#00ffcc;">小型消费电子验证</strong>、再到<strong style="color:#ffcc00;">高端动力电池导入</strong>的渐进过程：早期以科研院所和头部企业专利布局为主，聚焦离子电导率与界面稳定性突破；随后逐步向智能穿戴、无人机等对能量密度敏感的小众场景渗透，完成初步工程化验证；当前则依托新能源汽车对续航与安全性的强需求，在高端乘用车领域加速产业化；展望未来，随着成本持续下降与产能规模化释放，电网级储能电站、电动航空及重型商用车将成为其下一轮落地的核心方向，形成"高端消费—交通动力—能源存储"梯次拓展的应用格局。
+      </div>
+      <div class="scenario-grid" style="margin-bottom:0;">
+        <div class="scenario-card">
+          <div class="scenario-tag tag-scene">场景识别</div>
+          <ul class="scenario-list">
+            <li><strong>适用行业：</strong>新能源汽车、储能电站、消费电子</li>
+            <li><strong>当前痛点：</strong>续航里程焦虑、充电时间长、低温性能衰减</li>
+            <li><strong>需求验证：</strong>高频真实需求，市场规模万亿级</li>
+          </ul>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-tag tag-cap">能力匹配</div>
+          <ul class="scenario-list">
+            <li><strong>技术满足度：</strong>能量密度400Wh/kg，满足高端车型需求</li>
+            <li><strong>基础条件：</strong>材料体系成熟，产线可兼容现有设备</li>
+            <li><strong>流程兼容：</strong>与现有电池Pack工艺兼容度85%</li>
+          </ul>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-tag tag-value">价值评估</div>
+          <ul class="scenario-list">
+            <li><strong>核心提升：</strong>续航提升50%，充电时间缩短至15分钟</li>
+            <li><strong>ROI预期：</strong>3年回收期，全生命周期成本降低30%</li>
+            <li><strong>规模化价值：</strong>具备大规模商业化条件</li>
+          </ul>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-tag tag-feas">可行性分析</div>
+          <ul class="scenario-list">
+            <li><strong>实施难度：</strong>中高，需解决界面阻抗和量产一致性</li>
+            <li><strong>成本周期：</strong>预计2027年成本降至$80/kWh</li>
+            <li><strong>风险安全：</strong>热稳定性已通过针刺/挤压测试</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 应用2：产业化前景评估与优选 -->
+  <div class="module" style="grid-column: span 1;">
+    <div class="module-title">
+      产业化前景评估与优选
+      <span class="module-subtitle">变革性技术产业化前景评分排序</span>
+    </div>
+    <div class="tech-rank-list">
+      <div class="tech-rank-item" data-scene="95" data-mature="88" data-policy="92" data-profit="90" data-social="85">
+        <div class="tech-info"><span class="tech-rank-num top1">1</span><span class="tech-name">硫化物固态电解质</span></div>
+        <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:92%"></div></div></div>
+        <span class="tech-score">92</span>
+        <div class="tech-tooltip">
+          <div class="tt-title">硫化物固态电解质</div>
+          <div class="tt-grid">
+            <div><span>市场潜力</span><b>95</b></div>
+            <div><span>技术成熟度</span><b>88</b></div>
+            <div><span>政策环境</span><b>92</b></div>
+            <div><span>经济效益</span><b>90</b></div>
+            <div><span>社会影响</span><b>85</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="tech-rank-item" data-scene="90" data-mature="92" data-policy="85" data-profit="88" data-social="82">
+        <div class="tech-info"><span class="tech-rank-num top2">2</span><span class="tech-name">硅碳负极材料</span></div>
+        <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:88%"></div></div></div>
+        <span class="tech-score">88</span>
+        <div class="tech-tooltip">
+          <div class="tt-title">硅碳负极材料</div>
+          <div class="tt-grid">
+            <div><span>市场潜力</span><b>90</b></div>
+            <div><span>技术成熟度</span><b>92</b></div>
+            <div><span>政策环境</span><b>85</b></div>
+            <div><span>经济效益</span><b>88</b></div>
+            <div><span>社会影响</span><b>82</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="tech-rank-item" data-scene="88" data-mature="82" data-policy="85" data-profit="83" data-social="80">
+        <div class="tech-info"><span class="tech-rank-num top3">3</span><span class="tech-name">氧电极</span></div>
+        <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:85%"></div></div></div>
+        <span class="tech-score">85</span>
+        <div class="tech-tooltip">
+          <div class="tt-title">氧电极</div>
+          <div class="tt-grid">
+            <div><span>市场潜力</span><b>88</b></div>
+            <div><span>技术成熟度</span><b>82</b></div>
+            <div><span>政策环境</span><b>85</b></div>
+            <div><span>经济效益</span><b>83</b></div>
+            <div><span>社会影响</span><b>80</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="tech-rank-item" data-scene="85" data-mature="75" data-policy="80" data-profit="78" data-social="75">
+        <div class="tech-info"><span class="tech-rank-num">4</span><span class="tech-name">钙钛矿</span></div>
+        <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:78%"></div></div></div>
+        <span class="tech-score">78</span>
+        <div class="tech-tooltip">
+          <div class="tt-title">钙钛矿</div>
+          <div class="tt-grid">
+            <div><span>市场潜力</span><b>85</b></div>
+            <div><span>技术成熟度</span><b>75</b></div>
+            <div><span>政策环境</span><b>80</b></div>
+            <div><span>经济效益</span><b>78</b></div>
+            <div><span>社会影响</span><b>75</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="tech-rank-item" data-scene="75" data-mature="78" data-policy="70" data-profit="68" data-social="72">
+        <div class="tech-info"><span class="tech-rank-num">5</span><span class="tech-name">聚合物固态电解质</span></div>
+        <div class="tech-bar-wrap"><div class="tech-bar"><div style="width:72%"></div></div></div>
+        <span class="tech-score">72</span>
+        <div class="tech-tooltip">
+          <div class="tt-title">聚合物固态电解质</div>
+          <div class="tt-grid">
+            <div><span>市场潜力</span><b>75</b></div>
+            <div><span>技术成熟度</span><b>78</b></div>
+            <div><span>政策环境</span><b>70</b></div>
+            <div><span>经济效益</span><b>68</b></div>
+            <div><span>社会影响</span><b>72</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ========== 1. 技术布局监测 - 雷达图 ==========
+const layoutChart = echarts.init(document.getElementById('layoutChart'));
+layoutChart.setOption({
+  backgroundColor: 'transparent',
+  tooltip: { trigger: 'item', backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.3)', textStyle: { color: '#fff' } },
+  legend: {
+    data: ['中国', '美国', '日本'], bottom: 0, textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 }, itemWidth: 12, itemHeight: 8
+  },
+  radar: {
+    indicator: [
+      { name: '专利布局', max: 100 },
+      { name: '论文产出', max: 100 },
+      { name: '政策覆盖', max: 100 },
+      { name: '项目投入', max: 100 },
+      { name: '人才储备', max: 100 },
+      { name: '机构数量', max: 100 },
+      { name: '资讯规模', max: 100 }
+    ],
+    center: ['50%', '48%'], radius: '58%',
+    axisName: { color: 'rgba(255,255,255,0.6)', fontSize: 11 },
+    splitArea: { areaStyle: { color: ['rgba(0,212,255,0.02)', 'rgba(0,212,255,0.05)', 'rgba(0,212,255,0.08)', 'rgba(0,212,255,0.11)'] } },
+    axisLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } },
+    splitLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } }
+  },
+  series: [{
+    type: 'radar',
+    data: [
+      { value: [92, 88, 85, 90, 78, 75, 80], name: '中国', areaStyle: { color: 'rgba(0,212,255,0.25)' }, lineStyle: { color: '#00d4ff', width: 2 }, itemStyle: { color: '#00d4ff' } },
+      { value: [85, 82, 70, 75, 80, 82, 76], name: '美国', areaStyle: { color: 'rgba(255,107,107,0.2)' }, lineStyle: { color: '#ff6b6b', width: 2 }, itemStyle: { color: '#ff6b6b' } },
+      { value: [78, 75, 68, 72, 65, 68, 70], name: '日本', areaStyle: { color: 'rgba(255,204,0,0.2)' }, lineStyle: { color: '#ffcc00', width: 2 }, itemStyle: { color: '#ffcc00' } }
+    ]
+  }]
+});
+
+// ========== 2. 发展轨迹追踪 - 专利论文年变化趋势 ==========
+const trajectoryChart = echarts.init(document.getElementById('trajectoryChart'));
+trajectoryChart.setOption({
+  backgroundColor: 'transparent',
+  tooltip: {
+    trigger: 'axis',
+    backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.3)', textStyle: { color: '#fff', fontSize: 12 },
+    formatter: function(params) {
+      let year = params[0].axisValue;
+      let html = `<div style="font-weight:600;margin-bottom:8px;color:#00d4ff;font-size:14px;">${year}年</div>`;
+      params.forEach(p => {
+        let d = p.data;
+        html += `<div style="margin:5px 0;">${p.marker} <strong style="color:#fff;">${p.seriesName}</strong></div>`;
+        html += `<div style="padding-left:18px;color:rgba(255,255,255,0.6);font-size:11px;">`;
+        html += `总量 <strong style="color:#fff;">${d.value}</strong>　|　专利 ${d.patent} 件　|　论文 ${d.paper} 篇`;
+        html += `</div>`;
+      });
+      return html;
+    }
+  },
+  grid: { left: '8%', right: '6%', bottom: '14%', top: '10%' },
+  xAxis: {
+    type: 'category', data: ['2018', '2019', '2020', '2021', '2022', '2023', '2024', '2025'],
+    axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }, axisTick: { show: false },
+    axisLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11 }
+  },
+  yAxis: {
+    type: 'value', name: '', nameTextStyle: { color: 'rgba(255,255,255,0.5)', fontSize: 11 },
+    axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11 },
+    splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed' } }
+  },
+  series: [
+    {
+      name: '燃料电极', type: 'line', smooth: 0.4,
+      data: [
+        {value: 83, patent: 45, paper: 38}, {value: 106, patent: 58, paper: 48},
+        {value: 134, patent: 72, paper: 62}, {value: 180, patent: 95, paper: 85},
+        {value: 230, patent: 120, paper: 110}, {value: 283, patent: 148, paper: 135},
+        {value: 340, patent: 175, paper: 165}, {value: 405, patent: 210, paper: 195}
+      ],
+      lineStyle: { color: '#00d4ff', width: 3 }, itemStyle: { color: '#00d4ff' },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,212,255,0.3)'},{offset:1,color:'rgba(0,212,255,0.02)'}]) }
+    },
+    {
+      name: '氧电极', type: 'line', smooth: 0.4,
+      data: [
+        {value: 55, patent: 30, paper: 25}, {value: 75, patent: 40, paper: 35},
+        {value: 103, patent: 55, paper: 48}, {value: 140, patent: 75, paper: 65},
+        {value: 183, patent: 98, paper: 85}, {value: 235, patent: 125, paper: 110},
+        {value: 295, patent: 155, paper: 140}, {value: 355, patent: 185, paper: 170}
+      ],
+      lineStyle: { color: '#00ffcc', width: 2 }, itemStyle: { color: '#00ffcc' },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(0,255,204,0.2)'},{offset:1,color:'rgba(0,255,204,0.02)'}]) }
+    },
+    {
+      name: '钙钛矿', type: 'line', smooth: 0.4,
+      data: [
+        {value: 45, patent: 25, paper: 20}, {value: 63, patent: 35, paper: 28},
+        {value: 86, patent: 48, paper: 38}, {value: 117, patent: 65, paper: 52},
+        {value: 158, patent: 88, paper: 70}, {value: 207, patent: 115, paper: 92},
+        {value: 263, patent: 145, paper: 118}, {value: 320, patent: 175, paper: 145}
+      ],
+      lineStyle: { color: '#ffcc00', width: 2 }, itemStyle: { color: '#ffcc00' },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(255,204,0,0.15)'},{offset:1,color:'rgba(255,204,0,0.02)'}]) }
+    }
+  ],
+  legend: { data: ['燃料电极', '氧电极', '钙钛矿'], bottom: 0, textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 }, itemWidth: 14, itemHeight: 8 }
+});
+
+// ========== 3. 成熟度评估 - 多国家雷达对比 ==========
+const maturityChart = echarts.init(document.getElementById('maturityChart'));
+maturityChart.setOption({
+  backgroundColor: 'transparent',
+  tooltip: { trigger: 'item', backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.3)', textStyle: { color: '#fff' } },
+  legend: {
+    data: ['中国', '美国', '日本', '德国', '韩国'], bottom: 0,
+    textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 10 }, itemWidth: 10, itemHeight: 6, itemGap: 8
+  },
+  radar: {
+    indicator: [
+      { name: '技术性能', max: 100 },
+      { name: '成本控制', max: 100 },
+      { name: '产业化程度', max: 100 },
+      { name: '安全性', max: 100 },
+      { name: '市场应用', max: 100 },
+      { name: '政策支持', max: 100 }
+    ],
+    center: ['50%', '45%'], radius: '60%',
+    axisName: { color: 'rgba(255,255,255,0.6)', fontSize: 10 },
+    splitArea: { areaStyle: { color: ['rgba(0,212,255,0.02)', 'rgba(0,212,255,0.05)', 'rgba(0,212,255,0.08)', 'rgba(0,212,255,0.11)'] } },
+    axisLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } },
+    splitLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } }
+  },
+  series: [{
+    type: 'radar',
+    data: [
+      { value: [88, 82, 85, 90, 78, 92], name: '中国', areaStyle: { color: 'rgba(0,212,255,0.2)' }, lineStyle: { color: '#00d4ff', width: 2 }, itemStyle: { color: '#00d4ff' } },
+      { value: [85, 78, 88, 82, 85, 75], name: '美国', areaStyle: { color: 'rgba(255,107,107,0.15)' }, lineStyle: { color: '#ff6b6b', width: 2 }, itemStyle: { color: '#ff6b6b' } },
+      { value: [80, 75, 82, 85, 70, 78], name: '日本', areaStyle: { color: 'rgba(255,204,0,0.15)' }, lineStyle: { color: '#ffcc00', width: 2 }, itemStyle: { color: '#ffcc00' } },
+      { value: [75, 80, 78, 80, 72, 70], name: '德国', areaStyle: { color: 'rgba(0,255,204,0.12)' }, lineStyle: { color: '#00ffcc', width: 2 }, itemStyle: { color: '#00ffcc' } },
+      { value: [72, 70, 75, 75, 68, 72], name: '韩国', areaStyle: { color: 'rgba(204,153,255,0.12)' }, lineStyle: { color: '#cc99ff', width: 2 }, itemStyle: { color: '#cc99ff' } }
+    ]
+  }]
+});
+
+// ========== 4. 全球科研团队清单 - 筛选功能 ==========
+document.getElementById('talentCountryFilter').addEventListener('change', function(e) {
+  const val = e.target.value;
+  document.querySelectorAll('#talentTable tbody tr').forEach(tr => {
+    tr.style.display = (val === 'all' || tr.dataset.country === val) ? '' : 'none';
+  });
+});
+
+// ========== 5. 人才流动分析 - 数据与筛选 ==========
+const flowData = {
+  '2024': {
+    '中国': { out: [['中国','美国',45],['中国','日本',22],['中国','德国',12],['中国','韩国',8]], in: [['美国','中国',38],['日本','中国',28],['韩国','中国',20],['德国','中国',15]] },
+    '美国': { out: [['美国','中国',38],['美国','德国',18],['美国','日本',10]], in: [['中国','美国',45],['德国','美国',15],['日本','美国',12]] },
+    '日本': { out: [['日本','中国',28],['日本','德国',15],['日本','美国',12]], in: [['中国','日本',22],['美国','日本',10],['德国','日本',8]] },
+    '德国': { out: [['德国','中国',15],['德国','美国',15],['德国','日本',8]], in: [['中国','德国',12],['美国','德国',18],['日本','德国',15]] },
+    '韩国': { out: [['韩国','中国',20],['韩国','日本',10],['韩国','德国',8]], in: [['中国','韩国',8],['日本','韩国',10],['美国','韩国',5]] }
+  },
+  '2023': {
+    '中国': { out: [['中国','美国',42],['中国','日本',20],['中国','德国',11],['中国','韩国',7]], in: [['美国','中国',35],['日本','中国',26],['韩国','中国',18],['德国','中国',14]] },
+    '美国': { out: [['美国','中国',35],['美国','德国',17],['美国','日本',9]], in: [['中国','美国',42],['德国','美国',14],['日本','美国',11]] },
+    '日本': { out: [['日本','中国',26],['日本','德国',14],['日本','美国',11]], in: [['中国','日本',20],['美国','日本',9],['德国','日本',7]] },
+    '德国': { out: [['德国','中国',14],['德国','美国',14],['德国','日本',7]], in: [['中国','德国',11],['美国','德国',17],['日本','德国',14]] },
+    '韩国': { out: [['韩国','中国',18],['韩国','日本',9],['韩国','德国',7]], in: [['中国','韩国',7],['日本','韩国',9],['美国','韩国',4]] }
+  },
+  '2022': {
+    '中国': { out: [['中国','美国',40],['中国','日本',19],['中国','德国',10],['中国','韩国',7]], in: [['美国','中国',33],['日本','中国',25],['韩国','中国',17],['德国','中国',13]] },
+    '美国': { out: [['美国','中国',33],['美国','德国',16],['美国','日本',9]], in: [['中国','美国',40],['德国','美国',13],['日本','美国',10]] },
+    '日本': { out: [['日本','中国',25],['日本','德国',13],['日本','美国',10]], in: [['中国','日本',19],['美国','日本',8],['德国','日本',7]] },
+    '德国': { out: [['德国','中国',13],['德国','美国',13],['德国','日本',7]], in: [['中国','德国',10],['美国','德国',16],['日本','德国',13]] },
+    '韩国': { out: [['韩国','中国',17],['韩国','日本',9],['韩国','德国',7]], in: [['中国','韩国',7],['日本','韩国',8],['美国','韩国',4]] }
+  },
+  '2021': {
+    '中国': { out: [['中国','美国',38],['中国','日本',18],['中国','德国',10],['中国','韩国',6]], in: [['美国','中国',30],['日本','中国',24],['韩国','中国',16],['德国','中国',12]] },
+    '美国': { out: [['美国','中国',30],['美国','德国',15],['美国','日本',8]], in: [['中国','美国',38],['德国','美国',12],['日本','美国',9]] },
+    '日本': { out: [['日本','中国',24],['日本','德国',12],['日本','美国',9]], in: [['中国','日本',18],['美国','日本',8],['德国','日本',6]] },
+    '德国': { out: [['德国','中国',12],['德国','美国',12],['德国','日本',6]], in: [['中国','德国',10],['美国','德国',15],['日本','德国',12]] },
+    '韩国': { out: [['韩国','中国',16],['韩国','日本',8],['韩国','德国',6]], in: [['中国','韩国',6],['日本','韩国',8],['美国','韩国',3]] }
+  },
+  '2020': {
+    '中国': { out: [['中国','美国',35],['中国','日本',17],['中国','德国',9],['中国','韩国',6]], in: [['美国','中国',28],['日本','中国',22],['韩国','中国',15],['德国','中国',11]] },
+    '美国': { out: [['美国','中国',28],['美国','德国',14],['美国','日本',8]], in: [['中国','美国',35],['德国','美国',11],['日本','美国',8]] },
+    '日本': { out: [['日本','中国',22],['日本','德国',12],['日本','美国',8]], in: [['中国','日本',17],['美国','日本',7],['德国','日本',6]] },
+    '德国': { out: [['德国','中国',11],['德国','美国',11],['德国','日本',6]], in: [['中国','德国',9],['美国','德国',14],['日本','德国',12]] },
+    '韩国': { out: [['韩国','中国',15],['韩国','日本',8],['韩国','德国',6]], in: [['中国','韩国',6],['日本','韩国',7],['美国','韩国',3]] }
+  },
+  '2019': {
+    '中国': { out: [['中国','美国',32],['中国','日本',16],['中国','德国',9],['中国','韩国',5]], in: [['美国','中国',26],['日本','中国',20],['韩国','中国',14],['德国','中国',10]] },
+    '美国': { out: [['美国','中国',26],['美国','德国',13],['美国','日本',7]], in: [['中国','美国',32],['德国','美国',10],['日本','美国',7]] },
+    '日本': { out: [['日本','中国',20],['日本','德国',11],['日本','美国',7]], in: [['中国','日本',16],['美国','日本',7],['德国','日本',6]] },
+    '德国': { out: [['德国','中国',10],['德国','美国',10],['德国','日本',5]], in: [['中国','德国',9],['美国','德国',13],['日本','德国',11]] },
+    '韩国': { out: [['韩国','中国',14],['韩国','日本',7],['韩国','德国',5]], in: [['中国','韩国',5],['日本','韩国',7],['美国','韩国',3]] }
+  },
+  '2018': {
+    '中国': { out: [['中国','美国',30],['中国','日本',15],['中国','德国',8],['中国','韩国',5]], in: [['美国','中国',24],['日本','中国',18],['韩国','中国',12],['德国','中国',9]] },
+    '美国': { out: [['美国','中国',24],['美国','德国',12],['美国','日本',7]], in: [['中国','美国',30],['德国','美国',9],['日本','美国',6]] },
+    '日本': { out: [['日本','中国',18],['日本','德国',10],['日本','美国',7]], in: [['中国','日本',15],['美国','日本',6],['德国','日本',5]] },
+    '德国': { out: [['德国','中国',9],['德国','美国',9],['德国','日本',5]], in: [['中国','德国',8],['美国','德国',12],['日本','德国',10]] },
+    '韩国': { out: [['韩国','中国',12],['韩国','日本',7],['韩国','德国',5]], in: [['中国','韩国',5],['日本','韩国',6],['美国','韩国',2]] }
+  }
+};
+
+let flowChart = null;
+
+function renderFlow() {
+  const country = document.getElementById('flowCountry').value;
+  const dir = document.querySelector('.flow-toggle button.active').dataset.dir;
+  const years = Object.keys(flowData).sort();
+
+  if (!flowChart) {
+    flowChart = echarts.init(document.getElementById('flowChart'));
+  }
+
+  let series = [];
+  let legendData = [];
+
+  if (country === 'all') {
+    const countries = ['中国', '美国', '日本', '德国', '韩国'];
+    const colors = ['#00d4ff', '#ff6b6b', '#ffcc00', '#00ffcc', '#a855f7'];
+    legendData = countries;
+    series = countries.map((c, idx) => ({
+      name: c,
+      type: 'bar',
+      stack: 'total',
+      emphasis: { focus: 'series' },
+      data: years.map(year => {
+        const rows = flowData[year]?.[c]?.[dir] || [];
+        return rows.reduce((sum, [, , num]) => sum + num, 0);
+      }),
+      itemStyle: { color: colors[idx] }
+    }));
+  } else {
+    const targetSet = new Set();
+    years.forEach(year => {
+      const rows = flowData[year]?.[country]?.[dir] || [];
+      rows.forEach(([src, tgt]) => targetSet.add(dir === 'out' ? tgt : src));
+    });
+    const targets = Array.from(targetSet);
+    legendData = targets;
+    series = targets.map(tgt => ({
+      name: tgt,
+      type: 'bar',
+      stack: 'total',
+      emphasis: { focus: 'series' },
+      data: years.map(year => {
+        const rows = flowData[year]?.[country]?.[dir] || [];
+        const found = rows.find(([src, t]) => (dir === 'out' ? t : src) === tgt);
+        return found ? found[2] : 0;
+      })
+    }));
+  }
+
+  if (series.length > 0) {
+    series[series.length - 1].itemStyle = {
+      ...(series[series.length - 1].itemStyle || {}),
+      borderRadius: [4, 4, 0, 0]
+    };
+  }
+
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      backgroundColor: 'rgba(6,26,61,0.95)',
+      borderColor: 'rgba(0,212,255,0.3)',
+      textStyle: { color: '#fff', fontSize: 12 }
+    },
+    legend: {
+      data: legendData,
+      textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 },
+      bottom: 0,
+      itemWidth: 12,
+      itemHeight: 8
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '10%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: years,
+      axisLine: { lineStyle: { color: 'rgba(0,212,255,0.15)' } },
+      axisLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11 },
+      axisTick: { show: false }
+    },
+    yAxis: {
+      type: 'value',
+      name: '人才数量（人）',
+      nameTextStyle: { color: 'rgba(255,255,255,0.5)', fontSize: 11 },
+      axisLine: { show: false },
+      axisLabel: { color: 'rgba(255,255,255,0.6)', fontSize: 11 },
+      splitLine: { lineStyle: { color: 'rgba(0,212,255,0.08)' } }
+    },
+    series: series
+  };
+
+  flowChart.setOption(option, true);
+}
+
+document.getElementById('flowCountry').addEventListener('change', renderFlow);
+document.querySelectorAll('.flow-toggle button').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.flow-toggle button').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    renderFlow();
+  });
+});
+renderFlow();
+
+// ========== 5. 创新合作网络 - 桑基图 ==========
+const coopNetworkChart = echarts.init(document.getElementById('coopNetworkChart'));
+coopNetworkChart.setOption({
+  backgroundColor: 'transparent',
+  tooltip: { trigger: 'item', triggerOn: 'mousemove', backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.3)', textStyle: { color: '#fff' } },
+  series: [{
+    type: 'sankey', layout: 'none', emphasis: { focus: 'adjacency' },
+    nodeWidth: 18, nodeGap: 10,
+    data: [
+      { name: '张明华' }, { name: '李建国' }, { name: 'John Smith' }, { name: 'Emily Chen' },
+      { name: '田中一郎' }, { name: 'Klaus Weber' }, { name: '朴秀贤' }, { name: '王志强' },
+      { name: '赵文博' }, { name: 'Sarah Johnson' },
+      { name: '中科院' }, { name: '清华' }, { name: 'MIT' }, { name: '斯坦福' },
+      { name: '东京大学' }, { name: '马普所' }, { name: 'KAIST' }, { name: '宁德时代' },
+      { name: '牛津' }, { name: '中科院化学所' }
+    ],
+    links: [
+      { source: '张明华', target: '中科院', value: 20 },
+      { source: '张明华', target: '清华', value: 8 },
+      { source: '李建国', target: '清华', value: 15 },
+      { source: '李建国', target: '宁德时代', value: 6 },
+      { source: 'John Smith', target: 'MIT', value: 18 },
+      { source: 'John Smith', target: '斯坦福', value: 5 },
+      { source: 'Emily Chen', target: '斯坦福', value: 12 },
+      { source: '田中一郎', target: '东京大学', value: 14 },
+      { source: 'Klaus Weber', target: '马普所', value: 10 },
+      { source: '朴秀贤', target: 'KAIST', value: 9 },
+      { source: '王志强', target: '宁德时代', value: 22 },
+      { source: '赵文博', target: '中科院', value: 11 },
+      { source: '赵文博', target: '中科院化学所', value: 7 },
+      { source: 'Sarah Johnson', target: '牛津', value: 8 },
+      { source: 'Sarah Johnson', target: 'MIT', value: 4 }
+    ],
+    lineStyle: { color: 'source', curveness: 0.5, opacity: 0.4 },
+    itemStyle: { borderWidth: 0 },
+    label: { color: 'rgba(255,255,255,0.7)', fontSize: 10 }
+  }]
+});
+
+window.addEventListener('resize', () => {
+  layoutChart.resize();
+  trajectoryChart.resize();
+  maturityChart.resize();
+  coopNetworkChart.resize();
+  flowChart && flowChart.resize();
+});
+</script>
+<script>
+  // 若被嵌入综合看板 iframe，则隐藏自身顶部导航
+  if (window.self !== window.top) {
+    document.querySelectorAll('.top-header, header').forEach(function(el) {
+      el.style.display = 'none';
+    });
+    document.body.style.paddingTop = '0';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,2841 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术变革扫描模块 - 南网地平线</title>
+    <!-- 主 CDN：360 CDN -->
+    <script src="https://lib.baomitu.com/echarts/5.4.3/echarts.min.js"></script>
+    <!-- 自动检测 + 备用加载 -->
+    <script>
+        (function() {
+            var cdnList = [
+                'https://lib.baomitu.com/echarts/5.4.3/echarts.min.js',
+                'https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/echarts/5.4.3/echarts.min.js',
+                'https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js'
+            ];
+            var tried = 0;
+            function checkAndLoad() {
+                if (typeof echarts !== 'undefined') return;
+                tried++;
+                if (tried < cdnList.length) {
+                    var s = document.createElement('script');
+                    s.src = cdnList[tried];
+                    s.onerror = function() { setTimeout(checkAndLoad, 500); };
+                    document.head.appendChild(s);
+                }
+            }
+            setTimeout(checkAndLoad, 2000);
+        })();
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
+            color: #e0e6ed;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(64, 169, 255, 0.2);
+        }
+
+        .page-header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #40a9ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header h1::before {
+            content: '';
+            width: 4px;
+            height: 18px;
+            background: linear-gradient(180deg, #40a9ff, #0099ff);
+            border-radius: 2px;
+        }
+
+        .page-header .subtitle {
+            font-size: 13px;
+            color: #8896b3;
+            margin-top: 4px;
+            margin-left: 14px;
+        }
+
+        /* 通用卡片样式 */
+        .section-card {
+            background: rgba(16, 30, 60, 0.6);
+            border: 1px solid rgba(64, 169, 255, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .section-card:hover {
+            border-color: rgba(64, 169, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(64, 169, 255, 0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #40a9ff;
+            margin-bottom: 18px;
+            padding-left: 12px;
+            border-left: 4px solid #40a9ff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title .badge {
+            font-size: 13px;
+            padding: 3px 12px;
+            border-radius: 12px;
+            background: rgba(64, 169, 255, 0.15);
+            color: #40a9ff;
+            border: 1px solid rgba(64, 169, 255, 0.3);
+        }
+
+        /* ========== 第一部分：技术预警模块 ========== */
+        .warning-section {
+            background: linear-gradient(135deg, rgba(255, 77, 79, 0.08) 0%, rgba(16, 30, 60, 0.6) 100%);
+            border-color: rgba(255, 77, 79, 0.3);
+        }
+
+        .warning-section .section-title {
+            color: #ff4d4f;
+            border-left-color: #ff4d4f;
+        }
+
+        .warning-section .section-title .badge {
+            background: rgba(255, 77, 79, 0.15);
+            color: #ff4d4f;
+            border-color: rgba(255, 77, 79, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .warning-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .warning-card {
+            background: linear-gradient(135deg, rgba(255, 77, 79, 0.1) 0%, rgba(16, 30, 60, 0.4) 100%);
+            border: 1px solid rgba(255, 77, 79, 0.25);
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .warning-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff4d4f, #ff7875);
+        }
+
+        .warning-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 77, 79, 0.15);
+            border-color: rgba(255, 77, 79, 0.4);
+        }
+
+        .warning-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 77, 79, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 77, 79, 0.2);
+            object-fit: contain;
+            padding: 8px;
+        }
+
+        .warning-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .warning-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffccc7;
+            margin-bottom: 6px;
+        }
+
+        .warning-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .warning-score {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff4d4f;
+        }
+
+        .warning-tag {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255, 77, 79, 0.1);
+            color: #ff7875;
+            border: 1px solid rgba(255, 77, 79, 0.2);
+        }
+
+        .warning-date {
+            font-size: 12px;
+            color: #8896b3;
+            margin-top: 6px;
+        }
+
+        /* ========== 第二部分：雷达图 + 新技术清单 ========== */
+        .scan-section {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 20px;
+            align-items: stretch;
+            height: 720px;
+            max-height: calc(100vh - 260px);
+        }
+
+        .scan-section > .section-card {
+            padding: 16px;
+        }
+
+        .scan-section .section-title {
+            margin-bottom: 16px;
+        }
+
+        .radar-container {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #radarChart {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .radar-chart-wrap {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* 扫描动效 */
+        .radar-scan-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4);
+            opacity: 0;
+        }
+
+        .radar-scan-effect.scanning {
+            animation: radarPulse 2.5s ease-out infinite;
+        }
+
+        @keyframes radarPulse {
+            0% { width: 0; height: 0; opacity: 0.8; box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.5); }
+            50% { opacity: 0.4; }
+            100% { width: 480px; height: 480px; opacity: 0; box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
+        }
+
+        @keyframes radarRotate {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        @keyframes dataPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.3); }
+        }
+
+        /* 工具栏 */
+        .radar-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .last-scan-time {
+            font-size: 13px;
+            color: #8896b3;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .scan-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.15), rgba(57, 255, 20, 0.05));
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 6px;
+            color: #39ff14;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .scan-btn:hover {
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.25), rgba(57, 255, 20, 0.1));
+            border-color: #39ff14;
+            box-shadow: 0 0 12px rgba(57, 255, 20, 0.2);
+        }
+
+        .scan-btn.scanning {
+            pointer-events: none;
+            opacity: 0.7;
+            animation: btnPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes btnPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.3); }
+            50% { box-shadow: 0 0 12px 4px rgba(57, 255, 20, 0.1); }
+        }
+
+        .scan-btn-icon {
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .scan-btn.scanning .scan-btn-icon {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fallbackRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fallbackBreath {
+            0%, 100% { transform: scale(1); opacity: 0.95; }
+            50% { transform: scale(1.35); opacity: 0.65; }
+        }
+
+        /* ========== 雷达图技术点 + 维度标签 + 扫描线（荧光绿版） ========== */
+        .radar-chart-wrap { position: relative; overflow: hidden; }
+
+        .radar-tech-dot {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 10;
+            pointer-events: auto;
+            animation: radarBreath 2.2s ease-in-out infinite;
+        }
+        .radar-tech-dot.new-tech-dot { animation-delay: 0s; }
+        .radar-tech-dot.old-tech-dot { animation-delay: 1.1s; }
+        .radar-tech-dot-inner {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            box-shadow: 0 0 8px 2px currentColor;
+        }
+        .radar-tech-dot-glow {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, currentColor 0%, transparent 70%);
+            opacity: 0.55;
+        }
+        @keyframes radarBreath {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.95; }
+            50% { transform: translate(-50%, -50%) scale(1.35); opacity: 0.65; }
+        }
+
+        .radar-dim-label {
+            position: absolute;
+            font-size: 18px;
+            font-weight: 600;
+            color: #39ff14;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 5;
+            text-shadow: 0 0 10px rgba(57,255,20,0.5);
+            animation: dimBlink 3s ease-in-out infinite;
+            white-space: nowrap;
+        }
+        .radar-dim-label:nth-of-type(1) { animation-delay: 0s; }
+        .radar-dim-label:nth-of-type(2) { animation-delay: 0.75s; }
+        .radar-dim-label:nth-of-type(3) { animation-delay: 1.5s; }
+        .radar-dim-label:nth-of-type(4) { animation-delay: 2.25s; }
+        @keyframes dimBlink {
+            0%, 100% { opacity: 1; text-shadow: 0 0 14px rgba(57,255,20,0.8); color: #39ff14; }
+            50% { opacity: 0.5; text-shadow: 0 0 4px rgba(57,255,20,0.2); color: #6aff47; }
+        }
+
+        .radar-scan-sector {
+            position: absolute;
+            top: 50%; left: 50%;
+            pointer-events: none;
+            z-index: 4;
+            transform-origin: 0 0;
+            animation: scanRotate 4s linear infinite;
+        }
+
+        .radar-tooltip-el {
+            position: absolute;
+            display: none;
+            background: rgba(16,30,60,0.95);
+            border: 1px solid rgba(57,255,20,0.35);
+            border-radius: 6px;
+            padding: 8px 14px;
+            color: #e0e6ed;
+            font-size: 14px;
+            pointer-events: none;
+            z-index: 100;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            white-space: nowrap;
+        }
+
+        .radar-legend {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.new-tech {
+            background: #40a9ff;
+            box-shadow: 0 0 8px rgba(64, 169, 255, 0.6);
+        }
+
+        .legend-dot.old-tech {
+            background: #ffa940;
+            box-shadow: 0 0 8px rgba(255, 169, 64, 0.6);
+        }
+
+        .new-tech-panel {
+            display: flex;
+            flex-direction: column;
+            max-height: none;
+            overflow: hidden;
+        }
+
+        .new-tech-panel .section-title {
+            flex-shrink: 0;
+        }
+
+        /* ========== 滑动组件 ========== */
+        .slider-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slider-track {
+            display: flex;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            gap: 12px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .slider-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background: rgba(16, 30, 60, 0.9);
+            border: 1px solid rgba(64, 169, 255, 0.3);
+            border-radius: 50%;
+            color: #40a9ff;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .slider-arrow:hover {
+            background: rgba(64, 169, 255, 0.2);
+            border-color: #40a9ff;
+        }
+
+        .slider-arrow.prev { left: 4px; }
+        .slider-arrow.next { right: 4px; }
+        .slider-arrow.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .slider-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(64, 169, 255, 0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .slider-dot.active {
+            background: #40a9ff;
+            width: 18px;
+            border-radius: 3px;
+        }
+
+        /* 新技术统计摘要 */
+        .newtech-summary {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: rgba(57, 255, 20, 0.04);
+            border: 1px solid rgba(57, 255, 20, 0.12);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .summary-item {
+            flex: 1;
+            text-align: center;
+            padding: 4px 0;
+        }
+
+        .summary-item:not(:last-child) {
+            border-right: 1px solid rgba(57, 255, 20, 0.1);
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: #8896b3;
+            margin-bottom: 4px;
+        }
+
+        .summary-value {
+            font-size: 17px;
+            font-weight: 700;
+            color: #39ff14;
+        }
+
+        .summary-sub {
+            font-size: 12px;
+            color: #8896b3;
+            margin-top: 2px;
+        }
+
+        /* ========== 新技术卡片（滑动版） ========== */
+        .tech-card {
+            flex: 0 0 100%;
+            background: rgba(64, 169, 255, 0.05);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-radius: 10px;
+            padding: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tech-card:hover {
+            background: rgba(64, 169, 255, 0.08);
+            border-color: rgba(64, 169, 255, 0.3);
+        }
+
+        .tech-card.new-highlight {
+            border-left: 3px solid #40a9ff;
+        }
+
+        .tech-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .tech-card-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #e0e6ed;
+        }
+
+        .tech-card-score-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tech-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .tech-meta-cat {
+            color: #40a9ff;
+            background: rgba(64, 169, 255, 0.1);
+            border: 1px solid rgba(64, 169, 255, 0.2);
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .tech-meta-time {
+            color: #8896b3;
+            font-size: 13px;
+        }
+
+        .tech-card-score {
+            font-size: 18px;
+            font-weight: 700;
+            color: #40a9ff;
+            background: rgba(64, 169, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .tech-card-trend {
+            font-size: 13px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .tech-card-trend.up {
+            background: rgba(255, 77, 79, 0.1);
+            color: #ff4d4f;
+        }
+
+        .tech-card-trend.down {
+            background: rgba(115, 209, 61, 0.1);
+            color: #73d13d;
+        }
+
+        .tech-card-radar {
+            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            padding: 6px;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .tech-card-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .tech-tag {
+            font-size: 13px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            background: rgba(138, 180, 248, 0.1);
+            color: #8ab4f8;
+            border: 1px solid rgba(138, 180, 248, 0.15);
+        }
+
+        .tech-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #8896b3;
+        }
+
+        .tech-card-time {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .new-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(64, 169, 255, 0.15);
+            color: #40a9ff;
+            border: 1px solid rgba(64, 169, 255, 0.25);
+        }
+
+        /* ========== 第三部分：历史技术清单 ========== */
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .history-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 16px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .history-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(64, 169, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .history-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .history-card-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e0e6ed;
+        }
+
+        .history-card-score {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .history-card-score.high {
+            color: #ff4d4f;
+        }
+
+        .history-card-score.medium {
+            color: #ffa940;
+        }
+
+        .history-card-score.low {
+            color: #73d13d;
+        }
+
+        .history-card-desc {
+            font-size: 13px;
+            color: #8896b3;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .history-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .history-card-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #8896b3;
+        }
+
+        .history-status {
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 4px;
+        }
+
+        .history-status.tracking {
+            background: rgba(64, 169, 255, 0.1);
+            color: #40a9ff;
+            border: 1px solid rgba(64, 169, 255, 0.2);
+        }
+
+        .history-status.mature {
+            background: rgba(115, 209, 61, 0.1);
+            color: #73d13d;
+            border: 1px solid rgba(115, 209, 61, 0.2);
+        }
+
+        .history-status.obsolete {
+            background: rgba(140, 140, 140, 0.1);
+            color: #8c8c8c;
+            border: 1px solid rgba(140, 140, 140, 0.2);
+        }
+
+        /* ========== 历史技术清单（融合图片维度） ========== */
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .history-card {
+            background: rgba(16, 30, 60, 0.5);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .history-card:hover {
+            border-color: rgba(64, 169, 255, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .history-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .history-card-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #e0e6ed;
+        }
+
+        .history-card-score {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff4d4f;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        /* 生命周期 */
+        .history-lifecycle {
+            margin-bottom: 16px;
+        }
+
+        .history-lifecycle-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #8896b3;
+            margin-bottom: 6px;
+        }
+
+        .history-lifecycle-label .stage {
+            color: #40a9ff;
+            font-weight: 600;
+        }
+
+        .history-lifecycle-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .history-lifecycle-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #40a9ff, #73d13d);
+            border-radius: 3px;
+            transition: width 0.8s ease;
+        }
+
+        /* 主要数据源 */
+        .history-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #8896b3;
+            margin: 14px 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .history-datasource {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .history-datasource-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .history-datasource-tag {
+            flex-shrink: 0;
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: rgba(64, 169, 255, 0.1);
+            color: #40a9ff;
+            border: 1px solid rgba(64, 169, 255, 0.2);
+            font-weight: 600;
+        }
+
+        .history-datasource-text {
+            color: #b0c0d8;
+        }
+
+        /* 影响域 */
+        .history-impact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .history-impact-tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            background: rgba(138, 180, 248, 0.08);
+            color: #8ab4f8;
+            border: 1px solid rgba(138, 180, 248, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .history-impact-tag.supply::before { content: '⊕'; }
+        .history-impact-tag.demand::before { content: '⊖'; }
+        .history-impact-tag.grid::before { content: '⊗'; }
+
+        /* 竞争格局 */
+        .history-competition {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #b0c0d8;
+            line-height: 1.6;
+            margin-top: 4px;
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .history-competition::before {
+            content: '▲';
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            color: #ffa940;
+            font-size: 10px;
+        }
+
+        /* 关键指标 */
+        .history-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .history-metric-tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            background: rgba(115, 209, 61, 0.08);
+            color: #73d13d;
+            border: 1px solid rgba(115, 209, 61, 0.15);
+        }
+
+        /* 关联技术 */
+        .history-related {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .history-related-tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            background: rgba(138, 180, 248, 0.08);
+            color: #8ab4f8;
+            border: 1px solid rgba(138, 180, 248, 0.15);
+        }
+
+        /* 风险信号 */
+        .history-risk {
+            background: rgba(255, 77, 79, 0.06);
+            border: 1px solid rgba(255, 77, 79, 0.15);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #ff7875;
+            line-height: 1.6;
+            margin-top: 10px;
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .history-risk::before {
+            content: '⚠';
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            color: #ff4d4f;
+            font-size: 11px;
+        }
+
+        /* 筛选栏 */
+        .history-filter-bar {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            background: rgba(16, 30, 60, 0.4);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            color: #8896b3;
+            font-weight: 500;
+        }
+
+        .filter-select {
+            min-width: 160px;
+            padding: 6px 10px;
+            background: rgba(10, 22, 40, 0.6);
+            border: 1px solid rgba(64, 169, 255, 0.2);
+            border-radius: 6px;
+            color: #e0e6ed;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .filter-select:hover, .filter-select:focus {
+            border-color: rgba(64, 169, 255, 0.4);
+            background: rgba(10, 22, 40, 0.8);
+        }
+
+        .filter-select option {
+            background: #0d1f3c;
+            color: #e0e6ed;
+        }
+
+        .filter-reset {
+            padding: 6px 16px;
+            background: rgba(64, 169, 255, 0.1);
+            border: 1px solid rgba(64, 169, 255, 0.25);
+            border-radius: 6px;
+            color: #40a9ff;
+            font-size: 13px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: auto;
+        }
+
+        .filter-reset:hover {
+            background: rgba(64, 169, 255, 0.2);
+            border-color: #40a9ff;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #8896b3;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1024px) {
+            .scan-section {
+                grid-template-columns: 1fr;
+            }
+            .new-tech-panel {
+                max-height: none;
+            }
+        }
+
+        /* ========== 技术维度详情弹层 ========== */
+        .tech-dim-popup {
+            position: fixed;
+            display: none;
+            width: 340px;
+            max-height: calc(100vh - 40px);
+            background: rgba(16, 30, 60, 0.98);
+            border: 1px solid rgba(64, 169, 255, 0.25);
+            border-radius: 12px;
+            padding: 16px;
+            z-index: 200;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(12px);
+            pointer-events: auto;
+            overflow-y: auto;
+        }
+        .tech-dim-popup.show { display: block; }
+        .tech-dim-popup::-webkit-scrollbar { width: 5px; }
+        .tech-dim-popup::-webkit-scrollbar-track { background: transparent; }
+        .tech-dim-popup::-webkit-scrollbar-thumb { background: rgba(64, 169, 255, 0.3); border-radius: 3px; }
+
+        .popup-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .popup-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(64, 169, 255, 0.12);
+            border: 1px solid rgba(64, 169, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 8px;
+        }
+        .popup-icon img { width: 100%; height: 100%; object-fit: contain; }
+        .popup-title-wrap { flex: 1; min-width: 0; }
+        .popup-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #e0e6ed;
+            margin-bottom: 4px;
+        }
+        .popup-score {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(90deg, #40a9ff, #0099ff);
+            padding: 2px 10px;
+            border-radius: 4px;
+        }
+
+        .popup-divider {
+            height: 1px;
+            background: rgba(64, 169, 255, 0.12);
+            margin: 10px 0;
+        }
+        .popup-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #40a9ff;
+            margin-bottom: 10px;
+        }
+
+        .popup-dim {
+            margin-bottom: 6px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .popup-dim:hover { border-color: rgba(64, 169, 255, 0.15); }
+        .popup-dim-main {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 6px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .popup-dim-main:hover { background: rgba(64, 169, 255, 0.06); }
+        .popup-dim-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .popup-dim-name {
+            font-size: 13px;
+            color: #b0c0d8;
+            width: 48px;
+            flex-shrink: 0;
+        }
+        .popup-dim-bar {
+            flex: 1;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 0 4px;
+        }
+        .popup-dim-bar-inner {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.4s ease;
+        }
+        .popup-dim-score {
+            font-size: 13px;
+            font-weight: 700;
+            color: #e0e6ed;
+            width: 36px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .popup-dim-toggle {
+            font-size: 11px;
+            color: #8896b3;
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+        .popup-dim.expanded .popup-dim-toggle { transform: rotate(90deg); }
+
+        .popup-evidence {
+            display: none;
+            padding: 0 6px 10px 40px;
+            font-size: 12px;
+            color: #8896b3;
+            line-height: 1.6;
+        }
+        .popup-dim.expanded .popup-evidence { display: block; }
+
+        .popup-evidence-summary {
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+        .popup-evidence-counts {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .popup-count-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: rgba(64, 169, 255, 0.1);
+            border: 1px solid rgba(64, 169, 255, 0.2);
+            border-radius: 4px;
+            color: #40a9ff;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1>技术变革扫描模块</h1>
+            <div class="subtitle">实时监测全球前沿技术动态 · 每周智能识别与评估</div>
+        </div>
+
+        <!-- 第一部分：技术预警模块（分值≥90） -->
+        <div class="section-card warning-section">
+            <div class="section-title">
+                <span>🔥 高分技术预警（分值 ≥ 90）</span>
+                <span class="badge">实时监测</span>
+            </div>
+            <div class="warning-grid" id="warningGrid"></div>
+        </div>
+
+        <!-- 第二部分：雷达图 + 新技术清单 -->
+        <div class="scan-section">
+            <div class="section-card radar-container">
+                <div class="section-title">
+                    <span>📡 实时技术雷达扫描</span>
+                    <span class="badge">本周识别 10 项技术</span>
+                </div>
+                <div class="radar-toolbar">
+                    <span class="last-scan-time" id="lastScanTime">🕐 最近扫描：2026-06-08 14:32:18</span>
+                    <button class="scan-btn" id="manualScanBtn" onclick="triggerManualScan()">
+                        <span class="scan-btn-icon">📡</span>
+                        <span>手动扫描</span>
+                    </button>
+                </div>
+                <div class="radar-chart-wrap" id="radarChartWrap">
+                    <div id="radarChart"></div>
+                    <div class="radar-scan-effect" id="radarScanEffect"></div>
+                </div>
+                <div class="radar-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot new-tech"></div>
+                        <span>本周新技术（7项）</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot old-tech"></div>
+                        <span>持续追踪技术（3项）</span>
+                    </div>
+                </div>
+            </div>
+            <div class="section-card new-tech-panel">
+                <div class="section-title">
+                    <span>✨ 本周新识别技术</span>
+                    <span class="badge">7项</span>
+                </div>
+                <div class="slider-container" id="newTechSlider">
+                    <div class="slider-arrow prev" id="sliderPrev">&#10094;</div>
+                    <div class="slider-track" id="newTechList"></div>
+                    <div class="slider-arrow next" id="sliderNext">&#10095;</div>
+                    <div class="slider-dots" id="sliderDots"></div>
+                </div>
+                <div class="newtech-summary" id="newTechSummary"></div>
+            </div>
+        </div>
+
+        <!-- 第三部分：历史变革技术清单 -->
+        <div class="section-card">
+            <div class="section-title">
+                <span>📋 历史变革技术清单</span>
+                <span class="badge" id="historyBadge">累计识别（${historyTechs.length}项）</span>
+            </div>
+            <div class="history-filter-bar" id="historyFilterBar">
+                <div class="filter-group">
+                    <label class="filter-label">一级领域</label>
+                    <select class="filter-select" id="filterPrimary">
+                        <option value="">全部领域</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">二级领域</label>
+                    <select class="filter-select" id="filterSecondary">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">排序方式</label>
+                    <select class="filter-select" id="filterSort">
+                        <option value="firstSeen-desc">识别时间（最新）</option>
+                        <option value="firstSeen-asc">识别时间（最早）</option>
+                        <option value="score-desc">综合评分（高→低）</option>
+                        <option value="score-asc">综合评分（低→高）</option>
+                        <option value="novelty-desc">技术新颖度（高→低）</option>
+                        <option value="value-desc">技术价值度（高→低）</option>
+                        <option value="relevance-desc">技术关联度（高→低）</option>
+                        <option value="prospect-desc">技术前瞻度（高→低）</option>
+                    </select>
+                </div>
+                <button class="filter-reset" id="filterReset">重置</button>
+            </div>
+            <div class="history-grid" id="historyGrid"></div>
+        </div>
+
+        <!-- 技术维度详情弹层 -->
+        <div class="tech-dim-popup" id="techDimPopup">
+            <div class="popup-header">
+                <div class="popup-icon" id="popupIcon"></div>
+                <div class="popup-title-wrap">
+                    <div class="popup-name" id="popupName"></div>
+                    <div class="popup-score" id="popupScore"></div>
+                </div>
+            </div>
+            <div class="popup-divider"></div>
+            <div class="popup-section-title">评估维度</div>
+            <div id="popupDimList"></div>
+        </div>
+    </div>
+
+    <script>
+        // ========== 技术图标生成器（内联SVG，不依赖外部网络） ==========
+        function getTechIcon(category) {
+            const icons = {
+                '储能技术': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="16" height="10" rx="2" ry="2"/><line x1="22" y1="11" x2="22" y2="13"/></svg>',
+                '数字化': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>',
+                '输电技术': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+                '发电技术': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
+                '信息安全': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+                '电网架构': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><circle cx="19" cy="8" r="3"/><circle cx="5" cy="8" r="3"/><circle cx="12" cy="19" r="3"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8.5" y1="6.5" x2="6" y2="10"/><line x1="15.5" y1="6.5" x2="18" y2="10"/></svg>',
+                '人工智能': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>',
+                '氢能技术': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><text x="12" y="16" text-anchor="middle" fill="#ff7875" stroke="none" font-size="10" font-family="Arial" font-weight="bold">H2</text></svg>',
+                '边缘计算': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
+                '电力电子': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff7875" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>'
+            };
+            const svg = icons[category] || icons['电力电子'];
+            return 'data:image/svg+xml;base64,' + window.btoa(svg);
+        }
+
+        // ========== 迷你四维雷达图生成器（纯SVG） ==========
+        function getMiniRadar(dim) {
+            const cx = 100, cy = 82, r = 52;
+            const scores = [dim.novelty, dim.value, dim.relevance, dim.prospect];
+            const labels = ['新颖度', '价值度', '关联度', '前瞻度'];
+            const angleStep = (Math.PI * 2) / 4;
+            const startAngle = -Math.PI / 2; // 从顶部开始
+
+            // 计算四个顶点坐标
+            function getPoint(score, idx) {
+                const angle = startAngle + idx * angleStep;
+                const ratio = score / 100;
+                return { x: cx + r * ratio * Math.cos(angle), y: cy + r * ratio * Math.sin(angle) };
+            }
+
+            const points = scores.map((s, i) => getPoint(s, i));
+            const polyPoints = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+
+            // 生成背景网格
+            let gridPolys = '';
+            [0.25, 0.5, 0.75, 1.0].forEach((ratio, idx) => {
+                const gPoints = [0, 1, 2, 3].map(i => {
+                    const angle = startAngle + i * angleStep;
+                    return `${cx + r * ratio * Math.cos(angle)},${cy + r * ratio * Math.sin(angle)}`;
+                }).join(' ');
+                const opacity = 0.05 + idx * 0.03;
+                gridPolys += `<polygon points="${gPoints}" fill="rgba(57,255,20,${opacity})" stroke="rgba(57,255,20,0.15)" stroke-width="0.5"/>`;
+            });
+
+            // 轴线
+            let axes = '';
+            [0, 1, 2, 3].forEach(i => {
+                const angle = startAngle + i * angleStep;
+                const x2 = cx + r * Math.cos(angle);
+                const y2 = cy + r * Math.sin(angle);
+                axes += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="rgba(57,255,20,0.2)" stroke-width="0.5"/>`;
+            });
+
+            // 标签位置（稍远一点）
+            const labelDist = r + 16;
+            const labelPoints = labels.map((text, i) => {
+                const angle = startAngle + i * angleStep;
+                const x = cx + labelDist * Math.cos(angle);
+                const y = cy + labelDist * Math.sin(angle);
+                const anchor = i === 0 ? 'middle' : i === 1 ? 'start' : i === 2 ? 'middle' : 'end';
+                return `<text x="${x}" y="${y + 4}" text-anchor="${anchor}" fill="#8896b3" font-size="10" font-family="system-ui, sans-serif">${text}</text>`;
+            }).join('');
+
+            // 数据点圆点
+            const dots = points.map((p, i) => {
+                const color = ['#39ff14', '#73d13d', '#ffa940', '#ff4d4f'][i];
+                return `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#0a1628" stroke-width="1.5"/>`;
+            }).join('');
+
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" style="width:100%;height:auto;max-height:160px;">${gridPolys}${axes}<polygon points="${polyPoints}" fill="rgba(57,255,20,0.15)" stroke="#39ff14" stroke-width="1.5" stroke-linejoin="round"/>${dots}${labelPoints}</svg>`;
+        }
+
+        // ========== 模拟数据 ==========
+
+        // 本周扫描的10个技术（3个旧的，7个新的）
+        const weeklyTechs = [
+            // 3个旧技术（持续追踪）
+            {
+                id: 'T001',
+                name: '固态电池技术',
+                score: 94,
+                category: '储能技术',
+                tags: ['新能源', '材料科学'],
+                isNew: false,
+                firstSeen: '2026-05-12',
+                dimensions4: { novelty: 92, value: 95, relevance: 88, prospect: 96 }
+            },
+            {
+                id: 'T002',
+                name: '数字孪生电网',
+                score: 91,
+                category: '数字化',
+                tags: ['AI应用', '仿真技术'],
+                isNew: false,
+                firstSeen: '2026-04-28',
+                dimensions4: { novelty: 85, value: 90, relevance: 92, prospect: 88 }
+            },
+            {
+                id: 'T003',
+                name: '超导电缆输电',
+                score: 87,
+                category: '输电技术',
+                tags: ['超导材料', '电力传输'],
+                isNew: false,
+                firstSeen: '2026-05-05',
+                dimensions4: { novelty: 78, value: 82, relevance: 85, prospect: 80 }
+            },
+            // 7个新技术（新增四维评估与上周对比）
+            {
+                id: 'T011',
+                name: '钙钛矿太阳能电池',
+                score: 93,
+                prevScore: 87,
+                category: '发电技术',
+                tags: ['光伏', '新材料'],
+                isNew: true,
+                firstSeen: '2026-06-08',
+                identifyTime: '2026-06-08 14:32',
+                dimensions4: { novelty: 94, value: 92, relevance: 85, prospect: 96 }
+            },
+            {
+                id: 'T012',
+                name: '量子加密通信',
+                score: 89,
+                prevScore: 84,
+                category: '信息安全',
+                tags: ['量子技术', '网络安全'],
+                isNew: true,
+                firstSeen: '2026-06-08',
+                identifyTime: '2026-06-08 11:15',
+                dimensions4: { novelty: 96, value: 85, relevance: 78, prospect: 90 }
+            },
+            {
+                id: 'T013',
+                name: '柔性直流电网',
+                score: 86,
+                prevScore: 88,
+                category: '电网架构',
+                tags: ['直流输电', '智能电网'],
+                isNew: true,
+                firstSeen: '2026-06-07',
+                identifyTime: '2026-06-07 16:45',
+                dimensions4: { novelty: 78, value: 88, relevance: 92, prospect: 82 }
+            },
+            {
+                id: 'T014',
+                name: 'AI电网调度大脑',
+                score: 92,
+                prevScore: 89,
+                category: '人工智能',
+                tags: ['AI', '调度优化'],
+                isNew: true,
+                firstSeen: '2026-06-07',
+                identifyTime: '2026-06-07 09:20',
+                dimensions4: { novelty: 90, value: 94, relevance: 88, prospect: 93 }
+            },
+            {
+                id: 'T015',
+                name: '氢能储运一体化',
+                score: 85,
+                prevScore: 80,
+                category: '氢能技术',
+                tags: ['氢能', '储能'],
+                isNew: true,
+                firstSeen: '2026-06-06',
+                identifyTime: '2026-06-06 15:10',
+                dimensions4: { novelty: 82, value: 86, relevance: 80, prospect: 88 }
+            },
+            {
+                id: 'T016',
+                name: '边缘计算终端',
+                score: 83,
+                prevScore: 85,
+                category: '边缘计算',
+                tags: ['IoT', '边缘智能'],
+                isNew: true,
+                firstSeen: '2026-06-06',
+                identifyTime: '2026-06-06 10:55',
+                dimensions4: { novelty: 80, value: 82, relevance: 85, prospect: 78 }
+            },
+            {
+                id: 'T017',
+                name: '石墨烯电力器件',
+                score: 88,
+                prevScore: 82,
+                category: '电力电子',
+                tags: ['石墨烯', '功率器件'],
+                isNew: true,
+                firstSeen: '2026-06-05',
+                identifyTime: '2026-06-05 13:40',
+                dimensions4: { novelty: 92, value: 85, relevance: 80, prospect: 88 }
+            }
+        ];
+
+        // 维度评分依据数据（专利/论文引用）
+        const dimensionEvidenceMap = {
+            '固态电池技术': {
+                novelty:   { score: 92.4, patents: 12, papers: 8,  patentList: ['CN202310123456.7 固态电解质制备方法','CN202320987654.3 硫化物固态电池结构','US20230156789A1 Solid-state electrolyte membrane'], paperList: ['Nature Energy, 2024, 固态电池界面机理研究','J. Power Sources, 2024, 硫化物电解质离子电导率优化','Advanced Materials, 2023, 全固态电池产业化路径'] },
+                prospect:  { score: 96.2, patents: 8,  papers: 15, patentList: ['CN202310456789.0 固态电池封装工艺','EP3987123A1 All-solid-state battery manufacturing'], paperList: ['Energy & Environmental Science, 2024, 固态电池成本预测模型','Nature Reviews Materials, 2023, 固态电解质材料体系综述'] },
+                relevance: { score: 88.3, patents: 5,  papers: 6,  patentList: ['CN202330112233.4 固态电池热管理系统'], paperList: ['Applied Energy, 2024, 固态电池在电网储能中的适用性分析'] },
+                value:     { score: 95.1, patents: 10, papers: 10, patentList: ['CN202310556677.8 固态电池成本优化方法','JP2023-123456 固态電池の製造方法'], paperList: ['Joule, 2024, 固态电池商业化经济性评估'] }
+            },
+            '数字孪生电网': {
+                novelty:   { score: 85.0, patents: 6,  papers: 10, patentList: ['CN202310223344.5 电网数字孪生建模方法'], paperList: ['IEEE Trans Smart Grid, 2024, 数字孪生在配电网中的应用'] },
+                prospect:  { score: 88.5, patents: 4,  papers: 12, patentList: ['CN202320556677.9 数字孪生实时仿真引擎'], paperList: ['Applied Energy, 2024, 数字孪生电网调度优化'] },
+                relevance: { score: 92.1, patents: 8,  papers: 8,  patentList: ['CN202330778899.0 多源数据融合数字孪生平台'], paperList: ['Energy, 2023, 数字孪生与边缘计算协同架构'] },
+                value:     { score: 90.3, patents: 7,  papers: 9,  patentList: ['CN202310889900.1 数字孪生设备故障预测'], paperList: ['Reliability Engineering & System Safety, 2024, 基于数字孪生的电网风险评估'] }
+            },
+            '超导电缆输电': {
+                novelty:   { score: 78.2, patents: 4,  papers: 5,  patentList: ['CN202310334455.6 高温超导带材制备工艺'], paperList: ['Superconductor Science and Technology, 2024, REBCO带材临界电流提升'] },
+                prospect:  { score: 80.5, patents: 3,  papers: 7,  patentList: ['CN202320112233.7 超导电缆冷却系统'], paperList: ['IEEE Trans Applied Superconductivity, 2023, 超导电缆城市电网示范'] },
+                relevance: { score: 85.4, patents: 5,  papers: 6,  patentList: ['CN202330445566.8 超导电缆接头技术'], paperList: ['Cryogenics, 2024, 液氮冷却系统能效优化'] },
+                value:     { score: 82.0, patents: 4,  papers: 4,  patentList: ['CN202310667788.2 超导电缆经济性评估方法'], paperList: ['Energy Policy, 2023, 超导输电商业化可行性研究'] }
+            },
+            '钙钛矿太阳能电池': {
+                novelty:   { score: 94.2, patents: 15, papers: 20, patentList: ['CN202310778899.3 钙钛矿电池稳定性提升方法','WO2024/012345A1 Perovskite solar cell encapsulation'], paperList: ['Science, 2024, 钙钛矿/硅叠层电池效率突破33%','Nature Photonics, 2024, 钙钛矿大面积制备技术'] },
+                prospect:  { score: 96.0, patents: 10, papers: 18, patentList: ['CN202320990011.4 钙钛矿组件封装结构'], paperList: ['Joule, 2024, 钙钛矿电池产业化瓶颈与路径'] },
+                relevance: { score: 85.1, patents: 6,  papers: 8,  patentList: ['CN202330223344.5 钙钛矿光伏建筑一体化'], paperList: ['Solar RRL, 2023, 钙钛矿在分布式光伏中的应用前景'] },
+                value:     { score: 92.3, patents: 9,  papers: 12, patentList: ['CN202310445566.6 钙钛矿电池成本降低工艺'], paperList: ['Energy & Environmental Science, 2024, 钙钛矿电池LCOE分析'] }
+            },
+            '量子加密通信': {
+                novelty:   { score: 96.5, patents: 8,  papers: 25, patentList: ['CN202310556677.7 量子密钥分发设备'], paperList: ['Nature, 2024, 量子通信网络拓扑优化','Physical Review Letters, 2024, 量子纠缠长距离传输'] },
+                prospect:  { score: 90.2, patents: 5,  papers: 18, patentList: ['CN202320778899.8 量子通信与电网融合系统'], paperList: ['IEEE Communications Magazine, 2023, 电力系统量子安全通信架构'] },
+                relevance: { score: 78.4, patents: 3,  papers: 6,  patentList: ['CN202330990011.9 电力量子加密网关'], paperList: ['Quantum Information Processing, 2024, 量子加密在工业控制中的应用'] },
+                value:     { score: 85.0, patents: 4,  papers: 10, patentList: ['CN202310112233.0 量子通信成本优化方案'], paperList: ['Nature Reviews Physics, 2023, 量子通信商业化进展'] }
+            },
+            '柔性直流电网': {
+                novelty:   { score: 78.5, patents: 5,  papers: 6,  patentList: ['CN202310223344.1 柔性直流换流阀拓扑'], paperList: ['IEEE Trans Power Delivery, 2024, 柔性直流城市电网运行控制'] },
+                prospect:  { score: 82.3, patents: 4,  papers: 8,  patentList: ['CN202320445566.2 多端柔性直流协调控制'], paperList: ['CSEE Journal of Power and Energy Systems, 2023, 柔性直流大规模组网技术'] },
+                relevance: { score: 92.0, patents: 9,  papers: 10, patentList: ['CN202330667788.3 柔性直流与新能源并网'], paperList: ['Renewable Energy, 2024, 海上风电柔性直流送出技术'] },
+                value:     { score: 88.2, patents: 7,  papers: 7,  patentList: ['CN202310889900.4 柔性直流输电损耗优化'], paperList: ['Electric Power Systems Research, 2023, 柔性直流经济性对比分析'] }
+            },
+            'AI电网调度大脑': {
+                novelty:   { score: 90.1, patents: 11, papers: 14, patentList: ['CN202310990011.5 电网调度知识图谱构建方法'], paperList: ['Nature Energy, 2024, 强化学习在电网调度中的应用','IEEE Trans Smart Grid, 2024, 大语言模型辅助电网决策'] },
+                prospect:  { score: 93.2, patents: 8,  papers: 16, patentList: ['CN202320112233.6 多智能体电网协同调度'], paperList: ['Applied Energy, 2024, AI调度系统泛化能力评估'] },
+                relevance: { score: 88.5, patents: 7,  papers: 9,  patentList: ['CN202330334455.7 电网调度数字孪生融合AI'], paperList: ['Energy, 2023, AI调度在极端天气下的鲁棒性研究'] },
+                value:     { score: 94.0, patents: 10, papers: 12, patentList: ['CN202310556677.8 电网调度AI模型轻量化部署'], paperList: ['Joule, 2024, AI调度对电网运营成本降低量化分析'] }
+            },
+            '氢能储运一体化': {
+                novelty:   { score: 82.3, patents: 5,  papers: 7,  patentList: ['CN202310667788.9 固态储氢材料制备'], paperList: ['International Journal of Hydrogen Energy, 2024, 固态储氢技术进展'] },
+                prospect:  { score: 88.4, patents: 4,  papers: 9,  patentList: ['CN202320889900.0 氢能管道运输系统'], paperList: ['Energy, 2024, 氢能储运一体化供应链建模'] },
+                relevance: { score: 80.2, patents: 3,  papers: 5,  patentList: ['CN202330990011.1 氢能与电网耦合系统'], paperList: ['Applied Energy, 2023, 电-氢协同调度策略'] },
+                value:     { score: 86.1, patents: 6,  papers: 6,  patentList: ['CN202310112233.2 氢能储运成本优化'], paperList: ['Energy Policy, 2024, 氢能储运经济性评估'] }
+            },
+            '边缘计算终端': {
+                novelty:   { score: 80.5, patents: 4,  papers: 6,  patentList: ['CN202310223344.3 电力边缘计算终端架构'], paperList: ['IEEE Internet of Things Journal, 2024, 电力物联网边缘计算框架'] },
+                prospect:  { score: 78.3, patents: 3,  papers: 7,  patentList: ['CN202320445566.4 边缘计算与5G融合'], paperList: ['Computer Networks, 2023, 电力边缘计算低延迟通信'] },
+                relevance: { score: 85.4, patents: 6,  papers: 8,  patentList: ['CN202330667788.5 分布式能源边缘协同控制'], paperList: ['Applied Energy, 2024, 边缘计算在配电网中的应用'] },
+                value:     { score: 82.0, patents: 5,  papers: 6,  patentList: ['CN202310889900.6 边缘计算安全防护机制'], paperList: ['Future Generation Computer Systems, 2023, 电力边缘智能综述'] }
+            },
+            '石墨烯电力器件': {
+                novelty:   { score: 92.1, patents: 9,  papers: 12, patentList: ['CN202310990011.7 石墨烯功率器件制备'], paperList: ['Nature Electronics, 2024, 石墨烯高频功率器件','ACS Nano, 2024, 石墨烯热管理性能研究'] },
+                prospect:  { score: 88.4, patents: 6,  papers: 10, patentList: ['CN202320112233.8 石墨烯器件封装技术'], paperList: ['IEEE Electron Device Letters, 2023, 石墨烯器件可靠性评估'] },
+                relevance: { score: 80.3, patents: 4,  papers: 5,  patentList: ['CN202330334455.9 石墨烯与SiC器件对比'], paperList: ['Journal of Materials Chemistry C, 2024, 石墨烯在电力电子中的应用'] },
+                value:     { score: 85.2, patents: 5,  papers: 7,  patentList: ['CN202310556677.0 石墨烯器件成本降低工艺'], paperList: ['Advanced Functional Materials, 2023, 石墨烯器件商业化前景'] }
+            }
+        };
+        weeklyTechs.forEach(tech => {
+            if (dimensionEvidenceMap[tech.name]) {
+                tech.dimensionEvidence = dimensionEvidenceMap[tech.name];
+            }
+        });
+
+        // 统一将 dimensions4 转为 dimensions 数组 [新颖度, 价值度, 关联度, 前瞻度]
+        weeklyTechs.forEach(tech => {
+            if (tech.dimensions4) {
+                tech.dimensions = [tech.dimensions4.novelty, tech.dimensions4.value, tech.dimensions4.relevance, tech.dimensions4.prospect];
+            }
+        });
+
+        // 历史技术数据（融合图片中的8个评估维度）
+        const historyTechs = [
+            {
+                id: 'T001',
+                name: '固态电池技术',
+                score: 94,
+                category: '储能技术',
+                desc: '采用固态电解质替代传统液态电解液，显著提升电池安全性与能量密度，预计2030年实现大规模商业化应用。',
+                firstSeen: '2026-05-12',
+                status: 'tracking',
+                statusText: '持续追踪',
+                lifecycle: '快速上升期',
+                lifecycleScore: 78,
+                dimensions4: { novelty: 92, value: 95, relevance: 88, prospect: 96 },
+                dataSources: [
+                    { type: '政策', content: '欧盟电池法规2023、美国IRA补贴' },
+                    { type: '智库', content: 'BNEF 2024报告列为"十年颠覆技术"' },
+                    { type: '专利', content: '丰田/宁德时代/QuantumScape三角竞争' },
+                    { type: '论文', content: 'Nature Energy近三年发文量年增80%' },
+                    { type: '资讯', content: '半固态已装车（蔚来150kWh），全固态预计2027示范' }
+                ],
+                impactScope: [
+                    { type: 'supply', label: '供给侧（储能密度）' },
+                    { type: 'demand', label: '消费侧（电动汽车续航）' }
+                ],
+                competition: '中日韩主导，欧美追赶；硫化物/氧化物/聚合物路线分歧',
+                keyMetrics: [
+                    { label: '能量密度', value: '>400Wh/kg' },
+                    { label: '循环寿命', value: '>1000次' },
+                    { label: '成本', value: '<€80/kWh（目标）' }
+                ],
+                relatedTechs: ['硅碳负极', '锂金属负极', '干法电极工艺'],
+                riskSignals: ['半固态≠全固态，媒体存在概念混淆；量产工艺良率仍<<50%']
+            },
+            {
+                id: 'T002',
+                name: '数字孪生电网',
+                score: 91,
+                category: '数字化',
+                desc: '构建电网物理实体与数字模型的实时映射系统，实现设备状态监测、故障预测与运行优化。',
+                firstSeen: '2026-04-28',
+                status: 'tracking',
+                statusText: '持续追踪',
+                lifecycle: '快速上升期',
+                lifecycleScore: 72,
+                dimensions4: { novelty: 85, value: 90, relevance: 92, prospect: 88 },
+                dataSources: [
+                    { type: '政策', content: '国家电网"十四五"数字化规划重点' },
+                    { type: '智库', content: 'Gartner将电力数字孪生列入2025十大趋势' },
+                    { type: '专利', content: '西门子/GE/南瑞信通专利布局加速' },
+                    { type: '论文', content: 'IEEE Trans Smart Grid年发文量增长65%' },
+                    { type: '资讯', content: '南网深圳试点、国网雄安示范区落地' }
+                ],
+                impactScope: [
+                    { type: 'grid', label: '电网侧（调度优化）' },
+                    { type: 'supply', label: '供给侧（设备运维）' }
+                ],
+                competition: '欧美平台厂商（PTC/AVEVA）与国内电网自研团队并行',
+                keyMetrics: [
+                    { label: '建模精度', value: '>99.5%' },
+                    { label: '响应延迟', value: '<50ms' },
+                    { label: '覆盖设备', value: '10万+' }
+                ],
+                relatedTechs: ['AI故障诊断', '5G电力切片', '边缘计算网关'],
+                riskSignals: ['数据孤岛严重，多源异构数据融合标准尚未统一']
+            },
+            {
+                id: 'T003',
+                name: '超导电缆输电',
+                score: 87,
+                category: '输电技术',
+                desc: '利用超导材料的零电阻特性实现大功率低损耗输电，适用于城市中心高负荷密度区域。',
+                firstSeen: '2026-05-05',
+                status: 'tracking',
+                statusText: '持续追踪',
+                lifecycle: '示范验证期',
+                lifecycleScore: 55,
+                dimensions4: { novelty: 78, value: 82, relevance: 85, prospect: 80 },
+                dataSources: [
+                    { type: '政策', content: '科技部"十四五"超导重点专项' },
+                    { type: '智库', content: 'IEA评估超导输电2030年商业化概率60%' },
+                    { type: '专利', content: '日立/古河电工/西部超导三强格局' },
+                    { type: '论文', content: 'Superconductor Science and Technology热点' },
+                    { type: '资讯', content: '上海浦东1.2km示范段投运，液氢冷却成本待降' }
+                ],
+                impactScope: [
+                    { type: 'grid', label: '电网侧（城市输电）' },
+                    { type: 'supply', label: '供给侧（损耗降低）' }
+                ],
+                competition: '日本领先（REBCO带材），中国追赶（YBCO涂层导体）',
+                keyMetrics: [
+                    { label: '载流能力', value: '>5kA' },
+                    { type: '损耗', value: '<0.5W/km' },
+                    { label: '冷却温度', value: '77K（液氮）' }
+                ],
+                relatedTechs: ['高温超导带材', '制冷机系统', 'GIL管道'],
+                riskSignals: ['液氮冷却系统维护成本极高；脆性材料弯曲半径受限']
+            },
+            {
+                id: 'T004',
+                name: '虚拟电厂聚合平台',
+                score: 82,
+                category: '能源互联网',
+                desc: '通过软件系统聚合分布式电源、储能及可调负荷，参与电力市场交易与电网调度。',
+                firstSeen: '2026-03-20',
+                status: 'mature',
+                statusText: '趋于成熟',
+                lifecycle: '趋于成熟期',
+                lifecycleScore: 85,
+                dimensions4: { novelty: 70, value: 85, relevance: 90, prospect: 75 },
+                dataSources: [
+                    { type: '政策', content: '国家发改委虚拟电厂建设指南（2025）' },
+                    { type: '智库', content: 'WoodMac预测2030年全球VPP装机超500GW' },
+                    { type: '专利', content: 'AutoGrid/Next Kraftwerke/特斯拉专利壁垒' },
+                    { type: '论文', content: 'Applied Energy虚拟电厂专题年增40%' },
+                    { type: '资讯', content: '深圳/上海/山东电力现货市场已准入VPP' }
+                ],
+                impactScope: [
+                    { type: 'grid', label: '电网侧（调峰调频）' },
+                    { type: 'demand', label: '消费侧（需求响应）' }
+                ],
+                competition: '欧美软件平台成熟，中国电网企业主导聚合模式',
+                keyMetrics: [
+                    { label: '聚合容量', value: '>1GW（省级）' },
+                    { label: '响应时间', value: '<1min' },
+                    { label: '调度精度', value: '>95%' }
+                ],
+                relatedTechs: ['分布式储能', '需求侧响应', '电力现货交易'],
+                riskSignals: ['市场主体准入门槛高，民营平台结算周期长']
+            },
+            {
+                id: 'T005',
+                name: '区块链电力交易',
+                score: 76,
+                category: '交易机制',
+                desc: '基于区块链技术的点对点电力交易机制，实现分布式能源的去中心化交易与结算。',
+                firstSeen: '2026-02-15',
+                status: 'mature',
+                statusText: '趋于成熟',
+                lifecycle: '趋于成熟期',
+                lifecycleScore: 70,
+                dimensions4: { novelty: 65, value: 70, relevance: 75, prospect: 68 },
+                dataSources: [
+                    { type: '政策', content: '欧盟Dlt试点监管沙盒（2024）' },
+                    { type: '智库', content: 'RMI报告：区块链在电力结算ROI仍不明确' },
+                    { type: '专利', content: 'IBM/能源网络基金会（EWF）主导标准' },
+                    { type: '论文', content: 'Blockchain for Energy发文量趋稳' },
+                    { type: '资讯', content: '澳大利亚PowerLedger、德国Enerchain试点' }
+                ],
+                impactScope: [
+                    { type: 'grid', label: '电网侧（结算透明）' },
+                    { type: 'demand', label: '消费侧（P2P交易）' }
+                ],
+                competition: '联盟链（Hyperledger/Quorum） vs 公链（以太坊L2）路线之争',
+                keyMetrics: [
+                    { label: '交易TPS', value: '>3000' },
+                    { label: '结算周期', value: 'T+0' },
+                    { label: '能耗', value: '<0.01kWh/笔' }
+                ],
+                relatedTechs: ['智能合约', '分布式账本', '碳足迹追踪'],
+                riskSignals: ['监管合规性存疑；大规模并发性能瓶颈未突破']
+            },
+            {
+                id: 'T006',
+                name: '钠离子电池',
+                score: 79,
+                category: '储能技术',
+                desc: '以钠离子为载流子的新型储能电池技术，原材料成本低廉，适用于大规模储能场景。',
+                firstSeen: '2026-01-10',
+                status: 'mature',
+                statusText: '趋于成熟',
+                lifecycle: '快速上升期',
+                lifecycleScore: 68,
+                dimensions4: { novelty: 75, value: 80, relevance: 85, prospect: 78 },
+                dataSources: [
+                    { type: '政策', content: '工信部钠离子电池产业发展指南' },
+                    { type: '智库', content: 'BloombergNEF预测2028年成本降至$50/kWh' },
+                    { type: '专利', content: '宁德时代/中科海钠/Farasis全球前三' },
+                    { type: '论文', content: 'Nature Reviews Materials钠电专辑（2024）' },
+                    { type: '资讯', content: '宁德时代钠电量产，两轮车/储能电站批量交付' }
+                ],
+                impactScope: [
+                    { type: 'supply', label: '供给侧（低成本储能）' },
+                    { type: 'grid', label: '电网侧（调峰电站）' }
+                ],
+                competition: '中国产能领先，欧美依赖进口；层状氧化物 vs 聚阴离子路线',
+                keyMetrics: [
+                    { label: '能量密度', value: '>160Wh/kg' },
+                    { label: '循环寿命', value: '>4000次' },
+                    { label: '成本', value: '≈$60/kWh' }
+                ],
+                relatedTechs: ['硬碳负极', '普鲁士蓝正极', '储能集装箱'],
+                riskSignals: ['低温性能差（-20°C容量衰减>30%）；能量密度天花板明显']
+            },
+            {
+                id: 'T007',
+                name: '无线电能传输',
+                score: 71,
+                category: '输电技术',
+                desc: '通过电磁感应或磁共振实现非接触式电能传输，适用于电动汽车充电及特殊供电场景。',
+                firstSeen: '2025-12-05',
+                status: 'obsolete',
+                statusText: '关注降低',
+                lifecycle: '成熟期',
+                lifecycleScore: 90,
+                dimensions4: { novelty: 55, value: 60, relevance: 70, prospect: 50 },
+                dataSources: [
+                    { type: '政策', content: 'SAE J2954无线充电标准已发布' },
+                    { type: '智库', content: 'Navigant：动态无线充电成本仍高10x' },
+                    { type: '专利', content: 'WiTricity/Plugless Power专利池' },
+                    { type: '论文', content: 'IEEE Transactions on PE热点下降' },
+                    { type: '资讯', content: '宝马/奔驰高端车型选配，公共场景渗透率低' }
+                ],
+                impactScope: [
+                    { type: 'demand', label: '消费侧（车载充电）' },
+                    { type: 'grid', label: '电网侧（间接）' }
+                ],
+                competition: '磁耦合（Qi/MagSafe）垄断消费电子，谐振式争夺汽车',
+                keyMetrics: [
+                    { label: '传输效率', value: '>93%' },
+                    { label: '气隙距离', value: '10-25cm' },
+                    { label: '功率等级', value: '11kW（乘用车）' }
+                ],
+                relatedTechs: ['磁共振耦合', 'GaN功率器件', '自动驾驶充电'],
+                riskSignals: ['电磁辐射安全争议；金属异物检测误报率高']
+            },
+            {
+                id: 'T008',
+                name: '第三代半导体SiC',
+                score: 88,
+                category: '电力电子',
+                desc: '碳化硅功率器件具有高耐压、低损耗、高频特性，正在逐步替代传统硅基器件。',
+                firstSeen: '2025-11-20',
+                status: 'mature',
+                statusText: '趋于成熟',
+                lifecycle: '快速上升期',
+                lifecycleScore: 82,
+                dimensions4: { novelty: 88, value: 90, relevance: 85, prospect: 92 },
+                dataSources: [
+                    { type: '政策', content: '中国"十四五"宽禁带半导体专项' },
+                    { type: '智库', content: 'Yole预测2030年SiC市场规模$80亿' },
+                    { type: '专利', content: 'Wolfspeed/英飞凌/罗姆/三安光电四强' },
+                    { type: '论文', content: 'IEEE Electron Device Letters年增50%' },
+                    { type: '资讯', content: '特斯拉Model 3/Y全系搭载，光伏逆变器渗透率>40%' }
+                ],
+                impactScope: [
+                    { type: 'supply', label: '供给侧（效率提升）' },
+                    { type: 'demand', label: '消费侧（电动车快充）' }
+                ],
+                competition: '美日欧衬底垄断，中国外延/封测追赶；8英寸晶圆竞争白热化',
+                keyMetrics: [
+                    { label: '耐压', value: '>1200V' },
+                    { label: '开关频率', value: '>100kHz' },
+                    { label: '损耗降低', value: '>70% vs Si' }
+                ],
+                relatedTechs: ['GaN功率器件', '银烧结封装', '车载OBC'],
+                riskSignals: ['衬底良率低（<60%），晶圆缺陷密度制约大电流应用']
+            },
+            {
+                id: 'T009',
+                name: '分布式能源路由器',
+                score: 85,
+                category: '电网设备',
+                desc: '实现多种能源形式接入、变换与分配的智能化设备，是能源互联网的核心节点装置。',
+                firstSeen: '2025-10-15',
+                status: 'tracking',
+                statusText: '持续追踪',
+                lifecycle: '示范验证期',
+                lifecycleScore: 62,
+                dimensions4: { novelty: 80, value: 85, relevance: 88, prospect: 82 },
+                dataSources: [
+                    { type: '政策', content: '能源局能源互联网试点示范工程' },
+                    { type: '智库', content: 'IEA净零路径中DER占比将超50%' },
+                    { type: '专利', content: '清华大学/华为/南瑞联合布局' },
+                    { type: '论文', content: 'IEEE Trans on Sustainable Energy热点' },
+                    { type: '资讯', content: '张家口/苏州示范园区小批量部署' }
+                ],
+                impactScope: [
+                    { type: 'grid', label: '电网侧（潮流控制）' },
+                    { type: 'supply', label: '供给侧（多能互补）' }
+                ],
+                competition: '高校概念领先，工业界产品化滞后；标准IEC 61850扩展中',
+                keyMetrics: [
+                    { label: '转换效率', value: '>98%' },
+                    { label: '端口数', value: '8-16路' },
+                    { label: '响应时间', value: '<10ms' }
+                ],
+                relatedTechs: ['电力电子变压器', '直流微电网', '即插即用协议'],
+                riskSignals: ['成本为传统变压器3-5倍；多端口协调控制算法不成熟']
+            }
+        ];
+
+        // ========== 一二级领域映射 ==========
+        const fieldMap = {
+            '固态电池技术': { primary: '储能技术', secondary: '固态电池' },
+            '数字孪生电网': { primary: '数字化与智能', secondary: '数字孪生' },
+            '超导电缆输电': { primary: '输配电技术', secondary: '超导输电' },
+            '虚拟电厂聚合平台': { primary: '能源交易与互联网', secondary: '虚拟电厂' },
+            '区块链电力交易': { primary: '能源交易与互联网', secondary: '区块链交易' },
+            '钠离子电池': { primary: '储能技术', secondary: '钠离子电池' },
+            '无线电能传输': { primary: '输配电技术', secondary: '无线输电' },
+            '第三代半导体SiC': { primary: '电力电子技术', secondary: '宽禁带半导体' },
+            '分布式能源路由器': { primary: '输配电技术', secondary: '能源路由器' },
+            '钙钛矿太阳能电池': { primary: '发电与能源', secondary: '钙钛矿光伏' },
+            '量子加密通信': { primary: '数字化与智能', secondary: '量子通信' },
+            '柔性直流电网': { primary: '输配电技术', secondary: '柔性直流' },
+            'AI电网调度大脑': { primary: '数字化与智能', secondary: 'AI应用' },
+            '氢能储运一体化': { primary: '发电与能源', secondary: '氢能' },
+            '边缘计算终端': { primary: '数字化与智能', secondary: '边缘计算' },
+            '石墨烯电力器件': { primary: '电力电子技术', secondary: '石墨烯器件' }
+        };
+        [...weeklyTechs, ...historyTechs].forEach(tech => {
+            const f = fieldMap[tech.name];
+            if (f) { tech.primaryField = f.primary; tech.secondaryField = f.secondary; }
+        });
+
+        // ========== 渲染预警模块 ==========
+        function renderWarningModule() {
+            const warningTechs = weeklyTechs.filter(t => t.score >= 90).sort((a, b) => {
+    if (a.isNew !== b.isNew) return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+    return b.score - a.score;
+});
+            const container = document.getElementById('warningGrid');
+
+            if (warningTechs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">✅</div>
+                        <div>当前无高分预警技术（分值 < 90）</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = warningTechs.map(tech => `
+                <div class="warning-card">
+                    <img class="warning-icon" src="${getTechIcon(tech.category)}" alt="${tech.name}" title="${tech.category}">
+                    <div class="warning-content">
+                        <div class="warning-name">${tech.name}</div>
+                        <div class="warning-meta">
+                            <span class="warning-score">${tech.score}</span>
+                            <span class="warning-tag">${tech.category}</span>
+                        </div>
+                        <div class="warning-date">识别时间：${tech.firstSeen} ${tech.isNew ? '<span style="color:#ff4d4f;margin-left:8px;">本周新识别</span>' : ''}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ========== 纯SVG降级雷达图（无ECharts依赖） ==========
+        function renderFallbackRadar(container) {
+            const W=600, H=480, CX=300, CY=240, R=170;
+            const dims=['技术新颖度','技术价值度','技术关联度','技术前瞻度'];
+            const angles=[-Math.PI/2,0,Math.PI/2,Math.PI];
+            const newTechList=weeklyTechs.filter(t=>t.isNew);
+
+            // 动态归一化：让所有技术均匀分布在雷达图内
+            const allRawX=weeklyTechs.map(t=>(t.dimensions4.value-t.dimensions4.prospect)/2);
+            const allRawY=weeklyTechs.map(t=>(t.dimensions4.relevance-t.dimensions4.novelty)/2);
+            const maxAbsX=Math.max(...allRawX.map(Math.abs),1);
+            const maxAbsY=Math.max(...allRawY.map(Math.abs),1);
+
+            function calcPos(d4){
+                const rawX=(d4.value-d4.prospect)/2, rawY=(d4.relevance-d4.novelty)/2;
+                return {x:CX+(rawX/maxAbsX)*R*0.85, y:CY+(rawY/maxAbsY)*R*0.85};
+            }
+
+            // 背景网格（同心圆）
+            let grid='';
+            [0.25,0.5,0.75,1].forEach((ratio,idx)=>{
+                const op=0.03+idx*0.02;
+                const fillOp = 0.04 + idx * 0.03;
+                grid+=`<circle cx="${CX}" cy="${CY}" r="${(R*ratio).toFixed(1)}" fill="rgba(57,255,20,${fillOp})" stroke="rgba(57,255,20,0.20)" stroke-width="0.5"/>`;
+            });
+            // 中心填充区域（最内层半透明圆）
+            grid+=`<circle cx="${CX}" cy="${CY}" r="${(R*0.25).toFixed(1)}" fill="rgba(57,255,20,0.03)" stroke="none"/>`;
+            // 轴线
+            let axes='';
+            angles.forEach(a=>{
+                const x=CX+R*Math.cos(a), y=CY+R*Math.sin(a);
+                axes+=`<line x1="${CX}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(57,255,20,0.15)" stroke-width="0.5"/>`;
+            });
+            // 维度标签（带闪烁）
+            let labels='';
+            const labelDist=R+30;
+            angles.forEach((a,i)=>{
+                const x=CX+labelDist*Math.cos(a), y=CY+labelDist*Math.sin(a);
+                labels+=`<text x="${x.toFixed(1)}" y="${(y+5).toFixed(1)}" text-anchor="middle" fill="#39ff14" font-size="12" font-weight="600" font-family="system-ui,sans-serif" style="animation:dimBlink 3s ease-in-out infinite;animation-delay:${i*0.75}s;text-shadow:0 0 10px rgba(57,255,20,0.5);">${dims[i]}</text>`;
+            });
+            // 技术点（SMIL 半径/透明度动画，避免 CSS transform 位移 bug）
+            let dots='';
+            weeklyTechs.forEach((tech,idx)=>{
+                const pos=calcPos(tech.dimensions4);
+                const isNew=tech.isNew, color=isNew?'#40a9ff':'#ffa940';
+                const newIdx=newTechList.findIndex(t=>t.id===tech.id);
+                const dly=(idx*0.2).toFixed(1);
+                dots+=`<g transform="translate(${pos.x.toFixed(1)},${pos.y.toFixed(1)})" style="cursor:pointer;"
+                    class="fallback-tech-dot" data-name="${tech.name}" data-cat="${tech.category}" data-score="${tech.score}" data-isnew="${isNew}" data-newidx="${newIdx}"
+                    onclick="fallbackDotClick(this)" onmouseenter="fallbackDotEnter(this,event)" onmouseleave="fallbackDotLeave()" onmousemove="fallbackDotMove(this,event)"
+                >
+                    <circle fill="url(#dotGlow${isNew?'N':'O'})" opacity="0.5">
+                        <animate attributeName="r" values="10;16;10" dur="2.2s" repeatCount="indefinite" begin="${dly}s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1"/>
+                        <animate attributeName="opacity" values="0.5;0.85;0.5" dur="2.2s" repeatCount="indefinite" begin="${dly}s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1"/>
+                    </circle>
+                    <circle fill="${color}" stroke="#0a1628" stroke-width="1.5">
+                        <animate attributeName="r" values="4;5.5;4" dur="2.2s" repeatCount="indefinite" begin="${dly}s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1"/>
+                    </circle>
+                </g>`;
+            });
+
+            container.innerHTML=`
+                <svg id="fallbackRadarSvg" viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;display:block;">
+                    <defs>
+                        <linearGradient id="scanGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(57,255,20,0)"/><stop offset="100%" stop-color="rgba(57,255,20,0.50)"/></linearGradient>
+                        <radialGradient id="dotGlowN"><stop offset="0%" stop-color="rgba(64,169,255,0.6)"/><stop offset="100%" stop-color="rgba(64,169,255,0)"/></radialGradient>
+                        <radialGradient id="dotGlowO"><stop offset="0%" stop-color="rgba(255,169,64,0.6)"/><stop offset="100%" stop-color="rgba(255,169,64,0)"/></radialGradient>
+                    </defs>
+                    ${grid}${axes}${labels}${dots}
+                    <g style="transform-origin:${CX}px ${CY}px;animation:fallbackRotate 4s linear infinite;">
+                        <path d="M ${CX} ${CY} L ${(CX+R*Math.cos(-0.35)).toFixed(1)} ${(CY+R*Math.sin(-0.35)).toFixed(1)} A ${R} ${R} 0 0 1 ${(CX+R*Math.cos(0.35)).toFixed(1)} ${(CY+R*Math.sin(0.35)).toFixed(1)} Z" fill="url(#scanGrad)" opacity="0.5" pointer-events="none"/>
+                    </g>
+                </svg>
+                <div id="fallbackRadarTooltip" class="radar-tooltip-el"></div>
+            `;
+            container.style.position='relative';
+
+            window._fallbackScan=function(){
+                const g=container.querySelector('#fallbackRadarSvg > g:last-child');
+                if(g) g.style.animationDuration='0.8s';
+                container.querySelectorAll('.fallback-tech-dot').forEach(d=>{ d.style.animationDuration='0.6s'; });
+                setTimeout(()=>{
+                    if(g) g.style.animationDuration='4s';
+                    container.querySelectorAll('.fallback-tech-dot').forEach(d=>{ d.style.animationDuration='2.2s'; });
+                },2500);
+            };
+        }
+
+        // 降级方案点交互（全局函数供SVG onclick调用）
+        function fallbackDotEnter(el,e){
+            const ttip=document.getElementById('fallbackRadarTooltip');
+            if(!ttip) return;
+            const tech = weeklyTechs.find(t => t.name === el.dataset.name);
+            const ev = tech?.dimensionEvidence || {};
+            const d4 = tech?.dimensions4 || {};
+            ttip.innerHTML=`
+                <div style="font-weight:600;margin-bottom:6px;font-size:15px;">${el.dataset.name}</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                    <span style="color:#8896b3;">${el.dataset.cat}</span>
+                    <span style="color:#40a9ff;font-weight:700;">${el.dataset.score}分</span>
+                    <span style="color:#8896b3;font-size:12px;">${el.dataset.isnew==='true'?'本周新识别':'持续追踪'}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#ff4d4f;">新颖度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.novelty?.score||d4.novelty||0)}%;height:100%;background:linear-gradient(90deg,#ff4d4f,#ff7875);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#ff4d4f;font-weight:600;">${ev.novelty?.score||d4.novelty||0}</span></div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#ffa940;">前瞻度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.prospect?.score||d4.prospect||0)}%;height:100%;background:linear-gradient(90deg,#ffa940,#ffc53d);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#ffa940;font-weight:600;">${ev.prospect?.score||d4.prospect||0}</span></div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#40a9ff;">关联度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.relevance?.score||d4.relevance||0)}%;height:100%;background:linear-gradient(90deg,#40a9ff,#69c0ff);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#40a9ff;font-weight:600;">${ev.relevance?.score||d4.relevance||0}</span></div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#73d13d;">价值度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.value?.score||d4.value||0)}%;height:100%;background:linear-gradient(90deg,#73d13d,#95de64);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#73d13d;font-weight:600;">${ev.value?.score||d4.value||0}</span></div>
+                </div>`;
+            ttip.style.display='block';
+            ttip.style.width='220px';
+            ttip.style.whiteSpace='normal';
+            fallbackDotMove(el,e);
+        }
+        function fallbackDotMove(el,e){
+            const ttip=document.getElementById('fallbackRadarTooltip');
+            if(!ttip) return;
+            const rect=el.closest('.radar-chart-wrap, #radarChart').getBoundingClientRect();
+            ttip.style.left=(e.clientX-rect.left+12)+'px';
+            ttip.style.top=(e.clientY-rect.top-8)+'px';
+        }
+        function fallbackDotLeave(){
+            const ttip=document.getElementById('fallbackRadarTooltip');
+            if(ttip) ttip.style.display='none';
+        }
+        function fallbackDotClick(el){
+            if(el.dataset.isnew==='true' && el.dataset.newidx!=='-1'){
+                slideNewTechTo(parseInt(el.dataset.newidx));
+            }
+            const tech = weeklyTechs.find(t => t.name === el.dataset.name);
+            if (tech) showTechDimPopup(tech, el);
+        }
+
+        // ========== 雷达图全局状态 ==========
+        let radarChartInstance = null;
+        let radarScanInterval = null;
+        let scanRotation = 0;
+
+        // ========== 绘制雷达图DOM叠加层（技术点 + 维度标签 + 扫描线） ==========
+        function drawRadarOverlay(container) {
+            container.querySelectorAll('.radar-overlay-el').forEach(el=> el.remove());
+            const rect = container.getBoundingClientRect();
+            const cx = rect.width / 2, cy = rect.height / 2, r = Math.min(cx, cy) * 0.65;
+            const dims = ['技术新颖度','技术价值度','技术关联度','技术前瞻度'];
+            const angles = [-Math.PI/2, 0, Math.PI/2, Math.PI];
+            const newTechList = weeklyTechs.filter(t=> t.isNew);
+
+            // 动态归一化：让所有技术均匀分布在雷达图内
+            const allRawX = weeklyTechs.map(t => (t.dimensions4.value - t.dimensions4.prospect) / 2);
+            const allRawY = weeklyTechs.map(t => (t.dimensions4.relevance - t.dimensions4.novelty) / 2);
+            const maxAbsX = Math.max(...allRawX.map(Math.abs), 1);
+            const maxAbsY = Math.max(...allRawY.map(Math.abs), 1);
+
+            function calcPos(d4) {
+                const rawX = (d4.value - d4.prospect) / 2;
+                const rawY = (d4.relevance - d4.novelty) / 2;
+                return {
+                    x: cx + (rawX / maxAbsX) * r * 0.85,
+                    y: cy + (rawY / maxAbsY) * r * 0.85
+                };
+            }
+
+            // 维度标签（带闪烁）
+            const labelDist = r + 30;
+            dims.forEach((text, i) => {
+                const a = angles[i];
+                const el = document.createElement('div');
+                el.className = 'radar-dim-label radar-overlay-el';
+                el.textContent = text;
+                el.style.left = (cx + labelDist * Math.cos(a)) + 'px';
+                el.style.top = (cy + labelDist * Math.sin(a) + 4) + 'px';
+                el.style.animationDelay = `${i * 0.75}s`;
+                container.appendChild(el);
+            });
+
+            // 扫描线 SVG
+            const svgNS = 'http://www.w3.org/2000/svg';
+            const svg = document.createElementNS(svgNS, 'svg');
+            svg.setAttribute('width', rect.width);
+            svg.setAttribute('height', rect.height);
+            svg.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;z-index:4;';
+            svg.classList.add('radar-overlay-el');
+            const defs = document.createElementNS(svgNS, 'defs');
+            const grad = document.createElementNS(svgNS, 'linearGradient');
+            grad.setAttribute('id', 'domScanGrad');
+            grad.innerHTML = '<stop offset="0%" stop-color="rgba(57,255,20,0)"/><stop offset="100%" stop-color="rgba(57,255,20,0.45)"/>';
+            defs.appendChild(grad);
+            svg.appendChild(defs);
+            const scanG = document.createElementNS(svgNS, 'g');
+            scanG.style.cssText = `transform-origin:${cx}px ${cy}px;animation:scanRotate 4s linear infinite;`;
+            const scanPath = document.createElementNS(svgNS, 'path');
+            const p1x = cx + r * Math.cos(-0.35), p1y = cy + r * Math.sin(-0.35);
+            const p2x = cx + r * Math.cos(0.35), p2y = cy + r * Math.sin(0.35);
+            scanPath.setAttribute('d', `M ${cx} ${cy} L ${p1x} ${p1y} A ${r} ${r} 0 0 1 ${p2x} ${p2y} Z`);
+            scanPath.setAttribute('fill', 'url(#domScanGrad)');
+            scanPath.setAttribute('opacity', '0.5');
+            scanG.appendChild(scanPath);
+            svg.appendChild(scanG);
+            container.appendChild(svg);
+
+            // Tooltip
+            const tooltip = document.createElement('div');
+            tooltip.className = 'radar-tooltip-el radar-overlay-el';
+            container.appendChild(tooltip);
+
+            // 技术点（呼吸闪烁）
+            weeklyTechs.forEach((tech, idx) => {
+                const pos = calcPos(tech.dimensions4);
+                const isNew = tech.isNew, color = isNew ? '#40a9ff' : '#ffa940';
+                const newIdx = newTechList.findIndex(t => t.id === tech.id);
+                const dot = document.createElement('div');
+                dot.className = `radar-tech-dot ${isNew ? 'new-tech-dot' : 'old-tech-dot'} radar-overlay-el`;
+                dot.style.left = pos.x + 'px';
+                dot.style.top = pos.y + 'px';
+                dot.style.color = color;
+                dot.style.animationDelay = `${idx * 0.2}s`;
+                dot.innerHTML = `<div class="radar-tech-dot-glow" style="background:radial-gradient(circle, ${color} 0%, transparent 70%);"></div>
+                    <div class="radar-tech-dot-inner" style="background:${color};"></div>`;
+                dot.addEventListener('mouseenter', e => {
+                    const ev = tech.dimensionEvidence || {};
+                    const d4 = tech.dimensions4 || {};
+                    tooltip.innerHTML = `
+                        <div style="font-weight:600;margin-bottom:6px;font-size:15px;">${tech.name}</div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                            <span style="color:#8896b3;">${tech.category}</span>
+                            <span style="color:#40a9ff;font-weight:700;">${tech.score}分</span>
+                            <span style="color:#8896b3;font-size:12px;">${isNew ? '本周新识别' : '持续追踪'}</span>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:4px;">
+                            <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#ff4d4f;">新颖度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.novelty?.score||d4.novelty||0)}%;height:100%;background:linear-gradient(90deg,#ff4d4f,#ff7875);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#ff4d4f;font-weight:600;">${ev.novelty?.score||d4.novelty||0}</span></div>
+                            <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#ffa940;">前瞻度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.prospect?.score||d4.prospect||0)}%;height:100%;background:linear-gradient(90deg,#ffa940,#ffc53d);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#ffa940;font-weight:600;">${ev.prospect?.score||d4.prospect||0}</span></div>
+                            <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#40a9ff;">关联度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.relevance?.score||d4.relevance||0)}%;height:100%;background:linear-gradient(90deg,#40a9ff,#69c0ff);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#40a9ff;font-weight:600;">${ev.relevance?.score||d4.relevance||0}</span></div>
+                            <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#73d13d;">价值度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.value?.score||d4.value||0)}%;height:100%;background:linear-gradient(90deg,#73d13d,#95de64);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#73d13d;font-weight:600;">${ev.value?.score||d4.value||0}</span></div>
+                        </div>
+                        <div style="margin-top:6px;font-size:11px;color:#8896b3;">点击查看详细评分依据</div>
+                    `;
+                    tooltip.style.display = 'block';
+                    tooltip.style.width = '220px';
+                    tooltip.style.whiteSpace = 'normal';
+                    const crect = container.getBoundingClientRect();
+                    tooltip.style.left = (e.clientX - crect.left + 12) + 'px';
+                    tooltip.style.top = (e.clientY - crect.top - 8) + 'px';
+                });
+                dot.addEventListener('mousemove', e => {
+                    const crect = container.getBoundingClientRect();
+                    tooltip.style.left = (e.clientX - crect.left + 12) + 'px';
+                    tooltip.style.top = (e.clientY - crect.top - 8) + 'px';
+                });
+                dot.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+                dot.addEventListener('click', () => {
+                    if (isNew && newIdx >= 0) slideNewTechTo(newIdx);
+                    showTechDimPopup(tech, dot);
+                });
+                container.appendChild(dot);
+            });
+        }
+
+        // ========== 点击雷达点定位到右侧卡片 ==========
+        function slideNewTechTo(index) {
+            const track = document.getElementById('newTechList');
+            const dotsContainer = document.getElementById('sliderDots');
+            const prevBtn = document.getElementById('sliderPrev');
+            const nextBtn = document.getElementById('sliderNext');
+            if (!track) return;
+            track.style.transform = `translateX(-${index * 100}%)`;
+            if (dotsContainer) {
+                dotsContainer.querySelectorAll('.slider-dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+            const total = weeklyTechs.filter(t => t.isNew).length;
+            if (prevBtn) prevBtn.classList.toggle('disabled', index === 0);
+            if (nextBtn) nextBtn.classList.toggle('disabled', index === total - 1);
+        }
+
+        // ========== 渲染雷达图（ECharts背景 + DOM叠加） ==========
+        function renderRadarChart() {
+            const chartDom = document.getElementById('radarChart');
+            if (typeof echarts === 'undefined') {
+                renderFallbackRadar(chartDom);
+                return;
+            }
+            if (radarChartInstance) {
+                radarChartInstance.dispose();
+                clearInterval(radarScanInterval);
+            }
+            radarChartInstance = echarts.init(chartDom);
+            radarChartInstance.setOption({
+                backgroundColor: 'transparent',
+                radar: {
+                    indicator: [
+                        { name: '', max: 100 }, { name: '', max: 100 },
+                        { name: '', max: 100 }, { name: '', max: 100 }
+                    ],
+                    shape: 'circle',
+                    radius: '65%',
+                    center: ['50%', '50%'],
+                    axisName: { show: false },
+                    splitArea: {
+                        areaStyle: {
+                            color: ['rgba(57,255,20,0.06)', 'rgba(57,255,20,0.10)', 'rgba(57,255,20,0.06)', 'rgba(57,255,20,0.10)']
+                        }
+                    },
+                    axisLine: { lineStyle: { color: 'rgba(57,255,20,0.15)' } },
+                    splitLine: { lineStyle: { color: 'rgba(57,255,20,0.15)' } }
+                },
+                series: []
+            });
+            radarChartInstance.resize();
+            drawRadarOverlay(chartDom);
+            window.addEventListener('resize', () => {
+                if (radarChartInstance) { radarChartInstance.resize(); drawRadarOverlay(chartDom); }
+            });
+        }
+
+        // ========== 手动扫描（新版：控制DOM动画） ==========
+        function triggerManualScan() {
+            const btn = document.getElementById('manualScanBtn');
+            const effect = document.getElementById('radarScanEffect');
+            const timeLabel = document.getElementById('lastScanTime');
+            if (btn.classList.contains('scanning')) return;
+
+            btn.classList.add('scanning');
+            effect.classList.add('scanning');
+
+            // 降级方案同步调用
+            if (typeof window._fallbackScan === 'function') window._fallbackScan();
+
+            // 加速所有扫描线
+            document.querySelectorAll('#radarChart svg g[style*="scanRotate"], #fallbackRadarSvg g[style*="fallbackRotate"]').forEach(g => {
+                g.style.animationDuration = '0.8s';
+            });
+            // 加速技术点呼吸
+            document.querySelectorAll('.radar-tech-dot, .fallback-tech-dot').forEach(d => {
+                d.style.animationDuration = '0.6s';
+            });
+
+            setTimeout(() => {
+                btn.classList.remove('scanning');
+                effect.classList.remove('scanning');
+                document.querySelectorAll('#radarChart svg g[style*="scanRotate"], #fallbackRadarSvg g[style*="fallbackRotate"]').forEach(g => {
+                    g.style.animationDuration = '';
+                });
+                document.querySelectorAll('.radar-tech-dot, .fallback-tech-dot').forEach(d => {
+                    d.style.animationDuration = '';
+                });
+                const now = new Date();
+                const ts = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' +
+                    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0') + ':' + String(now.getSeconds()).padStart(2,'0');
+                timeLabel.innerHTML = '🕐 最近扫描：' + ts;
+            }, 2500);
+        }
+
+        // ========== 渲染新技术清单（滑动卡片 + 迷你雷达 + 分数对比） ==========
+        function renderNewTechList() {
+            const newTechs = weeklyTechs
+                .filter(t => t.isNew)
+                .sort((a, b) => new Date(b.identifyTime) - new Date(a.identifyTime));
+
+            const track = document.getElementById('newTechList');
+            const dotsContainer = document.getElementById('sliderDots');
+            const prevBtn = document.getElementById('sliderPrev');
+            const nextBtn = document.getElementById('sliderNext');
+
+            // 渲染卡片
+            track.innerHTML = newTechs.map(tech => {
+                const diff = tech.score - (tech.prevScore || tech.score);
+                const diffAbs = Math.abs(diff);
+                const trendClass = diff > 0 ? 'up' : diff < 0 ? 'down' : '';
+                const trendIcon = diff > 0 ? '↑' : diff < 0 ? '↓' : '−';
+                const trendText = diff !== 0 ? `${trendIcon}${diffAbs}` : '−';
+                const miniRadar = getMiniRadar(tech.dimensions4 || { novelty: 80, value: 80, relevance: 80, prospect: 80 });
+
+                return `
+                    <div class="tech-card new-highlight">
+                        <div class="tech-card-header">
+                            <span class="tech-card-name">${tech.name}</span>
+                            <div class="tech-card-score-wrap">
+                                ${diff !== 0 ? `<span class="tech-card-trend ${trendClass}" title="较上周${diff > 0 ? '上升' : '下降'}${diffAbs}分">${trendText}</span>` : ''}
+                                <span class="tech-card-score">${tech.score}分</span>
+                            </div>
+                        </div>
+                        <div class="tech-card-meta">
+                            <span class="tech-meta-cat">${tech.category}</span>
+                            <span class="tech-meta-time">🕐 ${tech.identifyTime}</span>
+                        </div>
+                        <div class="tech-card-radar">${miniRadar}</div>
+                        <div class="tech-card-tags">
+                            ${tech.tags.map(tag => `<span class="tech-tag">${tag}</span>`).join('')}
+                        </div>
+                        <div class="tech-card-footer">
+                            <span class="new-badge">NEW</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // 渲染指示器
+            dotsContainer.innerHTML = newTechs.map((_, i) => `
+                <div class="slider-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></div>
+            `).join('');
+
+            // 滑动逻辑
+            let currentIndex = 0;
+            const total = newTechs.length;
+
+            function updateSlider() {
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                dotsContainer.querySelectorAll('.slider-dot').forEach((dot, i) => {
+                    dot.classList.toggle('active', i === currentIndex);
+                });
+                prevBtn.classList.toggle('disabled', currentIndex === 0);
+                nextBtn.classList.toggle('disabled', currentIndex === total - 1);
+            }
+
+            prevBtn.addEventListener('click', () => {
+                if (currentIndex > 0) { currentIndex--; updateSlider(); }
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (currentIndex < total - 1) { currentIndex++; updateSlider(); }
+            });
+
+            dotsContainer.querySelectorAll('.slider-dot').forEach(dot => {
+                dot.addEventListener('click', () => {
+                    currentIndex = parseInt(dot.dataset.index);
+                    updateSlider();
+                });
+            });
+
+            updateSlider();
+
+            // 渲染底部统计摘要
+            const summaryContainer = document.getElementById('newTechSummary');
+            if (summaryContainer) {
+                const highScoreCount = newTechs.filter(t => t.score >= 90).length;
+                const maxTech = newTechs.reduce((m, t) => t.score > m.score ? t : m, newTechs[0]);
+                summaryContainer.innerHTML = `
+                    <div class="summary-item">
+                        <div class="summary-label">≥90分技术数</div>
+                        <div class="summary-value">${highScoreCount}</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">最高分</div>
+                        <div class="summary-value" style="font-size:13px;line-height:1.4;word-break:break-all;">${maxTech.name}</div>
+                        <div class="summary-sub">${maxTech.score}分</div>
+                    </div>
+                `;
+            }
+
+            // 绑定卡片雷达图 hover 事件
+            setTimeout(() => {
+                const cards = track.querySelectorAll('.tech-card');
+                newTechs.forEach((tech, idx) => {
+                    const card = cards[idx];
+                    if (!card) return;
+                    const radarEl = card.querySelector('.tech-card-radar');
+                    if (!radarEl) return;
+                    radarEl.addEventListener('mouseenter', () => showTechDimPopup(tech, radarEl));
+                    radarEl.addEventListener('mouseleave', () => {
+                        setTimeout(() => {
+                            if (!document.querySelector('.tech-dim-popup:hover')) hideTechDimPopup();
+                        }, 150);
+                    });
+                });
+            }, 0);
+        }
+
+        // ========== 渲染历史技术清单（融合图片8维度 + 一二级领域筛选） ==========
+        function renderHistoryList() {
+            const container = document.getElementById('historyGrid');
+            const primaryFilter = document.getElementById('filterPrimary')?.value || '';
+            const secondaryFilter = document.getElementById('filterSecondary')?.value || '';
+            const sortValue = document.getElementById('filterSort')?.value || 'firstSeen-desc';
+
+            const filtered = historyTechs.filter(tech => {
+                if (primaryFilter && tech.primaryField !== primaryFilter) return false;
+                if (secondaryFilter && tech.secondaryField !== secondaryFilter) return false;
+                return true;
+            });
+
+            filtered.sort((a, b) => {
+                switch (sortValue) {
+                    case 'firstSeen-desc':
+                        return (b.firstSeen || '').localeCompare(a.firstSeen || '');
+                    case 'firstSeen-asc':
+                        return (a.firstSeen || '').localeCompare(b.firstSeen || '');
+                    case 'score-desc':
+                        return (b.score || 0) - (a.score || 0);
+                    case 'score-asc':
+                        return (a.score || 0) - (b.score || 0);
+                    case 'novelty-desc':
+                        return (b.dimensions4?.novelty || 0) - (a.dimensions4?.novelty || 0);
+                    case 'value-desc':
+                        return (b.dimensions4?.value || 0) - (a.dimensions4?.value || 0);
+                    case 'relevance-desc':
+                        return (b.dimensions4?.relevance || 0) - (a.dimensions4?.relevance || 0);
+                    case 'prospect-desc':
+                        return (b.dimensions4?.prospect || 0) - (a.dimensions4?.prospect || 0);
+                    default:
+                        return 0;
+                }
+            });
+
+            // 更新总数显示
+            const badge = document.getElementById('historyBadge');
+            if (badge) badge.textContent = `累计识别（${filtered.length}/${historyTechs.length}项）`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">🔍</div>
+                        <div>当前筛选条件下无匹配技术</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(tech => {
+                const hasDetails = !!tech.lifecycle;
+
+                // 主要数据源
+                const dsHtml = hasDetails && tech.dataSources ? `
+                    <div class="history-section-title">主要数据源</div>
+                    <div class="history-datasource">${tech.dataSources.map(ds => `
+                        <div class="history-datasource-item">
+                            <span class="history-datasource-tag">${ds.type}</span>
+                            <span class="history-datasource-text">${ds.content}</span>
+                        </div>
+                    `).join('')}</div>
+                ` : '';
+
+                // 影响域
+                const impactHtml = hasDetails && tech.impactScope ? `
+                    <div class="history-section-title">影响域</div>
+                    <div class="history-impact">${tech.impactScope.map(im => `
+                        <span class="history-impact-tag ${im.type}">${im.label}</span>
+                    `).join('')}</div>
+                ` : '';
+
+                // 竞争格局
+                const compHtml = hasDetails && tech.competition ? `
+                    <div class="history-section-title">竞争格局</div>
+                    <div class="history-competition">${tech.competition}</div>
+                ` : '';
+
+                // 关键指标
+                const metricHtml = hasDetails && tech.keyMetrics ? `
+                    <div class="history-section-title">关键指标</div>
+                    <div class="history-metrics">${tech.keyMetrics.map(m => `
+                        <span class="history-metric-tag">${m.label} ${m.value}</span>
+                    `).join('')}</div>
+                ` : '';
+
+                // 领域标签
+                const fieldHtml = tech.primaryField ? `
+                    <div class="history-section-title">领域标签</div>
+                    <div class="history-related">
+                        <span class="history-related-tag" style="background:rgba(64,169,255,0.1);color:#40a9ff;border-color:rgba(64,169,255,0.2);">${tech.primaryField}</span>
+                        ${tech.secondaryField ? `<span class="history-related-tag">${tech.secondaryField}</span>` : ''}
+                    </div>
+                ` : '';
+
+                // 风险信号
+                const riskHtml = hasDetails && tech.riskSignals ? `
+                    <div class="history-risk">${tech.riskSignals.join('；')}</div>
+                ` : '';
+
+                // 生命周期
+                const lifeHtml = hasDetails && tech.lifecycle ? `
+                    <div class="history-lifecycle">
+                        <div class="history-lifecycle-label">
+                            <span>生命周期</span>
+                            <span class="stage">${tech.lifecycle}</span>
+                        </div>
+                        <div class="history-lifecycle-bar">
+                            <div class="history-lifecycle-bar-inner" style="width:${tech.lifecycleScore}%"></div>
+                        </div>
+                    </div>
+                ` : '';
+
+                return `
+                    <div class="history-card">
+                        <div class="history-card-header">
+                            <div>
+                                <span class="history-card-name">${tech.name}</span>
+                                <div style="font-size:11px;color:#8896b3;margin-top:4px;">📅 识别时间：${tech.firstSeen}</div>
+                            </div>
+                            <span class="history-card-score">${tech.score}分</span>
+                        </div>
+                        ${lifeHtml}
+                        ${dsHtml}
+                        ${impactHtml}
+                        ${compHtml}
+                        ${metricHtml}
+                        ${fieldHtml}
+                        ${riskHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========== 初始化历史清单筛选器 ==========
+        function initHistoryFilter() {
+            const primarySelect = document.getElementById('filterPrimary');
+            const secondarySelect = document.getElementById('filterSecondary');
+            const sortSelect = document.getElementById('filterSort');
+            const resetBtn = document.getElementById('filterReset');
+            if (!primarySelect || !secondarySelect) return;
+
+            // 提取唯一领域值
+            const primarySet = new Set();
+            const secondaryMap = new Map(); // primary -> Set of secondary
+            historyTechs.forEach(tech => {
+                if (tech.primaryField) primarySet.add(tech.primaryField);
+                if (tech.primaryField && tech.secondaryField) {
+                    if (!secondaryMap.has(tech.primaryField)) secondaryMap.set(tech.primaryField, new Set());
+                    secondaryMap.get(tech.primaryField).add(tech.secondaryField);
+                }
+            });
+
+            const sortedPrimary = Array.from(primarySet).sort();
+            const allSecondary = new Set();
+            historyTechs.forEach(t => { if (t.secondaryField) allSecondary.add(t.secondaryField); });
+            const sortedAllSecondary = Array.from(allSecondary).sort();
+
+            // 填充一级领域
+            primarySelect.innerHTML = '<option value="">全部领域</option>' + sortedPrimary.map(p => `<option value="${p}">${p}</option>`).join('');
+
+            // 填充二级领域（全部）
+            function fillSecondary(primaryVal) {
+                let list = sortedAllSecondary;
+                if (primaryVal && secondaryMap.has(primaryVal)) {
+                    list = Array.from(secondaryMap.get(primaryVal)).sort();
+                }
+                const currentSec = secondarySelect.value;
+                secondarySelect.innerHTML = '<option value="">全部</option>' + list.map(s => `<option value="${s}">${s}</option>`).join('');
+                // 如果当前值仍在列表中则保留
+                if (currentSec && list.includes(currentSec)) secondarySelect.value = currentSec;
+            }
+            fillSecondary('');
+
+            // 事件绑定
+            primarySelect.addEventListener('change', () => {
+                fillSecondary(primarySelect.value);
+                renderHistoryList();
+            });
+            secondarySelect.addEventListener('change', () => {
+                renderHistoryList();
+            });
+            if (sortSelect) {
+                sortSelect.addEventListener('change', () => {
+                    renderHistoryList();
+                });
+            }
+            resetBtn.addEventListener('click', () => {
+                primarySelect.value = '';
+                fillSecondary('');
+                if (sortSelect) sortSelect.value = 'firstSeen-desc';
+                renderHistoryList();
+            });
+        }
+
+        // ========== 技术维度详情弹层控制 ==========
+        const dimConfig = [
+            { key: 'novelty',   label: '新颖度', icon: '💡', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
+            { key: 'prospect',  label: '前瞻度', icon: '🔭', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
+            { key: 'relevance', label: '关联度', icon: '🔗', color: '#40a9ff', barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)' },
+            { key: 'value',     label: '价值度', icon: '💎', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
+        ];
+
+        function getDimSummary(dimKey, score) {
+            if (score >= 90) {
+                if (dimKey === 'novelty') return '该维度表现突出，技术处于高度创新活跃期，近期专利与论文增长迅速，原创性成果密集涌现。';
+                if (dimKey === 'prospect') return '发展前景广阔，技术路线清晰，产业化预期明确，未来3-5年有望实现规模化突破。';
+                if (dimKey === 'relevance') return '与产业链上下游及核心应用场景关联度极高，技术落地路径顺畅，生态支撑完善。';
+                if (dimKey === 'value') return '经济价值显著，投资回报可期，规模化应用后有望带来明显的成本下降与效率提升。';
+            } else if (score >= 80) {
+                if (dimKey === 'novelty') return '创新活跃度较高，专利与论文保持稳健增长，技术持续迭代优化。';
+                if (dimKey === 'prospect') return '发展趋势向好，关键瓶颈逐步突破，具备中长期产业化潜力。';
+                if (dimKey === 'relevance') return '与主流应用场景匹配度良好，已具备一定的产业链协同基础。';
+                if (dimKey === 'value') return '具备较好的商业化价值，随着成本下降和技术成熟，投资回报率将进一步提升。';
+            } else if (score >= 70) {
+                if (dimKey === 'novelty') return '创新活动较为平稳，技术进入工程优化阶段，原创性突破相对较少。';
+                if (dimKey === 'prospect') return '发展前景尚可，但部分技术路线和商业模式仍需进一步验证。';
+                if (dimKey === 'relevance') return '与部分应用场景关联度一般，需进一步拓展适配场景。';
+                if (dimKey === 'value') return '价值潜力有待释放，当前成本或市场接受度仍是主要制约因素。';
+            } else {
+                if (dimKey === 'novelty') return '技术相对成熟或创新活跃度较低，近期重大原创成果较少。';
+                if (dimKey === 'prospect') return '发展前景受限，可能面临技术瓶颈或替代路线竞争。';
+                if (dimKey === 'relevance') return '与当前主流应用场景关联度有限，落地空间较小。';
+                if (dimKey === 'value') return '短期经济价值有限，需等待技术突破或成本大幅下降。';
+            }
+        }
+
+        function showTechDimPopup(tech, anchorEl) {
+            const popup = document.getElementById('techDimPopup');
+            if (!popup) return;
+
+            // Header
+            document.getElementById('popupIcon').innerHTML = `<img src="${getTechIcon(tech.category)}" alt="${tech.name}">`;
+            document.getElementById('popupName').textContent = tech.name;
+            document.getElementById('popupScore').textContent = `综合评分：${tech.score}`;
+
+            // Dimensions
+            const dimList = document.getElementById('popupDimList');
+            const ev = tech.dimensionEvidence || {};
+            dimList.innerHTML = dimConfig.map((dim, idx) => {
+                const d = ev[dim.key] || { score: (tech.dimensions4 || {})[dim.key] || 0, patents: 0, papers: 0, patentList: [], paperList: [] };
+                const summary = getDimSummary(dim.key, d.score);
+                return `
+                    <div class="popup-dim" data-dim="${dim.key}">
+                        <div class="popup-dim-main" onclick="toggleDimEvidence(this)">
+                            <span class="popup-dim-icon" style="background:${dim.color}22;color:${dim.color};border:1px solid ${dim.color}44;">${dim.icon}</span>
+                            <span class="popup-dim-name">${dim.label}</span>
+                            <div class="popup-dim-bar"><div class="popup-dim-bar-inner" style="width:${d.score}%;background:${dim.barColor};"></div></div>
+                            <span class="popup-dim-score" style="color:${dim.color};">${d.score}</span>
+                            <span class="popup-dim-toggle">▶</span>
+                        </div>
+                        <div class="popup-evidence">
+                            <div class="popup-evidence-summary">${summary}</div>
+                            <div class="popup-evidence-counts">
+                                <span class="popup-count-badge">📋 ${d.patents || 0} 项专利</span>
+                                <span class="popup-count-badge">📄 ${d.papers || 0} 篇论文</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Position
+            const rect = anchorEl.getBoundingClientRect();
+            const popupRect = popup.getBoundingClientRect();
+            let left = rect.left + rect.width / 2 - 170;
+            let top = rect.top - 360;
+            if (top < 10) top = rect.bottom + 10;
+            if (left < 10) left = 10;
+            if (left + 340 > window.innerWidth) left = window.innerWidth - 350;
+            popup.style.left = left + 'px';
+            popup.style.top = top + 'px';
+            popup.classList.add('show');
+        }
+
+        function hideTechDimPopup() {
+            const popup = document.getElementById('techDimPopup');
+            if (popup) popup.classList.remove('show');
+        }
+
+        window.toggleDimEvidence = function(el) {
+            const dim = el.closest('.popup-dim');
+            if (dim) dim.classList.toggle('expanded');
+        };
+
+        // ========== 初始化 ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            try { renderWarningModule(); } catch (e) { console.error('预警模块渲染失败:', e); }
+            try { renderRadarChart(); } catch (e) { console.error('雷达图渲染失败:', e); }
+            try { renderNewTechList(); } catch (e) { console.error('新技术列表渲染失败:', e); }
+            try { renderHistoryList(); } catch (e) { console.error('历史清单渲染失败:', e); }
+            try { initHistoryFilter(); } catch (e) { console.error('筛选器初始化失败:', e); }
+
+            // 弹层鼠标移出时隐藏
+            const popup = document.getElementById('techDimPopup');
+            if (popup) {
+                popup.addEventListener('mouseleave', () => hideTechDimPopup());
+            }
+        });
+    </script>
+</body>
+</html>

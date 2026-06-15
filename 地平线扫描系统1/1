@@ -1,0 +1,50 @@
+# Midnight Flux: Design System Specification
+
+## 1. Overview & Creative North Star
+**Creative North Star: The Quantum Observer**
+Midnight Flux is a high-end editorial design system engineered for deep-tech intelligence and industrial foresight. It moves away from the "flat" web by embracing a multi-layered, atmospheric environment that mimics a high-tech terminal or a digital war room.
+
+The system breaks the standard grid through the use of **intentional asymmetry**—such as off-center navigation and left-aligned vertical "accent stems"—and **tonal depth** achieved through layered translucency rather than physical borders. It is a world of shadows, glows, and glass.
+
+## 2. Colors
+The palette is rooted in a deep "Background-Dark" (#081642), punctuated by a high-energy "Electric Cobalt" Primary (#257bf4) and a "Toxic Lime" Accent (#52c41a) for critical data signals.
+
+*   **The "No-Line" Rule:** Standard 1px solid borders are strictly prohibited for layout sectioning. Separation must be achieved via:
+    1.  Background color shifts (e.g., nesting `surface_container_low` within `surface`).
+    2.  `outline_variant` at 20% opacity for interactive boundaries only.
+    3.  Translucent backdrops (Glassmorphism).
+*   **Surface Hierarchy & Nesting:** Use `surface_container_low` (rgba(13, 33, 85, 0.4)) for primary panels. Nested elements (like cards or inputs) should use `surface_container` or subtle linear gradients (180deg from primary/0.05 to transparent).
+*   **The Glass & Gradient Rule:** Floating modules must utilize `backdrop-filter: blur(12px)` to maintain the "Observer" aesthetic. 
+*   **Signature Textures:** A 40px x 40px radial grid pattern (0.05 opacity primary) should be applied to the base background to provide a sense of scale and precision.
+
+## 3. Typography
+The system uses **Public Sans** across all levels, leaning into its geometric, slightly "glitchy" technical character.
+
+*   **Display (1.5rem / 24px):** Bold, tracking-tight. Reserved for primary dashboard headers.
+*   **Headline/Title (1.25rem - 1.125rem):** Bold, uppercase for section titles to convey authority.
+*   **Body (0.875rem / 14px):** The standard reading size. Medium weight for primary labels, Regular for descriptions.
+*   **Data Labels (10px - 0.75rem):** High-contrast, uppercase, bold. Used for "micro-intelligence" data, typically paired with 60% opacity to denote secondary status.
+
+The typographic rhythm is intentionally dense in data areas and expansive in headers, creating a "Scientific Journal" meets "Tactical HUD" feel.
+
+## 4. Elevation & Depth
+Midnight Flux rejects traditional shadows in favor of **Luminous Layering**.
+
+*   **The Layering Principle:** Depth is defined by the proximity to the "light source" (the user). The deeper the element, the darker the surface. 
+*   **Ambient Shadows:** For elevated elements, use `shadow-2xl` or `shadow-lg` with very low opacity to create a subtle lift.
+*   **The Glow-Dot:** For status indicators, use a 10px blur glow (`0 0 10px #52c41a`) to simulate physical LED hardware.
+*   **Glassmorphism & Depth:** Panels utilize `rgba(13, 33, 85, 0.4)` with a 12px blur. This creates a "frosted cockpit" effect, ensuring content is readable over complex background grids.
+
+## 5. Components
+*   **Buttons:** Rectangular with minimal rounding (0.125rem). Primary buttons use a solid Cobalt fill with a drop shadow of the same color. Secondary buttons are Ghost-style with a 20% Primary border.
+*   **Interactive Modules:** Must feature a `border-l-4` (4px left border) in a signature color (Cobalt or Lime) to denote active status or category.
+*   **Inputs:** Highly integrated. Use `bg-primary/10` with a subtle `border-primary/20`. On focus, the border opacity doubles.
+*   **Charts/Rankings:** Use "Ghost Bars"—background tracks in `slate-800` with the progress bar using a primary-to-transparent horizontal gradient.
+*   **Navigation:** Top-tier navigation uses an active-state underline that matches the font's bold weight exactly.
+
+## 6. Do's and Don'ts
+*   **Do:** Use uppercase for data categories to increase "scan-ability."
+*   **Do:** Use subtle gradients for container backgrounds to imply curvature.
+*   **Don't:** Use rounded corners exceeding 8px (0.5rem) except for "Pill" tags. The system should feel sharp and architectural.
+*   **Don't:** Use pure white (#FFFFFF) for body text. Use `slate-100` or `slate-300` to prevent eye strain in the dark environment.
+*   **Do:** Use 2px vertical "accent stems" (left-side borders) to anchor information groups.

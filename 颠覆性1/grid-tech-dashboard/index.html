@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术变革地平线全景扫描系统 - 电网科技版</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/map/js/world.js"></script>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="scan-line"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="power-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                </div>
+                <div class="title-group">
+                    <h1>技术变革地平线</h1>
+                    <h2>全景扫描系统 <span class="grid-badge">电网智脑</span></h2>
+                </div>
+            </div>
+        </div>
+        <nav class="header-nav">
+            <a href="#" class="nav-item active">首页</a>
+            <a href="#" class="nav-item">态势感知</a>
+            <a href="#" class="nav-item">技术分析</a>
+            <a href="#" class="nav-item">电网专题</a>
+        </nav>
+        <div class="header-right">
+            <div class="time-display" id="timeDisplay"></div>
+            <div class="user-info">
+                <span>admin</span>
+                <a href="#" class="logout">退出</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <!-- Left Column -->
+        <aside class="col-left">
+            <!-- Ranking Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                    </div>
+                    <h3 class="panel-title">核心榜单</h3>
+                    <div class="tab-group">
+                        <span class="tab active" data-tab="institution">重点机构</span>
+                        <span class="tab" data-tab="enterprise">重点企业</span>
+                        <span class="tab" data-tab="talent">重点人才</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="ranking-list" id="rankingList">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trend Chart -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                    </div>
+                    <h3 class="panel-title">技术变化趋势</h3>
+                    <div class="tech-selector">
+                        <span>当前技术：</span>
+                        <select id="techSelect">
+                            <option value="solid-battery">固态电池</option>
+                            <option value="smart-grid">智能电网</option>
+                            <option value="energy-storage">新型储能</option>
+                            <option value="hvdc">特高压直流</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="chart-container" id="trendChart"></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Column -->
+        <section class="col-center">
+            <!-- Filters -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <select class="filter-select" id="fieldSelect">
+                        <option>新兴储能与下一代电池</option>
+                        <option>智能电网与调度</option>
+                        <option>可再生能源并网</option>
+                        <option>电力电子器件</option>
+                    </select>
+                    <select class="filter-select" id="techSelect2">
+                        <option>固态锂电池技术</option>
+                        <option>钠离子电池</option>
+                        <option>液流电池</option>
+                        <option>压缩空气储能</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Globe Visualization -->
+            <div class="globe-panel">
+                <div class="globe-header">
+                    <h3>变革性技术全球分布</h3>
+                    <p>光点大小代表该国技术活跃度</p>
+                </div>
+                <div class="globe-container" id="globeChart"></div>
+                <div class="globe-tooltip" id="globeTooltip">
+                    <h4>中国 - 固态锂电池技术</h4>
+                    <div class="tooltip-content">
+                        <p><strong>5</strong>项追踪技术 | <strong>12</strong>项变革性技术</p>
+                        <p>主要玩家：金风科技, 隆基绿能, 宁德时代</p>
+                        <div class="tooltip-section">
+                            <p>【主要数据源】</p>
+                            <ul>
+                                <li>政策：欧盟电池法规2023、美国IRA补贴</li>
+                                <li>智库：BNEF 2024报告列为"十年颠覆技术"</li>
+                                <li>专利：丰田/宁德时代/QuantumScape三角竞争</li>
+                                <li>论文：Nature Energy近三年发文量年增80%</li>
+                                <li>产业：半固态已装车（蔚来150kWh），全固态预计2027示范</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Column -->
+        <aside class="col-right">
+            <!-- Data Statistics -->
+            <div class="panel stats-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                            <path d="M3 9h18M9 21V9"/>
+                        </svg>
+                    </div>
+                    <h3 class="panel-title">数据总量</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">📄</div>
+                            <div class="stat-info">
+                                <span class="stat-label">智库报告</span>
+                                <span class="stat-value" data-target="5842">0</span>
+                                <span class="stat-change up">今日新增 +12</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📰</div>
+                            <div class="stat-info">
+                                <span class="stat-label">资讯</span>
+                                <span class="stat-value" data-target="52341">0</span>
+                                <span class="stat-change up">今日新增 +156</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🏛</div>
+                            <div class="stat-info">
+                                <span class="stat-label">机构</span>
+                                <span class="stat-value" data-target="8232">0</span>
+                                <span class="stat-change">今日新增 0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🏢</div>
+                            <div class="stat-info">
+                                <span class="stat-label">企业</span>
+                                <span class="stat-value" data-target="16770">0</span>
+                                <span class="stat-change">今日新增 0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📋</div>
+                            <div class="stat-info">
+                                <span class="stat-label">政策</span>
+                                <span class="stat-value" data-target="4521">0</span>
+                                <span class="stat-change up">今日新增 +8</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🔬</div>
+                            <div class="stat-info">
+                                <span class="stat-label">专利</span>
+                                <span class="stat-value" data-target="2579430">0</span>
+                                <span class="stat-change">今日新增 0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">👤</div>
+                            <div class="stat-info">
+                                <span class="stat-label">人才</span>
+                                <span class="stat-value" data-target="198668">0</span>
+                                <span class="stat-change">今日新增 0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-info">
+                                <span class="stat-label">管控清单</span>
+                                <span class="stat-value" data-target="1328">0</span>
+                                <span class="stat-change up">今日新增 +3</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📁</div>
+                            <div class="stat-info">
+                                <span class="stat-label">项目</span>
+                                <span class="stat-value" data-target="12891">0</span>
+                                <span class="stat-change">今日新增 0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📑</div>
+                            <div class="stat-info">
+                                <span class="stat-label">论文</span>
+                                <span class="stat-value" data-target="3128482">0</span>
+                                <span class="stat-change">今日新增 0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🏆</div>
+                            <div class="stat-info">
+                                <span class="stat-label">奖项</span>
+                                <span class="stat-value" data-target="3856">0</span>
+                                <span class="stat-change">今日新增 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Feed -->
+            <div class="panel news-panel">
+                <div class="panel-header">
+                    <div class="panel-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                    </div>
+                    <h3 class="panel-title">最新动态</h3>
+                    <div class="tab-group">
+                        <span class="tab active">资讯</span>
+                        <span class="tab">政策</span>
+                        <span class="tab">智库报告</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="news-list">
+                        <div class="news-item">
+                            <div class="news-tag tag-news">资讯</div>
+                            <div class="news-content">
+                                <p class="news-title">国家电网陇东-山东±800kV特高压直流工程全线贯通</p>
+                                <span class="news-source">中国能源报</span>
+                            </div>
+                            <span class="news-time">30分钟前</span>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-tag tag-policy">政策</div>
+                            <div class="news-content">
+                                <p class="news-title">国家发改委印发《新型储能制造业高质量发展行动方案》</p>
+                                <span class="news-source">国家发改委</span>
+                            </div>
+                            <span class="news-time">1小时前</span>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-tag tag-report">智库报告</div>
+                            <div class="news-content">
+                                <p class="news-title">IEA：2024年全球电网投资首次突破4000亿美元，储能装机翻倍</p>
+                                <span class="news-source">国际能源署</span>
+                            </div>
+                            <span class="news-time">2小时前</span>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-tag tag-news">资讯</div>
+                            <div class="news-content">
+                                <p class="news-title">宁德时代发布凝聚态电池，能量密度达500Wh/kg</p>
+                                <span class="news-source">电池中国</span>
+                            </div>
+                            <span class="news-time">3小时前</span>
+                        </div>
+                        <div class="news-item">
+                            <div class="news-tag tag-policy">政策</div>
+                            <div class="news-content">
+                                <p class="news-title">欧盟通过新电力市场改革方案，推动可再生能源并网</p>
+                                <span class="news-source">欧盟委员会</span>
+                            </div>
+                            <span class="news-time">5小时前</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

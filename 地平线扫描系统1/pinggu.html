@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>能源技术地平线扫描系统 | Energy Horizon Scanner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', 'Noto Sans SC', sans-serif; }
+        
+        body {
+            background: #0B1120;
+            color: #E0E7FF;
+            overflow-x: hidden;
+        }
+        
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0B1120; }
+        ::-webkit-scrollbar-thumb { background: #1E3A5F; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00D4AA; }
+        
+        /* 霓虹光效 */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.15), 0 0 40px rgba(0, 212, 170, 0.05);
+        }
+        .neon-text {
+            text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+        }
+        .neon-border {
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            box-shadow: 0 0 15px rgba(0, 212, 170, 0.1), inset 0 0 15px rgba(0, 212, 170, 0.05);
+        }
+        
+        /* 脉冲动画 */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 212, 170, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 212, 170, 0.4); }
+        }
+        .pulse-active {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-anim {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        /* 雷达图网格 */
+        .radar-grid-circle {
+            fill: none;
+            stroke: rgba(0, 212, 170, 0.08);
+            stroke-width: 1;
+        }
+        .radar-grid-line {
+            stroke: rgba(0, 212, 170, 0.06);
+            stroke-width: 1;
+        }
+        
+        /* 气泡样式 */
+        .tech-bubble {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tech-bubble:hover {
+            filter: brightness(1.3);
+            transform: scale(1.1);
+        }
+        
+        /* 信号流条目 */
+        .signal-item {
+            border-left: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .signal-item:hover {
+            background: rgba(0, 212, 170, 0.05);
+            border-left-color: #00D4AA;
+        }
+        
+        /* 生命周期阶段颜色 */
+        .stage-beyond { fill: #E0E7FF; }      /* 萌芽期 - 冷白 */
+        .stage-horizon { fill: #00D4AA; }      /* 上升期 - 青绿 */
+        .stage-hype { fill: #FACC15; }         /* 膨胀期 - 明黄 */
+        .stage-near { fill: #FB923C; }          /* 落地期 - 橙红 */
+        .stage-mainstream { fill: #3B82F6; }    /* 成熟期 - 稳蓝 */
+        
+        /* 数据源颜色 */
+        .source-policy { background: #8B5CF6; }
+        .source-thinktank { background: #06B6D4; }
+        .source-paper { background: #3B82F6; }
+        .source-patent { background: #10B981; }
+        .source-industry { background: #F97316; }
+        .source-standard { background: #6B7280; }
+        
+        /* 玻璃拟态 */
+        .glass {
+            background: rgba(11, 17, 32, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 212, 170, 0.1);
+        }
+        
+        /* 时间轴 */
+        .timeline-line {
+            stroke: rgba(0, 212, 170, 0.3);
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+        }
+        .timeline-node {
+            fill: #00D4AA;
+            stroke: #0B1120;
+            stroke-width: 3;
+        }
+        .timeline-node-future {
+            fill: none;
+            stroke: #00D4AA;
+            stroke-width: 2;
+            stroke-dasharray: 4,4;
+        }
+        
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        /* 视图切换动画 */
+        .view-enter {
+            animation: fadeSlideUp 0.5s ease-out;
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 加载动画 */
+        .loader-ring {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 212, 170, 0.1);
+            border-top-color: #00D4AA;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- 全局导航栏 -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass h-14 flex items-center justify-between px-6">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00D4AA] to-[#0B1120] flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
+            <span class="font-bold text-lg tracking-wide neon-text">Horizon<span class="text-[#00D4AA]">Scan</span></span>
+            <span class="text-xs text-slate-500 ml-2 px-2 py-0.5 rounded-full border border-slate-700">能源领域技术扫描 v2.0</span>
+        </div>
+        
+        <div class="flex items-center gap-1">
+            <button onclick="switchView('dashboard')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-[#00D4AA]/10 text-[#00D4AA] bg-[#00D4AA]/10" id="nav-dashboard">
+                数据看板
+            </button>
+            <button onclick="switchView('radar')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-[#00D4AA]/10 text-slate-400" id="nav-radar">
+                技术雷达
+            </button>
+            <button onclick="switchView('scan')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-[#00D4AA]/10 text-slate-400" id="nav-scan">
+                地平线扫描
+            </button>
+            <button onclick="switchView('report')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-[#00D4AA]/10 text-slate-400" id="nav-report">
+                分析报告
+            </button>
+            <button onclick="switchView('alert')" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-[#00D4AA]/10 text-slate-400" id="nav-alert">
+                预警中心
+                <span class="ml-1 w-2 h-2 rounded-full bg-red-500 inline-block animate-pulse"></span>
+            </button>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                数据实时更新
+            </div>
+            <button class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            </button>
+            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-[#00D4AA] to-[#3B82F6]"></div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="pt-14 h-screen">
+        
+        <!-- ========================================== -->
+        <!-- 第一层：数据看板 + 全景雷达（默认视图） -->
+        <!-- ========================================== -->
+        <div id="view-dashboard" class="view-section h-full flex flex-col">
+            
+            <!-- 顶部关键指标栏 -->
+            <div class="h-24 px-6 py-3 flex gap-4 shrink-0">
+                <div class="flex-1 glass rounded-xl p-3 flex flex-col justify-between hover:border-[#00D4AA]/40 transition cursor-pointer group" onclick="switchView('scan', 'horizon')">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs text-slate-400 font-medium">地平线技术</span>
+                        <span class="text-[10px] text-[#00D4AA] bg-[#00D4AA]/10 px-1.5 py-0.5 rounded">重点关注</span>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-2xl font-bold text-white">23</span>
+                        <span class="text-xs text-slate-400 mb-1">项</span>
+                        <span class="text-xs text-[#00D4AA] mb-1 flex items-center">
+                            <svg class="w-3 h-3 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                            2
+                        </span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                        <div class="bg-[#00D4AA] h-full rounded-full" style="width: 65%"></div>
+                    </div>
+                </div>
+                
+                <div class="flex-1 glass rounded-xl p-3 flex flex-col justify-between hover:border-[#FACC15]/40 transition cursor-pointer group" onclick="switchView('scan', 'hype')">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs text-slate-400 font-medium">热点技术</span>
+                        <span class="text-[10px] text-[#FACC15] bg-[#FACC15]/10 px-1.5 py-0.5 rounded">炒作风险</span>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-2xl font-bold text-white">8</span>
+                        <span class="text-xs text-slate-400 mb-1">项</span>
+                        <span class="text-xs text-red-400 mb-1 flex items-center">
+                            <svg class="w-3 h-3 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                            1
+                        </span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                        <div class="bg-[#FACC15] h-full rounded-full" style="width: 35%"></div>
+                    </div>
+                </div>
+                
+                <div class="flex-1 glass rounded-xl p-3 flex flex-col justify-between hover:border-[#FB923C]/40 transition cursor-pointer group" onclick="switchView('scan', 'near')">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs text-slate-400 font-medium">近岸技术</span>
+                        <span class="text-[10px] text-[#FB923C] bg-[#FB923C]/10 px-1.5 py-0.5 rounded">产业化</span>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-2xl font-bold text-white">15</span>
+                        <span class="text-xs text-slate-400 mb-1">项</span>
+                        <span class="text-xs text-slate-500 mb-1">→ 0</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                        <div class="bg-[#FB923C] h-full rounded-full" style="width: 55%"></div>
+                    </div>
+                </div>
+                
+                <div class="flex-1 glass rounded-xl p-3 flex flex-col justify-between hover:border-[#3B82F6]/40 transition cursor-pointer group">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs text-slate-400 font-medium">本周新晋</span>
+                        <span class="text-[10px] text-[#3B82F6] bg-[#3B82F6]/10 px-1.5 py-0.5 rounded">NEW</span>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-2xl font-bold text-white">3</span>
+                        <span class="text-xs text-slate-400 mb-1">项</span>
+                    </div>
+                    <div class="flex gap-1 mt-1">
+                        <span class="tag bg-[#00D4AA]/20 text-[#00D4AA] text-[10px]">固态电池</span>
+                        <span class="tag bg-[#F97316]/20 text-[#F97316] text-[10px]">氢燃轮机</span>
+                        <span class="tag bg-[#8B5CF6]/20 text-[#8B5CF6] text-[10px]">量子传感电网</span>
+                    </div>
+                </div>
+                
+                <div class="flex-1 glass rounded-xl p-3 flex flex-col justify-between border-red-500/30 bg-red-500/5 cursor-pointer hover:bg-red-500/10 transition" onclick="switchView('alert')">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs text-red-400 font-medium">风险预警</span>
+                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <span class="text-2xl font-bold text-red-400">5</span>
+                        <span class="text-xs text-slate-400 mb-1">项</span>
+                    </div>
+                    <div class="flex flex-col gap-1 mt-1">
+                        <span class="text-[10px] text-red-300/80 truncate">钠电替代锂电路线存疑</span>
+                        <span class="text-[10px] text-red-300/80 truncate">氢能技术路线分歧扩大</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主体区域：雷达图 + 信息瀑布 -->
+            <div class="flex-1 flex gap-4 px-6 pb-4 min-h-0">
+                <!-- 左侧：全景雷达 -->
+                <div class="flex-1 glass rounded-xl relative overflow-hidden flex flex-col">
+                    <div class="absolute top-4 left-4 z-10">
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span class="w-1.5 h-5 bg-[#00D4AA] rounded-full"></span>
+                            能源技术全景雷达
+                        </h2>
+                        <p class="text-xs text-slate-400 mt-1">基于多源数据融合的技术态势感知</p>
+                    </div>
+                    
+                    <!-- 图例与筛选 -->
+                    <div class="absolute top-4 right-4 z-10 flex flex-col gap-2">
+                        <div class="glass rounded-lg p-2 text-xs space-y-1.5">
+                            <div class="text-slate-400 font-medium mb-1">生命周期</div>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#E0E7FF]"></span><span class="text-slate-300">萌芽期</span></div>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#00D4AA]"></span><span class="text-slate-300">上升期</span></div>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FACC15]"></span><span class="text-slate-300">膨胀期</span></div>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#FB923C]"></span><span class="text-slate-300">落地期</span></div>
+                            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-[#3B82F6]"></span><span class="text-slate-300">成熟期</span></div>
+                        </div>
+                        <div class="glass rounded-lg p-2 text-xs space-y-1.5">
+                            <div class="text-slate-400 font-medium mb-1">影响域筛选</div>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked class="accent-[#00D4AA] w-3 h-3"><span class="text-slate-300">供给侧</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked class="accent-[#00D4AA] w-3 h-3"><span class="text-slate-300">电网侧</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked class="accent-[#00D4AA] w-3 h-3"><span class="text-slate-300">消费侧</span></label>
+                            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked class="accent-[#00D4AA] w-3 h-3"><span class="text-slate-300">使能侧</span></label>
+                        </div>
+                    </div>
+                    
+                    <!-- 时间轴滑块 -->
+                    <div class="absolute bottom-4 left-4 right-48 z-10 glass rounded-lg p-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-slate-400 whitespace-nowrap">时间回溯</span>
+                            <input type="range" min="2020" max="2026" value="2026" class="flex-1 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-[#00D4AA]" id="timeSlider">
+                            <span class="text-xs text-[#00D4AA] font-mono w-12 text-right" id="timeDisplay">2026</span>
+                            <button class="text-xs px-2 py-1 rounded bg-[#00D4AA]/20 text-[#00D4AA] hover:bg-[#00D4AA]/30 transition" onclick="playTimeline()">▶ 回放</button>
+                        </div>
+                    </div>
+                    
+                    <!-- D3雷达图容器 -->
+                    <div id="radar-container" class="flex-1 w-full h-full"></div>
+                </div>
+
+                <!-- 右侧：实时信号流 -->
+                <div class="w-80 glass rounded-xl flex flex-col overflow-hidden">
+                    <div class="p-3 border-b border-slate-800/50 flex justify-between items-center">
+                        <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#00D4AA] animate-pulse"></span>
+                            实时信号流
+                        </h3>
+                        <span class="text-[10px] text-slate-500">Live</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-2 space-y-2" id="signal-stream">
+                        <!-- 信号条目由JS生成 -->
+                    </div>
+                    <div class="p-2 border-t border-slate-800/50">
+                        <button class="w-full text-xs text-slate-400 hover:text-[#00D4AA] transition py-1">加载更多...</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 第二层：技术领域细分视图（默认隐藏） -->
+        <!-- ========================================== -->
+        <div id="view-sector" class="view-section hidden h-full flex flex-col px-6 py-4 gap-4">
+            <!-- 面包屑 -->
+            <div class="flex items-center gap-2 text-sm text-slate-400">
+                <button onclick="switchView('dashboard')" class="hover:text-[#00D4AA] transition">技术雷达</button>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <span class="text-[#00D4AA] font-medium" id="sector-name">储能技术</span>
+            </div>
+
+            <div class="flex-1 flex gap-4 min-h-0">
+                <!-- 左侧：领域细分雷达 -->
+                <div class="w-1/2 glass rounded-xl relative p-4">
+                    <h3 class="text-base font-bold text-white mb-2">储能技术路线雷达</h3>
+                    <div id="sector-radar" class="w-full h-[calc(100%-2rem)]"></div>
+                    <!-- 悬浮提示 -->
+                    <div class="absolute bottom-4 left-4 text-xs text-slate-400">
+                        气泡大小 = 市场规模潜力 | 环位置 = 成熟度 | 颜色 = 技术路线
+                    </div>
+                </div>
+
+                <!-- 右侧：生命周期流 + 竞争矩阵 -->
+                <div class="w-1/2 flex flex-col gap-4">
+                    <!-- 生命周期流 -->
+                    <div class="flex-1 glass rounded-xl p-4 overflow-hidden flex flex-col">
+                        <h3 class="text-base font-bold text-white mb-3 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#00D4AA]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                            技术生命周期流
+                        </h3>
+                        <div class="flex-1 relative" id="lifecycle-flow">
+                            <!-- 由JS生成水平时间轴 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 竞争格局矩阵 -->
+                    <div class="h-48 glass rounded-xl p-4">
+                        <h3 class="text-sm font-bold text-white mb-2">技术路线竞争格局</h3>
+                        <div class="w-full h-[calc(100%-2rem)] relative" id="competition-matrix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 第三层：单项技术深度卡片（默认隐藏） -->
+        <!-- ========================================== -->
+        <div id="view-card" class="view-section hidden h-full flex flex-col px-6 py-4 gap-4 overflow-y-auto">
+            <!-- 面包屑 + 操作栏 -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-slate-400">
+                    <button onclick="switchView('dashboard')" class="hover:text-[#00D4AA] transition">技术雷达</button>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <button onclick="switchView('sector')" class="hover:text-[#00D4AA] transition" id="card-sector-breadcrumb">储能技术</button>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <span class="text-[#00D4AA] font-medium" id="card-tech-name">固态电池</span>
+                </div>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                        收藏
+                    </button>
+                    <button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#00D4AA]/20 hover:bg-[#00D4AA]/30 text-[#00D4AA] transition flex items-center gap-1" onclick="translateToNeed()">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                        翻译为产业需求
+                    </button>
+                    <button class="px-3 py-1.5 rounded-lg text-xs font-medium bg-[#00D4AA] hover:bg-[#00D4AA]/80 text-[#0B1120] transition flex items-center gap-1 font-semibold">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        生成报告
+                    </button>
+                </div>
+            </div>
+
+            <!-- 五栏式深度卡片 -->
+            <div class="flex-1 grid grid-cols-5 gap-4 min-h-[600px]">
+                
+                <!-- ① 生命周期 -->
+                <div class="glass rounded-xl p-4 flex flex-col gap-4">
+                    <h4 class="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800/50 pb-2">
+                        <span class="w-1 h-4 bg-[#00D4AA] rounded-full"></span>
+                        生命周期
+                    </h4>
+                    
+                    <div class="flex-1 flex flex-col items-center justify-center">
+                        <!-- 半圆仪表盘 -->
+                        <div class="relative w-32 h-16 overflow-hidden mb-2">
+                            <div class="absolute w-32 h-32 rounded-full border-8 border-slate-800"></div>
+                            <div class="absolute w-32 h-32 rounded-full border-8 border-transparent border-t-[#00D4AA] rotate-[135deg]" style="clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%)"></div>
+                            <div class="absolute w-32 h-32 rounded-full border-8 border-transparent border-t-[#FACC15] rotate-[180deg]" style="clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%)"></div>
+                            <div class="absolute w-32 h-32 rounded-full border-8 border-transparent border-t-[#FB923C] rotate-[225deg]" style="clip-path: polygon(0 0, 100% 0, 100% 50%, 0 50%)"></div>
+                            <!-- 指针 -->
+                            <div class="absolute bottom-0 left-1/2 w-0.5 h-14 bg-white origin-bottom -translate-x-1/2 rotate-[160deg] transition-transform duration-1000"></div>
+                            <div class="absolute bottom-0 left-1/2 w-2 h-2 bg-white rounded-full -translate-x-1/2 translate-y-1/2"></div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-[#00D4AA]">快速上升期</div>
+                            <div class="text-xs text-slate-400 mt-1">Horizon Technology</div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">置信度</span>
+                            <span class="text-[#00D4AA] font-mono">85%</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-1.5 rounded-full">
+                            <div class="bg-[#00D4AA] h-full rounded-full" style="width: 85%"></div>
+                        </div>
+                        <div class="text-[10px] text-slate-500 mt-1">
+                            预计 <span class="text-[#FACC15]">8个月</span> 内进入膨胀期
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-800/50">
+                        <div class="text-xs text-slate-400 font-medium">关键指标</div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">能量密度</span>
+                            <span class="text-white font-mono">>400Wh/kg</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">成本目标</span>
+                            <span class="text-white font-mono"><$80/kWh</span>
+                        </div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500">循环寿命</span>
+                            <span class="text-white font-mono">>1000次</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800/50">
+                        <div class="text-xs text-slate-400 font-medium mb-2">同类对比</div>
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-slate-500 w-14">半固态</span>
+                                <div class="flex-1 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-[#FB923C] h-full rounded-full" style="width: 80%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-slate-500 w-14">钠电池</span>
+                                <div class="flex-1 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-[#3B82F6] h-full rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="text-slate-500 w-14">液流电池</span>
+                                <div class="flex-1 bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-[#3B82F6] h-full rounded-full" style="width: 55%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ② 信号溯源 -->
+                <div class="glass rounded-xl p-4 flex flex-col gap-4">
+                    <h4 class="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800/50 pb-2">
+                        <span class="w-1 h-4 bg-[#00D4AA] rounded-full"></span>
+                        信号溯源
+                    </h4>
+
+                    <!-- 五维雷达迷你图 -->
+                    <div class="h-32 relative" id="mini-radar-signal"></div>
+
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">综合信号强度</span>
+                            <span class="text-lg font-bold text-[#00D4AA]">8.2<span class="text-xs text-slate-500">/10</span></span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-[#00D4AA] to-[#FACC15] h-full rounded-full" style="width: 82%"></div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-800/50">
+                        <div class="text-xs text-slate-400 font-medium">各维度信号</div>
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="source-policy w-1.5 h-1.5 rounded-full"></span>
+                                <span class="text-xs text-slate-400 w-10">政策</span>
+                                <div class="flex-1 bg-slate-800 h-1 rounded-full">
+                                    <div class="source-policy h-full rounded-full" style="width: 75%"></div>
+                                </div>
+                                <span class="text-xs text-slate-300 w-6 text-right">7.5</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="source-thinktank w-1.5 h-1.5 rounded-full"></span>
+                                <span class="text-xs text-slate-400 w-10">智库</span>
+                                <div class="flex-1 bg-slate-800 h-1 rounded-full">
+                                    <div class="source-thinktank h-full rounded-full" style="width: 90%"></div>
+                                </div>
+                                <span class="text-xs text-slate-300 w-6 text-right">9.0</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="source-paper w-1.5 h-1.5 rounded-full"></span>
+                                <span class="text-xs text-slate-400 w-10">论文</span>
+                                <div class="flex-1 bg-slate-800 h-1 rounded-full">
+                                    <div class="source-paper h-full rounded-full" style="width: 88%"></div>
+                                </div>
+                                <span class="text-xs text-slate-300 w-6 text-right">8.8</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="source-patent w-1.5 h-1.5 rounded-full"></span>
+                                <span class="text-xs text-slate-400 w-10">专利</span>
+                                <div class="flex-1 bg-slate-800 h-1 rounded-full">
+                                    <div class="source-patent h-full rounded-full" style="width: 92%"></div>
+                                </div>
+                                <span class="text-xs text-slate-300 w-6 text-right">9.2</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="source-industry w-1.5 h-1.5 rounded-full"></span>
+                                <span class="text-xs text-slate-400 w-10">产业</span>
+                                <div class="flex-1 bg-slate-800 h-1 rounded-full">
+                                    <div class="source-industry h-full rounded-full" style="width: 65%"></div>
+                                </div>
+                                <span class="text-xs text-slate-300 w-6 text-right">6.5</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="source-standard w-1.5 h-1.5 rounded-full"></span>
+                                <span class="text-xs text-slate-400 w-10">标准</span>
+                                <div class="flex-1 bg-slate-800 h-1 rounded-full">
+                                    <div class="source-standard h-full rounded-full" style="width: 35%"></div>
+                                </div>
+                                <span class="text-xs text-slate-300 w-6 text-right">3.5</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 overflow-y-auto space-y-2 pt-2 border-t border-slate-800/50">
+                        <div class="text-xs text-slate-400 font-medium">本周热点</div>
+                        <div class="signal-item p-2 rounded bg-slate-800/30 cursor-pointer">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="source-industry w-1.5 h-1.5 rounded-full"></span>
+                                <span class="text-[10px] text-[#F97316]">产业</span>
+                                <span class="text-[10px] text-slate-500">2小时前</span>
+                            </div>
+                            <div class="text-xs text-slate-300 leading-relaxed">蔚来完成150kWh半固态电池包路测，续航超1000km</div>
+                        </div>
+                        <div class="signal-item p-2 rounded bg-slate-800/30 cursor-pointer">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="source-patent w-1.5 h-1.5 rounded-full"></span>
+                                <span class="text-[10px] text-[#10B981]">专利</span>
+                                <span class="text-[10px] text-slate-500">5小时前</span>
+                            </div>
+                            <div class="text-xs text-slate-300 leading-relaxed">宁德时代公开"凝聚态电池"新专利，能量密度500Wh/kg</div>
+                        </div>
+                        <div class="signal-item p-2 rounded bg-slate-800/30 cursor-pointer">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="source-paper w-1.5 h-1.5 rounded-full"></span>
+                                <span class="text-[10px] text-[#3B82F6]">论文</span>
+                                <span class="text-[10px] text-slate-500">1天前</span>
+                            </div>
+                            <div class="text-xs text-slate-300 leading-relaxed">Nature子刊：硫化物电解质空气稳定性突破，湿度耐受提升至60%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ③ 影响评估 -->
+                <div class="glass rounded-xl p-4 flex flex-col gap-4">
+                    <h4 class="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800/50 pb-2">
+                        <span class="w-1 h-4 bg-[#00D4AA] rounded-full"></span>
+                        影响评估
+                    </h4>
+
+                    <div class="space-y-3">
+                        <div class="text-xs text-slate-400 font-medium">影响域矩阵</div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="p-2 rounded-lg bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-center">
+                                <div class="text-lg mb-1">⊕</div>
+                                <div class="text-xs text-[#00D4AA] font-medium">供给侧</div>
+                                <div class="text-[10px] text-slate-400 mt-1">储能密度革命</div>
+                            </div>
+                            <div class="p-2 rounded-lg bg-slate-800/50 border border-slate-700 text-center opacity-50">
+                                <div class="text-lg mb-1">⊖</div>
+                                <div class="text-xs text-slate-400 font-medium">电网侧</div>
+                                <div class="text-[10px] text-slate-500 mt-1">间接影响</div>
+                            </div>
+                            <div class="p-2 rounded-lg bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-center">
+                                <div class="text-lg mb-1">⊕</div>
+                                <div class="text-xs text-[#00D4AA] font-medium">消费侧</div>
+                                <div class="text-[10px] text-slate-400 mt-1">电动汽车续航</div>
+                            </div>
+                            <div class="p-2 rounded-lg bg-[#00D4AA]/10 border border-[#00D4AA]/30 text-center">
+                                <div class="text-lg mb-1">⊕</div>
+                                <div class="text-xs text-[#00D4AA] font-medium">耦合侧</div>
+                                <div class="text-[10px] text-slate-400 mt-1">航空电动化</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-800/50">
+                        <div class="text-xs text-slate-400 font-medium">耦合技术网络</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="tag bg-[#00D4AA]/20 text-[#00D4AA]">硅碳负极</span>
+                            <span class="tag bg-[#00D4AA]/20 text-[#00D4AA]">锂金属负极</span>
+                            <span class="tag bg-[#00D4AA]/20 text-[#00D4AA]">干法电极</span>
+                            <span class="tag bg-[#3B82F6]/20 text-[#3B82F6]">BEV</span>
+                            <span class="tag bg-[#3B82F6]/20 text-[#3B82F6]">eVTOL</span>
+                            <span class="tag bg-[#F97316]/20 text-[#F97316]">热管理</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-800/50">
+                        <div class="text-xs text-slate-400 font-medium">场景映射</div>
+                        <div class="space-y-1.5">
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#00D4AA]"></span>
+                                <span class="text-slate-300">高端电动汽车 (>800km续航)</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#00D4AA]"></span>
+                                <span class="text-slate-300">电动航空 (eVTOL/短程飞机)</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#00D4AA]"></span>
+                                <span class="text-slate-300">深海装备/空间站储能</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-[#FACC15]"></span>
+                                <span class="text-slate-300">消费电子 (轻薄化方向)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto p-2 rounded bg-[#00D4AA]/5 border border-[#00D4AA]/20">
+                        <div class="text-[10px] text-[#00D4AA] font-medium mb-1">AI评估摘要</div>
+                        <div class="text-xs text-slate-400 leading-relaxed">固态电池是下一代电化学储能的确定性方向，当前处于从实验室向中试过渡的关键窗口期。硫化物路线在离子电导率上领先但空气稳定性差，氧化物路线更安全但界面阻抗大，聚合物路线柔性佳但室温性能受限。未来3-5年的核心突破点在于...</div>
+                    </div>
+                </div>
+
+                <!-- ④ 竞争格局 -->
+                <div class="glass rounded-xl p-4 flex flex-col gap-4">
+                    <h4 class="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800/50 pb-2">
+                        <span class="w-1 h-4 bg-[#00D4AA] rounded-full"></span>
+                        竞争格局
+                    </h4>
+
+                    <div class="space-y-3">
+                        <div class="text-xs text-slate-400 font-medium">技术路线专利地图</div>
+                        <div class="space-y-2">
+                            <div class="p-2 rounded bg-slate-800/30">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs text-white flex items-center gap-1">🇯🇵 硫化物路线</span>
+                                    <span class="text-[10px] text-[#10B981]">领先</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-800 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-[#10B981] to-[#00D4AA] h-full rounded-full" style="width: 85%"></div>
+                                    </div>
+                                    <span class="text-xs text-slate-400 w-8">丰田</span>
+                                </div>
+                                <div class="flex gap-1 mt-1">
+                                    <span class="text-[10px] text-slate-500">离子电导率高</span>
+                                    <span class="text-[10px] text-slate-600">|</span>
+                                    <span class="text-[10px] text-red-400">空气稳定性差</span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-2 rounded bg-slate-800/30">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs text-white flex items-center gap-1">🇨🇳 氧化物路线</span>
+                                    <span class="text-[10px] text-[#FACC15]">追赶</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-800 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-[#FACC15] to-[#FB923C] h-full rounded-full" style="width: 65%"></div>
+                                    </div>
+                                    <span class="text-xs text-slate-400 w-8">宁德</span>
+                                </div>
+                                <div class="flex gap-1 mt-1">
+                                    <span class="text-[10px] text-slate-500">安全性好</span>
+                                    <span class="text-[10px] text-slate-600">|</span>
+                                    <span class="text-[10px] text-red-400">界面阻抗大</span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-2 rounded bg-slate-800/30">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs text-white flex items-center gap-1">🇺🇸 聚合物路线</span>
+                                    <span class="text-[10px] text-[#3B82F6]">差异化</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="flex-1 bg-slate-800 h-2 rounded-full overflow-hidden">
+                                        <div class="bg-gradient-to-r from-[#3B82F6] to-[#8B5CF6] h-full rounded-full" style="width: 45%"></div>
+                                    </div>
+                                    <span class="text-xs text-slate-400 w-8">QS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 pt-2 border-t border-slate-800/50">
+                        <div class="text-xs text-slate-400 font-medium">国产化率仪表盘</div>
+                        <div class="space-y-2">
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-400">固态电解质</span>
+                                    <span class="text-[#FACC15]">60%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full">
+                                    <div class="bg-[#FACC15] h-full rounded-full" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-400">锂金属负极</span>
+                                    <span class="text-red-400">30%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full">
+                                    <div class="bg-red-400 h-full rounded-full" style="width: 30%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-400">制造设备</span>
+                                    <span class="text-red-400">25%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full">
+                                    <div class="bg-red-400 h-full rounded-full" style="width: 25%"></div>
+                                </div>
+                                <div class="text-[10px] text-red-400/80 mt-1">⚠️ 卡脖子环节：等静压设备、锂箔轧机</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto space-y-2">
+                        <div class="text-xs text-slate-400 font-medium">风险徽章</div>
+                        <div class="flex flex-wrap gap-1.5">
+                            <span class="tag bg-red-500/20 text-red-400 border border-red-500/30">路线分歧风险</span>
+                            <span class="tag bg-[#FACC15]/20 text-[#FACC15] border border-[#FACC15]/30">产业化延迟</span>
+                            <span class="tag bg-[#8B5CF6]/20 text-[#8B5CF6] border border-[#8B5CF6]/30">资源依赖</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ⑤ 时间轴与关联网络 -->
+                <div class="glass rounded-xl p-4 flex flex-col gap-4">
+                    <h4 class="text-sm font-bold text-white flex items-center gap-2 border-b border-slate-800/50 pb-2">
+                        <span class="w-1 h-4 bg-[#00D4AA] rounded-full"></span>
+                        发展时间轴
+                    </h4>
+
+                    <div class="flex-1 relative overflow-y-auto pr-2">
+                        <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#00D4AA] via-[#FACC15] to-[#3B82F6]"></div>
+                        
+                        <div class="space-y-4 relative">
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-[#00D4AA] flex items-center justify-center shrink-0 z-10 text-[10px] font-bold text-[#0B1120]">2015</div>
+                                <div class="flex-1 p-2 rounded bg-slate-800/30">
+                                    <div class="text-xs text-[#00D4AA] font-medium">基础研究突破</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">首批硫化物固态电解质论文发表，离子电导率超越液态</div>
+                                    <div class="flex gap-1 mt-1">
+                                        <span class="tag source-paper text-white text-[9px]">论文</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-[#00D4AA] flex items-center justify-center shrink-0 z-10 text-[10px] font-bold text-[#0B1120]">2018</div>
+                                <div class="flex-1 p-2 rounded bg-slate-800/30">
+                                    <div class="text-xs text-[#00D4AA] font-medium">专利爆发</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">丰田/宁德时代/QuantumScape专利布局三角竞争形成</div>
+                                    <div class="flex gap-1 mt-1">
+                                        <span class="tag source-patent text-white text-[9px]">专利</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-[#00D4AA] flex items-center justify-center shrink-0 z-10 text-[10px] font-bold text-[#0B1120]">2020</div>
+                                <div class="flex-1 p-2 rounded bg-slate-800/30">
+                                    <div class="text-xs text-[#00D4AA] font-medium">企业入场</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">卫蓝新能源/清陶能源成立，半固态电池产线规划</div>
+                                    <div class="flex gap-1 mt-1">
+                                        <span class="tag source-industry text-white text-[9px]">产业</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-[#FACC15] flex items-center justify-center shrink-0 z-10 text-[10px] font-bold text-[#0B1120]">2022</div>
+                                <div class="flex-1 p-2 rounded bg-[#FACC15]/10 border border-[#FACC15]/20">
+                                    <div class="text-xs text-[#FACC15] font-medium">半固态装车</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">蔚来ET7搭载卫蓝150kWh半固态电池包，续航超1000km</div>
+                                    <div class="flex gap-1 mt-1">
+                                        <span class="tag source-industry text-white text-[9px]">产业</span>
+                                        <span class="tag bg-[#FACC15] text-[#0B1120] text-[9px]">里程碑</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-3 items-start">
+                                <div class="w-8 h-8 rounded-full bg-[#FB923C] flex items-center justify-center shrink-0 z-10 text-[10px] font-bold text-[#0B1120]">2024</div>
+                                <div class="flex-1 p-2 rounded bg-[#FB923C]/10 border border-[#FB923C]/20">
+                                    <div class="text-xs text-[#FB923C] font-medium">全固态中试</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">丰田宣布2027年量产，宁德时代发布凝聚态电池技术路线</div>
+                                    <div class="flex gap-1 mt-1">
+                                        <span class="tag source-industry text-white text-[9px]">产业</span>
+                                        <span class="tag source-policy text-white text-[9px]">政策</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-3 items-start opacity-60">
+                                <div class="w-8 h-8 rounded-full border-2 border-dashed border-[#3B82F6] flex items-center justify-center shrink-0 z-10 text-[10px] font-bold text-[#3B82F6]">2027</div>
+                                <div class="flex-1 p-2 rounded bg-slate-800/20 border border-dashed border-slate-700">
+                                    <div class="text-xs text-[#3B82F6] font-medium">预计全固态示范</div>
+                                    <div class="text-[10px] text-slate-500 mt-1">千辆级示范运行，成本降至$150/kWh</div>
+                                    <div class="flex gap-1 mt-1">
+                                        <span class="tag bg-[#3B82F6]/20 text-[#3B82F6] text-[9px]">预测</span>
+                                        <span class="text-[9px] text-slate-600">置信度 65%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-3 items-start opacity-40">
+                                <div class="w-8 h-8 rounded-full border-2 border-dashed border-[#3B82F6] flex items-center justify-center shrink-0 z-10 text-[10px] font-bold text-[#3B82F6]">2030</div>
+                                <div class="flex-1 p-2 rounded bg-slate-800/20 border border-dashed border-slate-700">
+                                    <div class="text-xs text-[#3B82F6] font-medium">目标量产期</div>
+                                    <div class="text-[10px] text-slate-500 mt-1">成本<$80/kWh，渗透率>15%</div>
+                                    <div class="flex gap-1 mt-1">
+                                        <span class="tag bg-[#3B82F6]/20 text-[#3B82F6] text-[9px]">预测</span>
+                                        <span class="text-[9px] text-slate-600">置信度 45%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800/50">
+                        <div class="text-xs text-slate-400 font-medium mb-2">关联技术网络</div>
+                        <div class="h-32 relative" id="relation-network"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 产业需求翻译模态框 -->
+        <div id="modal-translation" class="fixed inset-0 z-[100] hidden">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal()"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] glass rounded-2xl p-6 neon-border">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-white">翻译为产业需求研究问题</h3>
+                    <button onclick="closeModal()" class="text-slate-400 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="p-3 rounded-lg bg-[#00D4AA]/5 border border-[#00D4AA]/20">
+                        <div class="text-xs text-[#00D4AA] font-medium mb-2">技术输入</div>
+                        <div class="text-sm text-white font-medium">固态电池 (Solid-State Battery)</div>
+                        <div class="text-xs text-slate-400 mt-1">生命周期：快速上升期 | 置信度：85%</div>
+                    </div>
+                    
+                    <div class="flex items-center justify-center">
+                        <svg class="w-6 h-6 text-[#00D4AA] animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                    </div>
+                    
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium mb-2">识别的产业痛点</div>
+                        <div class="space-y-2">
+                            <div class="flex items-start gap-2 p-2 rounded bg-slate-800/30">
+                                <span class="w-5 h-5 rounded bg-[#00D4AA]/20 text-[#00D4AA] flex items-center justify-center text-xs shrink-0 mt-0.5">✓</span>
+                                <span class="text-xs text-slate-300">电动汽车续航焦虑制约市场渗透率突破30%</span>
+                            </div>
+                            <div class="flex items-start gap-2 p-2 rounded bg-slate-800/30">
+                                <span class="w-5 h-5 rounded bg-[#00D4AA]/20 text-[#00D4AA] flex items-center justify-center text-xs shrink-0 mt-0.5">✓</span>
+                                <span class="text-xs text-slate-300">高能量密度需求与热失控安全性存在根本性矛盾</span>
+                            </div>
+                            <div class="flex items-start gap-2 p-2 rounded bg-slate-800/30">
+                                <span class="w-5 h-5 rounded bg-[#00D4AA]/20 text-[#00D4AA] flex items-center justify-center text-xs shrink-0 mt-0.5">✓</span>
+                                <span class="text-xs text-slate-300">现有锂电产业链对钴镍资源存在地缘供应风险</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="text-xs text-slate-400 font-medium mb-2">推荐研究课题</div>
+                        <div class="space-y-2">
+                            <div class="p-3 rounded-lg bg-gradient-to-r from-[#00D4AA]/10 to-transparent border-l-2 border-[#00D4AA]">
+                                <div class="text-sm text-white font-medium">硫化物固态电解质与锂金属负极界面稳定性机理</div>
+                                <div class="text-[10px] text-slate-400 mt-1">关键词：界面阻抗 | 枝晶抑制 | 循环寿命</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-gradient-to-r from-[#00D4AA]/10 to-transparent border-l-2 border-[#00D4AA]">
+                                <div class="text-sm text-white font-medium">干法电极工艺规模化制备的缺陷控制与良率提升</div>
+                                <div class="text-[10px] text-slate-400 mt-1">关键词：等静压成型 | 孔隙率控制 | 制造装备</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-gradient-to-r from-[#00D4AA]/10 to-transparent border-l-2 border-[#00D4AA]">
+                                <div class="text-sm text-white font-medium">全固态电池系统级热管理建模与多物理场仿真</div>
+                                <div class="text-[10px] text-slate-400 mt-1">关键词：数字孪生 | 热失控预警 | 结构优化</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-3 pt-2">
+                        <button class="flex-1 py-2.5 rounded-lg bg-[#00D4AA]/20 hover:bg-[#00D4AA]/30 text-[#00D4AA] text-sm font-medium transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+                            导出至产业需求罗盘
+                        </button>
+                        <button class="flex-1 py-2.5 rounded-lg bg-[#00D4AA] hover:bg-[#00D4AA]/80 text-[#0B1120] text-sm font-semibold transition flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            生成课题申报书
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // ==================== 数据定义 ====================
+        const techData = [
+            // 储能技术
+            { id: 1, name: "固态电池", sector: "储能", stage: "horizon", trl: 5, x: 0.3, y: 0.2, size: 35, heat: 9.2, source: "patent", impact: ["supply", "demand"] },
+            { id: 2, name: "钠离子电池", sector: "储能", stage: "near", trl: 7, x: 0.5, y: 0.3, size: 40, heat: 8.5, source: "industry", impact: ["supply"] },
+            { id: 3, name: "液流电池", sector: "储能", stage: "horizon", trl: 6, x: 0.7, y: 0.25, size: 28, heat: 7.8, source: "paper", impact: ["supply", "grid"] },
+            { id: 4, name: "压缩空气储能", sector: "储能", stage: "near", trl: 8, x: 0.6, y: 0.4, size: 32, heat: 7.2, source: "policy", impact: ["supply", "grid"] },
+            { id: 5, name: "锂离子电池", sector: "储能", stage: "mainstream", trl: 9, x: 0.4, y: 0.5, size: 50, heat: 6.5, source: "industry", impact: ["supply", "demand"] },
+            { id: 6, name: "氢储能", sector: "储能", stage: "horizon", trl: 4, x: 0.8, y: 0.35, size: 30, heat: 8.0, source: "thinktank", impact: ["supply", "coupling"] },
+            
+            // 发电技术
+            { id: 7, name: "钙钛矿光伏", sector: "发电", stage: "horizon", trl: 5, x: 0.2, y: 0.6, size: 38, heat: 8.8, source: "paper", impact: ["supply", "demand"] },
+            { id: 8, name: "海上漂浮风电", sector: "发电", stage: "near", trl: 7, x: 0.3, y: 0.7, size: 33, heat: 7.5, source: "industry", impact: ["supply"] },
+            { id: 9,
