@@ -1376,6 +1376,220 @@
             text-align: right;
             flex-shrink: 0;
         }
+
+        /* ========== 技术详情页 ========== */
+        .tech-detail-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .tech-detail-modal.show { display: flex; }
+        .tech-detail-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+        .tech-detail-panel {
+            position: relative;
+            width: 960px;
+            max-width: calc(100vw - 40px);
+            max-height: calc(100vh - 40px);
+            background: rgba(10, 22, 45, 0.98);
+            border: 1px solid rgba(64, 169, 255, 0.2);
+            border-radius: 16px;
+            padding: 28px;
+            overflow-y: auto;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+        .tech-detail-panel::-webkit-scrollbar { width: 6px; }
+        .tech-detail-panel::-webkit-scrollbar-track { background: transparent; }
+        .tech-detail-panel::-webkit-scrollbar-thumb { background: rgba(64, 169, 255, 0.3); border-radius: 3px; }
+
+        .tech-detail-close {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #8896b3;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .tech-detail-close:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+
+        .tech-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(64, 169, 255, 0.12);
+        }
+        .tech-detail-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            background: rgba(64, 169, 255, 0.12);
+            border: 1px solid rgba(64, 169, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 12px;
+        }
+        .tech-detail-icon img { width: 100%; height: 100%; object-fit: contain; }
+        .tech-detail-title-wrap { flex: 1; min-width: 0; }
+        .tech-detail-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .tech-detail-meta {
+            font-size: 13px;
+            color: #8896b3;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .tech-detail-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .tech-detail-score {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff4d4f;
+            background: rgba(255, 77, 79, 0.1);
+            border: 1px solid rgba(255, 77, 79, 0.2);
+            padding: 6px 16px;
+            border-radius: 8px;
+        }
+
+        .tech-detail-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+        .tech-detail-section { margin-bottom: 24px; }
+        .tech-detail-section:last-child { margin-bottom: 0; }
+        .tech-detail-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #40a9ff;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid #40a9ff;
+        }
+        .tech-detail-desc {
+            font-size: 13px;
+            color: #b0c0d8;
+            line-height: 1.8;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .tech-detail-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tech-detail-metrics .tech-detail-metric {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: rgba(64, 169, 255, 0.08);
+            color: #40a9ff;
+            border: 1px solid rgba(64, 169, 255, 0.15);
+        }
+        .tech-detail-impact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tech-detail-impact-tag {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: rgba(115, 209, 61, 0.08);
+            color: #73d13d;
+            border: 1px solid rgba(115, 209, 61, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tech-detail-impact-tag.supply::before { content: '⊕'; }
+        .tech-detail-impact-tag.demand::before { content: '⊖'; }
+        .tech-detail-impact-tag.grid::before { content: '⊗'; }
+
+        .tech-detail-radar {
+            width: 100%;
+            height: 280px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .tech-detail-trl {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .tech-detail-trl-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #b0c0d8;
+            margin-bottom: 8px;
+        }
+        .tech-detail-trl-label .stage { color: #40a9ff; font-weight: 600; }
+        .tech-detail-trl-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .tech-detail-trl-bar-inner {
+            height: 100%;
+            background: linear-gradient(90deg, #40a9ff, #73d13d);
+            border-radius: 4px;
+        }
+        .tech-detail-risks {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .tech-detail-risk-item {
+            font-size: 13px;
+            color: #ff7875;
+            background: rgba(255, 77, 79, 0.06);
+            border: 1px solid rgba(255, 77, 79, 0.12);
+            border-radius: 8px;
+            padding: 10px 12px;
+            line-height: 1.6;
+        }
+        .tech-detail-risk-item::before {
+            content: '⚠';
+            margin-right: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .tech-detail-body { grid-template-columns: 1fr; }
+            .tech-detail-panel { padding: 20px; }
+            .tech-detail-header { flex-direction: column; align-items: flex-start; }
+        }
     </style>
 </head>
 <body>
@@ -1488,6 +1702,58 @@
             <div class="popup-divider"></div>
             <div class="popup-section-title">评估指标</div>
             <div id="popupDimList"></div>
+        </div>
+
+        <!-- 技术详情页 -->
+        <div class="tech-detail-modal" id="techDetailModal">
+            <div class="tech-detail-backdrop" onclick="closeTechDetail()"></div>
+            <div class="tech-detail-panel">
+                <div class="tech-detail-close" onclick="closeTechDetail()">×</div>
+                <div class="tech-detail-header">
+                    <div class="tech-detail-icon" id="detailIcon"></div>
+                    <div class="tech-detail-title-wrap">
+                        <div class="tech-detail-name" id="detailName"></div>
+                        <div class="tech-detail-meta" id="detailMeta"></div>
+                    </div>
+                    <div class="tech-detail-score" id="detailScore"></div>
+                </div>
+
+                <div class="tech-detail-body">
+                    <div class="tech-detail-left">
+                        <div class="tech-detail-section">
+                            <div class="tech-detail-section-title">技术描述</div>
+                            <div class="tech-detail-desc" id="detailDesc"></div>
+                        </div>
+
+                        <div class="tech-detail-section">
+                            <div class="tech-detail-section-title">技术关键指标</div>
+                            <div class="tech-detail-metrics" id="detailMetrics"></div>
+                        </div>
+
+                        <div class="tech-detail-section">
+                            <div class="tech-detail-section-title">影响域</div>
+                            <div class="tech-detail-impact" id="detailImpact"></div>
+                        </div>
+                    </div>
+
+                    <div class="tech-detail-right">
+                        <div class="tech-detail-section">
+                            <div class="tech-detail-section-title">评估指标雷达图</div>
+                            <div class="tech-detail-radar" id="detailRadar"></div>
+                        </div>
+
+                        <div class="tech-detail-section">
+                            <div class="tech-detail-section-title">技术成熟度</div>
+                            <div class="tech-detail-trl" id="detailTrl"></div>
+                        </div>
+
+                        <div class="tech-detail-section">
+                            <div class="tech-detail-section-title">潜在风险</div>
+                            <div class="tech-detail-risks" id="detailRisks"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2654,6 +2920,25 @@
             }, 0);
         }
 
+        // 技术成熟度 TRL（根据 lifecycleScore 映射到 9 个阶段）
+        function getTrlByScore(score) {
+            const stages = [
+                { min: 0,  label: 'TRL 1 基本原理发现' },
+                { min: 12, label: 'TRL 2 技术概念形成' },
+                { min: 23, label: 'TRL 3 关键功能验证' },
+                { min: 34, label: 'TRL 4 实验室环境验证' },
+                { min: 45, label: 'TRL 5 相关环境验证' },
+                { min: 56, label: 'TRL 6 系统/子系统模型验证' },
+                { min: 67, label: 'TRL 7 真实环境系统验证' },
+                { min: 78, label: 'TRL 8 系统完成并验证' },
+                { min: 89, label: 'TRL 9 系统实际应用' }
+            ];
+            for (let i = stages.length - 1; i >= 0; i--) {
+                if (score >= stages[i].min) return stages[i].label;
+            }
+            return stages[0].label;
+        }
+
         // ========== 渲染历史技术清单（融合图片8维度 + 一二级领域筛选） ==========
         function renderHistoryList() {
             const container = document.getElementById('historyGrid');
@@ -2757,23 +3042,6 @@
                 ` : '';
 
                 // 技术成熟度 TRL（根据 lifecycleScore 映射到 9 个阶段）
-                function getTrlByScore(score) {
-                    const stages = [
-                        { min: 0,  label: 'TRL 1 基本原理发现' },
-                        { min: 12, label: 'TRL 2 技术概念形成' },
-                        { min: 23, label: 'TRL 3 关键功能验证' },
-                        { min: 34, label: 'TRL 4 实验室环境验证' },
-                        { min: 45, label: 'TRL 5 相关环境验证' },
-                        { min: 56, label: 'TRL 6 系统/子系统模型验证' },
-                        { min: 67, label: 'TRL 7 真实环境系统验证' },
-                        { min: 78, label: 'TRL 8 系统完成并验证' },
-                        { min: 89, label: 'TRL 9 系统实际应用' }
-                    ];
-                    for (let i = stages.length - 1; i >= 0; i--) {
-                        if (score >= stages[i].min) return stages[i].label;
-                    }
-                    return stages[0].label;
-                }
                 const lifeHtml = hasDetails && tech.lifecycle ? `
                     <div class="history-lifecycle">
                         <div class="history-lifecycle-label">
@@ -2787,7 +3055,7 @@
                 ` : '';
 
                 return `
-                    <div class="history-card">
+                    <div class="history-card" data-id="${tech.id}" style="cursor:pointer;">
                         <div class="history-card-header">
                             <div>
                                 <span class="history-card-name">${tech.name}</span>
@@ -2805,6 +3073,14 @@
                     </div>
                 `;
             }).join('');
+
+            // 绑定卡片点击打开详情页
+            container.querySelectorAll('.history-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const tech = historyTechs.find(t => t.id === card.dataset.id);
+                    if (tech) openTechDetail(tech);
+                });
+            });
         }
 
         // ========== 初始化历史清单筛选器 ==========
@@ -2979,6 +3255,173 @@
         function hideTechDimPopup() {
             const popup = document.getElementById('techDimPopup');
             if (popup) popup.classList.remove('show');
+        }
+
+        let detailRadarChart = null;
+
+        // ========== 打开技术详情页 ==========
+        function openTechDetail(tech) {
+            const modal = document.getElementById('techDetailModal');
+            if (!modal || !tech) return;
+
+            document.getElementById('detailIcon').innerHTML = `<img src="${getTechIcon(tech.category)}" alt="${tech.name}">`;
+            document.getElementById('detailName').textContent = tech.name;
+            document.getElementById('detailScore').textContent = `${tech.score}分`;
+            document.getElementById('detailMeta').innerHTML = `
+                <span>🏷️ ${tech.category}</span>
+                <span>📅 识别时间：${tech.firstSeen}</span>
+                <span>📊 综合评分：${tech.score}</span>
+            `;
+
+            // 描述
+            document.getElementById('detailDesc').textContent = tech.desc || '暂无描述';
+
+            // 关键指标
+            const metricsEl = document.getElementById('detailMetrics');
+            if (tech.keyMetrics && tech.keyMetrics.length) {
+                metricsEl.innerHTML = tech.keyMetrics.map(m => `
+                    <span class="tech-detail-metric">${m.label} ${m.value}</span>
+                `).join('');
+            } else {
+                metricsEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无关键指标</span>';
+            }
+
+            // 影响域
+            const impactEl = document.getElementById('detailImpact');
+            if (tech.impactScope && tech.impactScope.length) {
+                impactEl.innerHTML = tech.impactScope.map(im => `
+                    <span class="tech-detail-impact-tag ${im.type}">${im.label}</span>
+                `).join('');
+            } else {
+                impactEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无影响域数据</span>';
+            }
+
+            // 技术成熟度 TRL
+            const trlEl = document.getElementById('detailTrl');
+            if (tech.lifecycle) {
+                trlEl.innerHTML = `
+                    <div class="tech-detail-trl-label">
+                        <span>当前阶段</span>
+                        <span class="stage">${getTrlByScore(tech.lifecycleScore)}</span>
+                    </div>
+                    <div class="tech-detail-trl-bar">
+                        <div class="tech-detail-trl-bar-inner" style="width:${tech.lifecycleScore}%"></div>
+                    </div>
+                `;
+            } else {
+                trlEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无技术成熟度数据</span>';
+            }
+
+            // 风险
+            const risksEl = document.getElementById('detailRisks');
+            if (tech.riskSignals && tech.riskSignals.length) {
+                risksEl.innerHTML = tech.riskSignals.map(r => `
+                    <div class="tech-detail-risk-item">${r}</div>
+                `).join('');
+            } else {
+                risksEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无风险信号</span>';
+            }
+
+            // 渲染雷达图
+            renderDetailRadar(tech);
+
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeTechDetail() {
+            const modal = document.getElementById('techDetailModal');
+            if (modal) modal.classList.remove('show');
+            document.body.style.overflow = '';
+            if (detailRadarChart) {
+                detailRadarChart.dispose();
+                detailRadarChart = null;
+            }
+        }
+
+        // ========== 详情页雷达图 ==========
+        function renderDetailRadar(tech) {
+            const dom = document.getElementById('detailRadar');
+            if (!dom) return;
+            if (detailRadarChart) {
+                detailRadarChart.dispose();
+                detailRadarChart = null;
+            }
+            if (typeof echarts === 'undefined') {
+                dom.innerHTML = '<div style="color:#8896b3;text-align:center;padding-top:100px;">图表加载失败</div>';
+                return;
+            }
+
+            const d4 = tech.dimensions4 || { novelty: 80, value: 80, relevance: 80, prospect: 80 };
+            detailRadarChart = echarts.init(dom);
+
+            const indicatorConfig = [
+                { name: '新颖性', key: 'novelty', color: '#ff4d4f' },
+                { name: '价值性', key: 'value', color: '#73d13d' },
+                { name: '关联性', key: 'relevance', color: '#40a9ff' },
+                { name: '前瞻性', key: 'prospect', color: '#ffa940' }
+            ];
+
+            detailRadarChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    backgroundColor: 'rgba(16,30,60,0.95)',
+                    borderColor: 'rgba(64,169,255,0.3)',
+                    textStyle: { color: '#e0e6ed', fontSize: 12 },
+                    formatter: function() {
+                        const rows = indicatorConfig.map(ind => {
+                            const score = d4[ind.key];
+                            const subs = getSubIndicators(ind.key, tech.name, score);
+                            const subRows = subs.map(sub => `
+                                <div style="display:flex;justify-content:space-between;gap:16px;font-size:11px;color:#a0aec0;margin-top:3px;">
+                                    <span>${sub.label}</span>
+                                    <span style="color:${ind.color};font-weight:600;">${sub.score}</span>
+                                </div>
+                            `).join('');
+                            return `
+                                <div style="margin-bottom:8px;">
+                                    <div style="display:flex;justify-content:space-between;gap:16px;font-size:12px;">
+                                        <span style="color:${ind.color};">${ind.name}</span>
+                                        <span style="font-weight:600;">${score}</span>
+                                    </div>
+                                    ${subRows}
+                                </div>
+                            `;
+                        }).join('');
+                        return `<div style="font-weight:600;margin-bottom:8px;">${tech.name} · 评估指标</div>${rows}`;
+                    }
+                },
+                radar: {
+                    indicator: indicatorConfig.map(ind => ({ name: ind.name, max: 100 })),
+                    shape: 'polygon',
+                    radius: '65%',
+                    center: ['50%', '50%'],
+                    axisName: {
+                        color: '#b0c0d8',
+                        fontSize: 12,
+                        fontWeight: 600
+                    },
+                    splitArea: {
+                        areaStyle: {
+                            color: ['rgba(57,255,20,0.04)', 'rgba(57,255,20,0.08)', 'rgba(57,255,20,0.04)', 'rgba(57,255,20,0.08)']
+                        }
+                    },
+                    axisLine: { lineStyle: { color: 'rgba(57,255,20,0.15)' } },
+                    splitLine: { lineStyle: { color: 'rgba(57,255,20,0.15)' } }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [{
+                        value: indicatorConfig.map(ind => d4[ind.key]),
+                        name: tech.name,
+                        areaStyle: { color: 'rgba(57,255,20,0.2)' },
+                        lineStyle: { color: '#39ff14', width: 2 },
+                        itemStyle: { color: '#39ff14' },
+                        symbolSize: 6
+                    }]
+                }]
+            });
         }
 
         window.toggleDimEvidence = function(el) {
