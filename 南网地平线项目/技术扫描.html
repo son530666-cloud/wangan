@@ -3323,10 +3323,10 @@
             }
 
             // 渲染雷达图
-            renderDetailRadar(tech);
-
             modal.classList.add('show');
             document.body.style.overflow = 'hidden';
+            // 延迟初始化，确保容器已有尺寸
+            setTimeout(() => renderDetailRadar(tech), 50);
         }
 
         function closeTechDetail() {
