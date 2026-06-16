@@ -1332,6 +1332,50 @@
             color: #40a9ff;
             font-size: 11px;
         }
+
+        /* 子指标 */
+        .popup-sub-indicators {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .popup-sub-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .popup-sub-name {
+            font-size: 11px;
+            color: #a0aec0;
+            width: 110px;
+            flex-shrink: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .popup-sub-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .popup-sub-bar-inner {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+        .popup-sub-score {
+            font-size: 11px;
+            font-weight: 600;
+            color: #e0e6ed;
+            width: 28px;
+            text-align: right;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
@@ -1421,10 +1465,10 @@
                         <option value="firstSeen-asc">识别时间（最早）</option>
                         <option value="score-desc">综合评分（高→低）</option>
                         <option value="score-asc">综合评分（低→高）</option>
-                        <option value="novelty-desc">技术新颖度（高→低）</option>
-                        <option value="value-desc">技术价值度（高→低）</option>
-                        <option value="relevance-desc">技术关联度（高→低）</option>
-                        <option value="prospect-desc">技术前瞻度（高→低）</option>
+                        <option value="novelty-desc">技术新颖性（高→低）</option>
+                        <option value="value-desc">技术价值性（高→低）</option>
+                        <option value="relevance-desc">技术关联性（高→低）</option>
+                        <option value="prospect-desc">技术前瞻性（高→低）</option>
                     </select>
                 </div>
                 <button class="filter-reset" id="filterReset">重置</button>
@@ -1442,7 +1486,7 @@
                 </div>
             </div>
             <div class="popup-divider"></div>
-            <div class="popup-section-title">评估维度</div>
+            <div class="popup-section-title">评估指标</div>
             <div id="popupDimList"></div>
         </div>
     </div>
@@ -1470,7 +1514,7 @@
         function getMiniRadar(dim) {
             const cx = 100, cy = 82, r = 52;
             const scores = [dim.novelty, dim.value, dim.relevance, dim.prospect];
-            const labels = ['新颖度', '价值度', '关联度', '前瞻度'];
+            const labels = ['新颖性', '价值性', '关联性', '前瞻性'];
             const angleStep = (Math.PI * 2) / 4;
             const startAngle = -Math.PI / 2; // 从顶部开始
 
@@ -1708,13 +1752,77 @@
                 value:     { score: 85.2, patents: 5,  papers: 7,  patentList: ['CN202310556677.0 石墨烯器件成本降低工艺'], paperList: ['Advanced Functional Materials, 2023, 石墨烯器件商业化前景'] }
             }
         };
+
+        // 评估维度 → 子指标配置（按产品需求图片）
+        const subIndicatorConfig = {
+            prospect: {
+                label: '前瞻性',
+                color: '#ffa940',
+                barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)',
+                subs: [
+                    { key: 'diffusion', label: '技术扩散指数' },
+                    { key: 'kiBreakthrough', label: 'KI突破性指数' },
+                    { key: 'textBreakthrough', label: '文本突破性特征句式比例' }
+                ]
+            },
+            value: {
+                label: '价值性',
+                color: '#73d13d',
+                barColor: 'linear-gradient(90deg,#73d13d,#95de64)',
+                subs: [
+                    { key: 'patentGrowth', label: '专利增长率' },
+                    { key: 'techStrength', label: '技术强度指数' }
+                ]
+            },
+            novelty: {
+                label: '新颖性',
+                color: '#ff4d4f',
+                barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)',
+                subs: [
+                    { key: 'ipcNovelty', label: '专利IPC组合新颖性' },
+                    { key: 'semanticNovelty', label: '论文语义偏离新颖性' },
+                    { key: 'timeNovelty', label: '时间新颖性' }
+                ]
+            },
+            relevance: {
+                label: '关联性',
+                color: '#40a9ff',
+                barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)',
+                subs: [
+                    { key: 'scienceRelevance', label: '科学关联性' },
+                    { key: 'crossRate', label: '学科熵/领域交叉率' },
+                    { key: 'paperPatentRatio', label: '关联论文专利比例' }
+                ]
+            }
+        };
+
+        // 基于技术名、维度、子指标 key 生成确定性分值（保证每次刷新结果一致）
+        function hashScore(seed, base) {
+            let hash = 0;
+            for (let i = 0; i < seed.length; i++) {
+                hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+                hash |= 0;
+            }
+            const variation = (Math.abs(hash) % 11) - 5; // -5 ~ +5
+            return Math.max(55, Math.min(99, Math.round(base + variation)));
+        }
+
+        function getSubIndicators(dimKey, techName, totalScore) {
+            const cfg = subIndicatorConfig[dimKey];
+            if (!cfg) return [];
+            return cfg.subs.map(sub => ({
+                ...sub,
+                score: hashScore(`${techName}-${dimKey}-${sub.key}`, totalScore)
+            }));
+        }
+
         weeklyTechs.forEach(tech => {
             if (dimensionEvidenceMap[tech.name]) {
                 tech.dimensionEvidence = dimensionEvidenceMap[tech.name];
             }
         });
 
-        // 统一将 dimensions4 转为 dimensions 数组 [新颖度, 价值度, 关联度, 前瞻度]
+        // 统一将 dimensions4 转为 dimensions 数组 [新颖性, 价值性, 关联性, 前瞻性]
         weeklyTechs.forEach(tech => {
             if (tech.dimensions4) {
                 tech.dimensions = [tech.dimensions4.novelty, tech.dimensions4.value, tech.dimensions4.relevance, tech.dimensions4.prospect];
@@ -2073,7 +2181,7 @@
         // ========== 纯SVG降级雷达图（无ECharts依赖） ==========
         function renderFallbackRadar(container) {
             const W=600, H=480, CX=300, CY=240, R=170;
-            const dims=['技术新颖度','技术价值度','技术关联度','技术前瞻度'];
+            const dims=['技术新颖性','技术价值性','技术关联性','技术前瞻性'];
             const angles=[-Math.PI/2,0,Math.PI/2,Math.PI];
             const newTechList=weeklyTechs.filter(t=>t.isNew);
 
@@ -2165,6 +2273,15 @@
             const tech = weeklyTechs.find(t => t.name === el.dataset.name);
             const ev = tech?.dimensionEvidence || {};
             const d4 = tech?.dimensions4 || {};
+            const dimRows = [
+                { key: 'novelty',   label: '新颖性', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
+                { key: 'prospect',  label: '前瞻性', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
+                { key: 'relevance', label: '关联性', color: '#40a9ff', barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)' },
+                { key: 'value',     label: '价值性', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
+            ].map(dim => {
+                const score = ev[dim.key]?.score || d4[dim.key] || 0;
+                return buildDimWithSubsHtml(dim.key, dim.label, dim.color, dim.barColor, tech.name, score);
+            }).join('');
             ttip.innerHTML=`
                 <div style="font-weight:600;margin-bottom:6px;font-size:15px;">${el.dataset.name}</div>
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -2172,14 +2289,10 @@
                     <span style="color:#40a9ff;font-weight:700;">${el.dataset.score}分</span>
                     <span style="color:#8896b3;font-size:12px;">${el.dataset.isnew==='true'?'本周新识别':'持续追踪'}</span>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#ff4d4f;">新颖度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.novelty?.score||d4.novelty||0)}%;height:100%;background:linear-gradient(90deg,#ff4d4f,#ff7875);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#ff4d4f;font-weight:600;">${ev.novelty?.score||d4.novelty||0}</span></div>
-                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#ffa940;">前瞻度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.prospect?.score||d4.prospect||0)}%;height:100%;background:linear-gradient(90deg,#ffa940,#ffc53d);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#ffa940;font-weight:600;">${ev.prospect?.score||d4.prospect||0}</span></div>
-                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#40a9ff;">关联度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.relevance?.score||d4.relevance||0)}%;height:100%;background:linear-gradient(90deg,#40a9ff,#69c0ff);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#40a9ff;font-weight:600;">${ev.relevance?.score||d4.relevance||0}</span></div>
-                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#73d13d;">价值度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.value?.score||d4.value||0)}%;height:100%;background:linear-gradient(90deg,#73d13d,#95de64);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#73d13d;font-weight:600;">${ev.value?.score||d4.value||0}</span></div>
-                </div>`;
+                ${dimRows}
+                <div style="margin-top:6px;font-size:11px;color:#8896b3;">点击查看详细评分依据</div>`;
             ttip.style.display='block';
-            ttip.style.width='220px';
+            ttip.style.width='260px';
             ttip.style.whiteSpace='normal';
             fallbackDotMove(el,e);
         }
@@ -2212,7 +2325,7 @@
             container.querySelectorAll('.radar-overlay-el').forEach(el=> el.remove());
             const rect = container.getBoundingClientRect();
             const cx = rect.width / 2, cy = rect.height / 2, r = Math.min(cx, cy) * 0.65;
-            const dims = ['技术新颖度','技术价值度','技术关联度','技术前瞻度'];
+            const dims = ['技术新颖性','技术价值性','技术关联性','技术前瞻性'];
             const angles = [-Math.PI/2, 0, Math.PI/2, Math.PI];
             const newTechList = weeklyTechs.filter(t=> t.isNew);
 
@@ -2290,6 +2403,15 @@
                 dot.addEventListener('mouseenter', e => {
                     const ev = tech.dimensionEvidence || {};
                     const d4 = tech.dimensions4 || {};
+                    const dimRows = [
+                        { key: 'novelty',   label: '新颖性', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
+                        { key: 'prospect',  label: '前瞻性', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
+                        { key: 'relevance', label: '关联性', color: '#40a9ff', barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)' },
+                        { key: 'value',     label: '价值性', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
+                    ].map(dim => {
+                        const score = ev[dim.key]?.score || d4[dim.key] || 0;
+                        return buildDimWithSubsHtml(dim.key, dim.label, dim.color, dim.barColor, tech.name, score);
+                    }).join('');
                     tooltip.innerHTML = `
                         <div style="font-weight:600;margin-bottom:6px;font-size:15px;">${tech.name}</div>
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -2297,16 +2419,11 @@
                             <span style="color:#40a9ff;font-weight:700;">${tech.score}分</span>
                             <span style="color:#8896b3;font-size:12px;">${isNew ? '本周新识别' : '持续追踪'}</span>
                         </div>
-                        <div style="display:flex;flex-direction:column;gap:4px;">
-                            <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#ff4d4f;">新颖度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.novelty?.score||d4.novelty||0)}%;height:100%;background:linear-gradient(90deg,#ff4d4f,#ff7875);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#ff4d4f;font-weight:600;">${ev.novelty?.score||d4.novelty||0}</span></div>
-                            <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#ffa940;">前瞻度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.prospect?.score||d4.prospect||0)}%;height:100%;background:linear-gradient(90deg,#ffa940,#ffc53d);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#ffa940;font-weight:600;">${ev.prospect?.score||d4.prospect||0}</span></div>
-                            <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#40a9ff;">关联度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.relevance?.score||d4.relevance||0)}%;height:100%;background:linear-gradient(90deg,#40a9ff,#69c0ff);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#40a9ff;font-weight:600;">${ev.relevance?.score||d4.relevance||0}</span></div>
-                            <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="width:40px;color:#73d13d;">价值度</span><div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${(ev.value?.score||d4.value||0)}%;height:100%;background:linear-gradient(90deg,#73d13d,#95de64);border-radius:2px;"></div></div><span style="width:32px;text-align:right;color:#73d13d;font-weight:600;">${ev.value?.score||d4.value||0}</span></div>
-                        </div>
+                        ${dimRows}
                         <div style="margin-top:6px;font-size:11px;color:#8896b3;">点击查看详细评分依据</div>
                     `;
                     tooltip.style.display = 'block';
-                    tooltip.style.width = '220px';
+                    tooltip.style.width = '260px';
                     tooltip.style.whiteSpace = 'normal';
                     const crect = container.getBoundingClientRect();
                     tooltip.style.left = (e.clientX - crect.left + 12) + 'px';
@@ -2734,17 +2851,17 @@
 
         // ========== 技术维度详情弹层控制 ==========
         const dimConfig = [
-            { key: 'novelty',   label: '新颖度', icon: '💡', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
-            { key: 'prospect',  label: '前瞻度', icon: '🔭', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
-            { key: 'relevance', label: '关联度', icon: '🔗', color: '#40a9ff', barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)' },
-            { key: 'value',     label: '价值度', icon: '💎', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
+            { key: 'novelty',   label: '新颖性', icon: '💡', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
+            { key: 'prospect',  label: '前瞻性', icon: '🔭', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
+            { key: 'relevance', label: '关联性', icon: '🔗', color: '#40a9ff', barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)' },
+            { key: 'value',     label: '价值性', icon: '💎', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
         ];
 
         function getDimSummary(dimKey, score) {
             if (score >= 90) {
                 if (dimKey === 'novelty') return '该维度表现突出，技术处于高度创新活跃期，近期专利与论文增长迅速，原创性成果密集涌现。';
                 if (dimKey === 'prospect') return '发展前景广阔，技术路线清晰，产业化预期明确，未来3-5年有望实现规模化突破。';
-                if (dimKey === 'relevance') return '与产业链上下游及核心应用场景关联度极高，技术落地路径顺畅，生态支撑完善。';
+                if (dimKey === 'relevance') return '与产业链上下游及核心应用场景关联性极高，技术落地路径顺畅，生态支撑完善。';
                 if (dimKey === 'value') return '经济价值显著，投资回报可期，规模化应用后有望带来明显的成本下降与效率提升。';
             } else if (score >= 80) {
                 if (dimKey === 'novelty') return '创新活跃度较高，专利与论文保持稳健增长，技术持续迭代优化。';
@@ -2754,14 +2871,36 @@
             } else if (score >= 70) {
                 if (dimKey === 'novelty') return '创新活动较为平稳，技术进入工程优化阶段，原创性突破相对较少。';
                 if (dimKey === 'prospect') return '发展前景尚可，但部分技术路线和商业模式仍需进一步验证。';
-                if (dimKey === 'relevance') return '与部分应用场景关联度一般，需进一步拓展适配场景。';
+                if (dimKey === 'relevance') return '与部分应用场景关联性一般，需进一步拓展适配场景。';
                 if (dimKey === 'value') return '价值潜力有待释放，当前成本或市场接受度仍是主要制约因素。';
             } else {
                 if (dimKey === 'novelty') return '技术相对成熟或创新活跃度较低，近期重大原创成果较少。';
                 if (dimKey === 'prospect') return '发展前景受限，可能面临技术瓶颈或替代路线竞争。';
-                if (dimKey === 'relevance') return '与当前主流应用场景关联度有限，落地空间较小。';
+                if (dimKey === 'relevance') return '与当前主流应用场景关联性有限，落地空间较小。';
                 if (dimKey === 'value') return '短期经济价值有限，需等待技术突破或成本大幅下降。';
             }
+        }
+
+        // 构建雷达图 tooltip 中“维度 + 子指标”的 HTML
+        function buildDimWithSubsHtml(dimKey, label, color, barColor, techName, score) {
+            const subs = getSubIndicators(dimKey, techName, score);
+            const subHtml = subs.map(sub => `
+                <div style="display:flex;align-items:center;gap:4px;font-size:11px;margin-left:12px;margin-top:2px;">
+                    <span style="width:90px;color:#8896b3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${sub.label}">${sub.label}</span>
+                    <div style="flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;"><div style="width:${sub.score}%;height:100%;background:${barColor};border-radius:2px;"></div></div>
+                    <span style="width:26px;text-align:right;color:${color};font-weight:600;">${sub.score}</span>
+                </div>
+            `).join('');
+            return `
+                <div style="margin-bottom:6px;">
+                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;">
+                        <span style="width:40px;color:${color};">${label}</span>
+                        <div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${score}%;height:100%;background:${barColor};border-radius:2px;"></div></div>
+                        <span style="width:32px;text-align:right;color:${color};font-weight:600;">${score}</span>
+                    </div>
+                    ${subHtml}
+                </div>
+            `;
         }
 
         function showTechDimPopup(tech, anchorEl) {
@@ -2779,6 +2918,15 @@
             dimList.innerHTML = dimConfig.map((dim, idx) => {
                 const d = ev[dim.key] || { score: (tech.dimensions4 || {})[dim.key] || 0, patents: 0, papers: 0, patentList: [], paperList: [] };
                 const summary = getDimSummary(dim.key, d.score);
+                const subIndicators = getSubIndicators(dim.key, tech.name, d.score);
+                const subCfg = subIndicatorConfig[dim.key] || {};
+                const subHtml = subIndicators.map(sub => `
+                    <div class="popup-sub-indicator">
+                        <span class="popup-sub-name" title="${sub.label}">${sub.label}</span>
+                        <div class="popup-sub-bar"><div class="popup-sub-bar-inner" style="width:${sub.score}%;background:${subCfg.barColor || dim.barColor};"></div></div>
+                        <span class="popup-sub-score" style="color:${subCfg.color || dim.color};">${sub.score}</span>
+                    </div>
+                `).join('');
                 return `
                     <div class="popup-dim" data-dim="${dim.key}">
                         <div class="popup-dim-main" onclick="toggleDimEvidence(this)">
@@ -2790,6 +2938,7 @@
                         </div>
                         <div class="popup-evidence">
                             <div class="popup-evidence-summary">${summary}</div>
+                            <div class="popup-sub-indicators">${subHtml}</div>
                             <div class="popup-evidence-counts">
                                 <span class="popup-count-badge">📋 ${d.patents || 0} 项专利</span>
                                 <span class="popup-count-badge">📄 ${d.papers || 0} 篇论文</span>
