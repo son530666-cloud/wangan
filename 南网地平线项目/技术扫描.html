@@ -2751,6 +2751,11 @@
                     </div>
                 ` : '';
 
+                // 风险信号
+                const riskHtml = hasDetails && tech.riskSignals ? `
+                    <div class="history-risk">${tech.riskSignals.join('；')}</div>
+                ` : '';
+
                 // 技术成熟度 TRL（根据 lifecycleScore 映射到 9 个阶段）
                 function getTrlByScore(score) {
                     const stages = [
