@@ -714,7 +714,7 @@
             background: rgba(0, 0, 0, 0.15);
             border-radius: 8px;
             padding: 6px;
-            height: 160px;
+            height: 180px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1512,7 +1512,7 @@
 
         // ========== 迷你四维雷达图生成器（纯SVG） ==========
         function getMiniRadar(dim) {
-            const cx = 100, cy = 78, r = 46;
+            const cx = 100, cy = 82, r = 46;
             const scores = [dim.novelty, dim.value, dim.relevance, dim.prospect];
             const labels = ['新颖性', '价值性', '关联性', '前瞻性'];
             const angleStep = (Math.PI * 2) / 4;
@@ -1564,7 +1564,7 @@
                 return `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#0a1628" stroke-width="1.5"/>`;
             }).join('');
 
-            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" style="width:100%;height:auto;max-height:160px;">${gridPolys}${axes}<polygon points="${polyPoints}" fill="rgba(57,255,20,0.15)" stroke="#39ff14" stroke-width="1.5" stroke-linejoin="round"/>${dots}${labelPoints}</svg>`;
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" style="width:100%;height:auto;max-height:180px;">${gridPolys}${axes}<polygon points="${polyPoints}" fill="rgba(57,255,20,0.15)" stroke="#39ff14" stroke-width="1.5" stroke-linejoin="round"/>${dots}${labelPoints}</svg>`;
         }
 
         // ========== 模拟数据 ==========
