@@ -2740,15 +2740,6 @@
                     `).join('')}</div>
                 ` : '';
 
-                // 领域标签
-                const fieldHtml = tech.primaryField ? `
-                    <div class="history-section-title">领域标签</div>
-                    <div class="history-related">
-                        <span class="history-related-tag" style="background:rgba(64,169,255,0.1);color:#40a9ff;border-color:rgba(64,169,255,0.2);">${tech.primaryField}</span>
-                        ${tech.secondaryField ? `<span class="history-related-tag">${tech.secondaryField}</span>` : ''}
-                    </div>
-                ` : '';
-
                 // 风险信号
                 const riskHtml = hasDetails && tech.riskSignals ? `
                     <div class="history-risk">${tech.riskSignals.join('；')}</div>
@@ -2798,7 +2789,6 @@
                         ${impactHtml}
                         ${compHtml}
                         ${metricHtml}
-                        ${fieldHtml}
                         ${riskHtml}
                     </div>
                 `;
