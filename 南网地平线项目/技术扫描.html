@@ -714,7 +714,7 @@
             background: rgba(0, 0, 0, 0.15);
             border-radius: 8px;
             padding: 6px;
-            height: 180px;
+            height: 240px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1564,7 +1564,7 @@
                 return `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#0a1628" stroke-width="1.5"/>`;
             }).join('');
 
-            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" style="width:100%;height:auto;max-height:180px;">${gridPolys}${axes}<polygon points="${polyPoints}" fill="rgba(57,255,20,0.15)" stroke="#39ff14" stroke-width="1.5" stroke-linejoin="round"/>${dots}${labelPoints}</svg>`;
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" style="width:100%;height:auto;max-height:240px;">${gridPolys}${axes}<polygon points="${polyPoints}" fill="rgba(57,255,20,0.15)" stroke="#39ff14" stroke-width="1.5" stroke-linejoin="round"/>${dots}${labelPoints}</svg>`;
         }
 
         // ========== 模拟数据 ==========
