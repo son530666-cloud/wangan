@@ -2754,12 +2754,29 @@
                     <div class="history-risk">${tech.riskSignals.join('；')}</div>
                 ` : '';
 
-                // 生命周期
+                // 技术成熟度 TRL（根据 lifecycleScore 映射到 9 个阶段）
+                function getTrlByScore(score) {
+                    const stages = [
+                        { min: 0,  label: 'TRL 1 基本原理发现' },
+                        { min: 12, label: 'TRL 2 技术概念形成' },
+                        { min: 23, label: 'TRL 3 关键功能验证' },
+                        { min: 34, label: 'TRL 4 实验室环境验证' },
+                        { min: 45, label: 'TRL 5 相关环境验证' },
+                        { min: 56, label: 'TRL 6 系统/子系统模型验证' },
+                        { min: 67, label: 'TRL 7 真实环境系统验证' },
+                        { min: 78, label: 'TRL 8 系统完成并验证' },
+                        { min: 89, label: 'TRL 9 系统实际应用' }
+                    ];
+                    for (let i = stages.length - 1; i >= 0; i--) {
+                        if (score >= stages[i].min) return stages[i].label;
+                    }
+                    return stages[0].label;
+                }
                 const lifeHtml = hasDetails && tech.lifecycle ? `
                     <div class="history-lifecycle">
                         <div class="history-lifecycle-label">
                             <span>技术成熟度TRL</span>
-                            <span class="stage">${tech.lifecycle}</span>
+                            <span class="stage">${getTrlByScore(tech.lifecycleScore)}</span>
                         </div>
                         <div class="history-lifecycle-bar">
                             <div class="history-lifecycle-bar-inner" style="width:${tech.lifecycleScore}%"></div>
