@@ -3339,7 +3339,7 @@
             }
         }
 
-        // ========== 详情页雷达图 ==========
+        // ========== 详情页雷达图（纯 SVG，不依赖 ECharts） ==========
         function renderDetailRadar(tech) {
             const dom = document.getElementById('detailRadar');
             if (!dom) return;
@@ -3347,81 +3347,79 @@
                 detailRadarChart.dispose();
                 detailRadarChart = null;
             }
-            if (typeof echarts === 'undefined') {
-                dom.innerHTML = '<div style="color:#8896b3;text-align:center;padding-top:100px;">图表加载失败</div>';
-                return;
-            }
 
             const d4 = tech.dimensions4 || { novelty: 80, value: 80, relevance: 80, prospect: 80 };
-            detailRadarChart = echarts.init(dom);
-
-            const indicatorConfig = [
+            const indicators = [
                 { name: '新颖性', key: 'novelty', color: '#ff4d4f' },
                 { name: '价值性', key: 'value', color: '#73d13d' },
                 { name: '关联性', key: 'relevance', color: '#40a9ff' },
                 { name: '前瞻性', key: 'prospect', color: '#ffa940' }
             ];
 
-            detailRadarChart.setOption({
-                backgroundColor: 'transparent',
-                tooltip: {
-                    trigger: 'item',
-                    backgroundColor: 'rgba(16,30,60,0.95)',
-                    borderColor: 'rgba(64,169,255,0.3)',
-                    textStyle: { color: '#e0e6ed', fontSize: 12 },
-                    formatter: function() {
-                        const rows = indicatorConfig.map(ind => {
-                            const score = d4[ind.key];
-                            const subs = getSubIndicators(ind.key, tech.name, score);
-                            const subRows = subs.map(sub => `
-                                <div style="display:flex;justify-content:space-between;gap:16px;font-size:11px;color:#a0aec0;margin-top:3px;">
-                                    <span>${sub.label}</span>
-                                    <span style="color:${ind.color};font-weight:600;">${sub.score}</span>
-                                </div>
-                            `).join('');
-                            return `
-                                <div style="margin-bottom:8px;">
-                                    <div style="display:flex;justify-content:space-between;gap:16px;font-size:12px;">
-                                        <span style="color:${ind.color};">${ind.name}</span>
-                                        <span style="font-weight:600;">${score}</span>
-                                    </div>
-                                    ${subRows}
-                                </div>
-                            `;
-                        }).join('');
-                        return `<div style="font-weight:600;margin-bottom:8px;">${tech.name} · 评估指标</div>${rows}`;
-                    }
-                },
-                radar: {
-                    indicator: indicatorConfig.map(ind => ({ name: ind.name, max: 100 })),
-                    shape: 'polygon',
-                    radius: '65%',
-                    center: ['50%', '50%'],
-                    axisName: {
-                        color: '#b0c0d8',
-                        fontSize: 12,
-                        fontWeight: 600
-                    },
-                    splitArea: {
-                        areaStyle: {
-                            color: ['rgba(57,255,20,0.04)', 'rgba(57,255,20,0.08)', 'rgba(57,255,20,0.04)', 'rgba(57,255,20,0.08)']
-                        }
-                    },
-                    axisLine: { lineStyle: { color: 'rgba(57,255,20,0.15)' } },
-                    splitLine: { lineStyle: { color: 'rgba(57,255,20,0.15)' } }
-                },
-                series: [{
-                    type: 'radar',
-                    data: [{
-                        value: indicatorConfig.map(ind => d4[ind.key]),
-                        name: tech.name,
-                        areaStyle: { color: 'rgba(57,255,20,0.2)' },
-                        lineStyle: { color: '#39ff14', width: 2 },
-                        itemStyle: { color: '#39ff14' },
-                        symbolSize: 6
-                    }]
-                }]
+            const W = 400, H = 340, CX = 200, CY = 170, R = 110;
+            const angleStep = (Math.PI * 2) / 4;
+            const startAngle = -Math.PI / 2;
+
+            function getPoint(score, idx) {
+                const angle = startAngle + idx * angleStep;
+                const ratio = score / 100;
+                return { x: CX + R * ratio * Math.cos(angle), y: CY + R * ratio * Math.sin(angle) };
+            }
+
+            // 网格
+            let grid = '';
+            [0.25, 0.5, 0.75, 1.0].forEach((ratio, idx) => {
+                const gPoints = [0, 1, 2, 3].map(i => {
+                    const angle = startAngle + i * angleStep;
+                    return `${CX + R * ratio * Math.cos(angle)},${CY + R * ratio * Math.sin(angle)}`;
+                }).join(' ');
+                const opacity = 0.04 + idx * 0.03;
+                grid += `<polygon points="${gPoints}" fill="rgba(57,255,20,${opacity})" stroke="rgba(57,255,20,0.12)" stroke-width="0.5"/>`;
             });
+
+            // 轴线
+            let axes = '';
+            [0, 1, 2, 3].forEach(i => {
+                const angle = startAngle + i * angleStep;
+                const x2 = CX + R * Math.cos(angle);
+                const y2 = CY + R * Math.sin(angle);
+                axes += `<line x1="${CX}" y1="${CY}" x2="${x2}" y2="${y2}" stroke="rgba(57,255,20,0.15)" stroke-width="0.5"/>`;
+            });
+
+            // 数据点
+            const points = indicators.map((ind, i) => ({ ...getPoint(d4[ind.key], i), score: d4[ind.key], ...ind }));
+            const polyPoints = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+
+            // 标签 + 分值
+            const labelDist = R + 26;
+            let labels = '';
+            points.forEach((p, i) => {
+                const angle = startAngle + i * angleStep;
+                const x = CX + labelDist * Math.cos(angle);
+                const y = CY + labelDist * Math.sin(angle);
+                const anchor = i === 0 ? 'middle' : i === 1 ? 'start' : i === 2 ? 'middle' : 'end';
+                const subs = getSubIndicators(p.key, tech.name, p.score);
+                const title = `${p.name}: ${p.score}\n` + subs.map(s => `${s.label}: ${s.score}`).join('\n');
+                labels += `
+                    <g style="cursor:default;">
+                        <title>${title.replace(/"/g, '&quot;')}</title>
+                        <text x="${x.toFixed(1)}" y="${(y - 6).toFixed(1)}" text-anchor="${anchor}" fill="${p.color}" font-size="13" font-weight="600">${p.name} ${p.score}</text>
+                    </g>
+                `;
+            });
+
+            // 顶点圆点
+            const dots = points.map(p => `
+                <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${p.color}" stroke="#0a1628" stroke-width="1.5"/>
+            `).join('');
+
+            dom.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;">
+                    ${grid}${axes}
+                    <polygon points="${polyPoints}" fill="rgba(57,255,20,0.15)" stroke="#39ff14" stroke-width="2" stroke-linejoin="round"/>
+                    ${dots}${labels}
+                </svg>
+            `;
         }
 
         window.toggleDimEvidence = function(el) {
