@@ -1641,6 +1641,12 @@
             background: #40a9ff;
         }
 
+        .tech-detail-risks-impact {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .tech-detail-rich {
             display: flex;
             flex-direction: column;
@@ -1676,7 +1682,7 @@
 
         .tech-detail-radar {
             width: 100%;
-            height: 380px;
+            height: 320px;
             background: rgba(0, 0, 0, 0.15);
             border-radius: 10px;
             padding: 10px;
@@ -1864,6 +1870,11 @@
                             <div class="tech-detail-section-title">📡 评估指标雷达图</div>
                             <div class="tech-detail-radar" id="detailRadar"></div>
                         </div>
+
+                        <div class="tech-detail-section">
+                            <div class="tech-detail-section-title">🎯 技术关键指标</div>
+                            <div class="tech-detail-metrics" id="detailMetrics"></div>
+                        </div>
                     </div>
 
                     <div class="tech-detail-right">
@@ -1876,7 +1887,32 @@
                             <div class="tech-detail-section-title">🏢 主要玩家</div>
                             <div class="tech-detail-players" id="detailPlayers"></div>
                         </div>
+
+                        <div class="tech-detail-section">
+                            <div class="tech-detail-section-title">⚠️ 风险与影响</div>
+                            <div class="tech-detail-risks-impact" id="detailRisksImpact"></div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">🔧 技术难点及解决方案</div>
+                    <div class="tech-detail-rich" id="detailPainPoints"></div>
+                </div>
+
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">🏆 关键指标及竞争优势</div>
+                    <div class="tech-detail-rich" id="detailAdvantages"></div>
+                </div>
+
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">🎯 应用场景</div>
+                    <div class="tech-detail-rich" id="detailScenarios"></div>
+                </div>
+
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">📈 市场分析</div>
+                    <div class="tech-detail-rich" id="detailMarket"></div>
                 </div>
             </div>
         </div>
@@ -3651,6 +3687,27 @@
             return '<ul style="margin:0;padding-left:18px;">' + advices.map(a => `<li style="margin-bottom:6px;">${a}</li>`).join('') + '</ul>';
         }
 
+        // 渲染富文本详情块
+        function renderRichSection(data) {
+            if (!data) return '<span style="color:#8896b3;font-size:12px;">暂无数据</span>';
+            if (Array.isArray(data)) {
+                return `
+                    <ul class="tech-detail-rich-list">
+                        ${data.map(item => {
+                            if (typeof item === 'string') return `<li>${item}</li>`;
+                            return `
+                                <li>
+                                    <strong style="color:#e0e6ed;">${item.title || ''}</strong>：
+                                    ${item.content || ''}
+                                </li>
+                            `;
+                        }).join('')}
+                    </ul>
+                `;
+            }
+            return `<div class="tech-detail-rich-content">${data}</div>`;
+        }
+
         // ========== 打开技术详情页 ==========
         function openTechDetail(tech) {
             const modal = document.getElementById('techDetailModal');
@@ -3677,6 +3734,77 @@
             } else {
                 playersEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无主要玩家数据</span>';
             }
+
+            // 技术关键指标
+            const metricsEl = document.getElementById('detailMetrics');
+            if (tech.keyMetrics && tech.keyMetrics.length) {
+                metricsEl.innerHTML = tech.keyMetrics.map(m => `
+                    <span class="tech-detail-metric">${m.label} ${m.value}</span>
+                `).join('');
+            } else {
+                metricsEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无关键指标</span>';
+            }
+
+            // 风险与影响
+            const risksImpactEl = document.getElementById('detailRisksImpact');
+            let risksImpactHtml = '';
+            if (tech.riskSignals && tech.riskSignals.length) {
+                risksImpactHtml += `
+                    <div class="tech-detail-rich-block">
+                        <div class="tech-detail-rich-title">潜在风险</div>
+                        ${tech.riskSignals.map(r => `<div class="tech-detail-risk-item">${r}</div>`).join('')}
+                    </div>
+                `;
+            }
+            if (details.potentialImpact) {
+                risksImpactHtml += `
+                    <div class="tech-detail-rich-block">
+                        <div class="tech-detail-rich-title">潜在影响</div>
+                        ${renderRichSection(details.potentialImpact)}
+                    </div>
+                `;
+            }
+            risksImpactEl.innerHTML = risksImpactHtml || '<span style="color:#8896b3;font-size:12px;">暂无风险与影响数据</span>';
+
+            // 技术难点及解决方案
+            document.getElementById('detailPainPoints').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">技术难点</div>
+                    ${renderRichSection(details.painPoints)}
+                </div>
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">解决方案</div>
+                    ${renderRichSection(details.solutions)}
+                </div>
+            `;
+
+            // 关键指标及竞争优势
+            document.getElementById('detailAdvantages').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">关键指标</div>
+                    ${renderRichSection(details.advantages?.slice(0, Math.ceil((details.advantages?.length || 0) / 2)))}
+                </div>
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">竞争优势</div>
+                    ${renderRichSection(details.advantages?.slice(Math.ceil((details.advantages?.length || 0) / 2)) || [])}
+                </div>
+            `;
+
+            // 应用场景
+            document.getElementById('detailScenarios').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">典型应用场景</div>
+                    ${renderRichSection(details.scenarios)}
+                </div>
+            `;
+
+            // 市场分析
+            document.getElementById('detailMarket').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">市场分析</div>
+                    ${renderRichSection(details.marketAnalysis)}
+                </div>
+            `;
 
             // 渲染雷达图
             modal.classList.add('show');
