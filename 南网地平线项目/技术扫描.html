@@ -1022,6 +1022,22 @@
             font-size: 10px;
         }
 
+        /* 主要玩家 */
+        .history-players {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .history-player-tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            background: rgba(64, 169, 255, 0.08);
+            color: #40a9ff;
+            border: 1px solid rgba(64, 169, 255, 0.15);
+        }
+
         /* 关键指标 */
         .history-metrics {
             display: flex;
@@ -3390,30 +3406,14 @@
 
             container.innerHTML = filtered.map(tech => {
                 const hasDetails = !!tech.lifecycle;
+                const details = techDetailsMap[tech.name] || {};
 
-                // 主要数据源
-                const dsHtml = hasDetails && tech.dataSources ? `
-                    <div class="history-section-title">主要数据源</div>
-                    <div class="history-datasource">${tech.dataSources.map(ds => `
-                        <div class="history-datasource-item">
-                            <span class="history-datasource-tag">${ds.type}</span>
-                            <span class="history-datasource-text">${ds.content}</span>
-                        </div>
+                // 主要玩家
+                const playersHtml = details.keyPlayers && details.keyPlayers.length ? `
+                    <div class="history-section-title">主要玩家</div>
+                    <div class="history-players">${details.keyPlayers.map(p => `
+                        <span class="history-player-tag">${p}</span>
                     `).join('')}</div>
-                ` : '';
-
-                // 影响域
-                const impactHtml = hasDetails && tech.impactScope ? `
-                    <div class="history-section-title">影响域</div>
-                    <div class="history-impact">${tech.impactScope.map(im => `
-                        <span class="history-impact-tag ${im.type}">${im.label}</span>
-                    `).join('')}</div>
-                ` : '';
-
-                // 竞争格局
-                const compHtml = hasDetails && tech.competition ? `
-                    <div class="history-section-title">竞争格局</div>
-                    <div class="history-competition">${tech.competition}</div>
                 ` : '';
 
                 // 关键指标
@@ -3464,9 +3464,7 @@
                         </div>
                         ${lifeHtml}
                         ${dimTagsHtml}
-                        ${dsHtml}
-                        ${impactHtml}
-                        ${compHtml}
+                        ${playersHtml}
                         ${metricHtml}
                         ${riskHtml}
                     </div>
