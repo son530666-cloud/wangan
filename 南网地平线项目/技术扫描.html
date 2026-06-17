@@ -3804,8 +3804,12 @@
             `;
             document.getElementById('detailAdvantages').innerHTML = `
                 <div class="tech-detail-rich-block">
-                    <div class="tech-detail-rich-title">关键指标与竞争优势</div>
-                    ${renderRichSection(details.advantages)}
+                    <div class="tech-detail-rich-title">关键指标</div>
+                    ${renderRichSection(details.advantages?.slice(0, Math.ceil((details.advantages?.length || 0) / 2)))}
+                </div>
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">竞争优势</div>
+                    ${renderRichSection(details.advantages?.slice(Math.ceil((details.advantages?.length || 0) / 2)) || [])}
                 </div>
             `;
             document.getElementById('detailScenarios').innerHTML = `
