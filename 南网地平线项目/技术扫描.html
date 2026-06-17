@@ -1834,18 +1834,13 @@
                 <div class="tech-detail-body">
                     <div class="tech-detail-left">
                         <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">📋 技术描述</div>
-                            <div class="tech-detail-desc" id="detailDesc"></div>
+                            <div class="tech-detail-section-title">📡 评估指标雷达图</div>
+                            <div class="tech-detail-radar" id="detailRadar"></div>
                         </div>
 
                         <div class="tech-detail-section">
                             <div class="tech-detail-section-title">🎯 技术关键指标</div>
                             <div class="tech-detail-metrics" id="detailMetrics"></div>
-                        </div>
-
-                        <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">📊 主要数据源</div>
-                            <div class="tech-detail-datasources" id="detailDataSources"></div>
                         </div>
 
                         <div class="tech-detail-section">
@@ -1856,28 +1851,18 @@
 
                     <div class="tech-detail-right">
                         <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">📡 评估指标雷达图</div>
-                            <div class="tech-detail-radar" id="detailRadar"></div>
-                        </div>
-
-                        <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">🚀 技术成熟度</div>
-                            <div class="tech-detail-trl" id="detailTrl"></div>
-                        </div>
-
-                        <div class="tech-detail-section">
                             <div class="tech-detail-section-title">🏭 竞争格局</div>
                             <div class="tech-detail-competition" id="detailCompetition"></div>
                         </div>
 
                         <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">🔗 相关技术</div>
-                            <div class="tech-detail-related" id="detailRelated"></div>
+                            <div class="tech-detail-section-title">⚠️ 潜在风险</div>
+                            <div class="tech-detail-risks" id="detailRisks"></div>
                         </div>
 
                         <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">⚠️ 潜在风险</div>
-                            <div class="tech-detail-risks" id="detailRisks"></div>
+                            <div class="tech-detail-section-title">🏢 主要玩家</div>
+                            <div class="tech-detail-rich" id="detailPlayers"></div>
                         </div>
                     </div>
                 </div>
@@ -1904,12 +1889,6 @@
                 <div class="tech-detail-section">
                     <div class="tech-detail-section-title">📈 市场分析</div>
                     <div class="tech-detail-rich" id="detailMarket"></div>
-                </div>
-
-                <!-- 主要玩家 -->
-                <div class="tech-detail-section">
-                    <div class="tech-detail-section-title">🏢 主要玩家</div>
-                    <div class="tech-detail-rich" id="detailPlayers"></div>
                 </div>
 
                 <!-- 潜在影响 -->
@@ -3758,9 +3737,6 @@
             // 执行摘要
             document.getElementById('detailSummary').innerHTML = generateTechSummary(tech);
 
-            // 描述
-            document.getElementById('detailDesc').textContent = tech.desc || '暂无描述';
-
             // 关键指标
             const metricsEl = document.getElementById('detailMetrics');
             if (tech.keyMetrics && tech.keyMetrics.length) {
@@ -3769,19 +3745,6 @@
                 `).join('');
             } else {
                 metricsEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无关键指标</span>';
-            }
-
-            // 主要数据源
-            const dsEl = document.getElementById('detailDataSources');
-            if (tech.dataSources && tech.dataSources.length) {
-                dsEl.innerHTML = tech.dataSources.map(ds => `
-                    <div class="tech-detail-datasource">
-                        <span class="tech-detail-datasource-tag">${ds.type}</span>
-                        <span>${ds.content}</span>
-                    </div>
-                `).join('');
-            } else {
-                dsEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无数据源</span>';
             }
 
             // 影响域
@@ -3798,32 +3761,6 @@
             const compEl = document.getElementById('detailCompetition');
             compEl.innerHTML = tech.competition || '<span style="color:#8896b3;font-size:12px;">暂无竞争格局数据</span>';
 
-            // 相关技术
-            const relatedEl = document.getElementById('detailRelated');
-            if (tech.relatedTechs && tech.relatedTechs.length) {
-                relatedEl.innerHTML = tech.relatedTechs.map(rt => `
-                    <span class="tech-detail-related-tag">${rt}</span>
-                `).join('');
-            } else {
-                relatedEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无相关技术</span>';
-            }
-
-            // 技术成熟度 TRL
-            const trlEl = document.getElementById('detailTrl');
-            if (tech.lifecycle) {
-                trlEl.innerHTML = `
-                    <div class="tech-detail-trl-label">
-                        <span>当前阶段</span>
-                        <span class="stage">${getTrlByScore(tech.lifecycleScore)}</span>
-                    </div>
-                    <div class="tech-detail-trl-bar">
-                        <div class="tech-detail-trl-bar-inner" style="width:${tech.lifecycleScore}%"></div>
-                    </div>
-                `;
-            } else {
-                trlEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无技术成熟度数据</span>';
-            }
-
             // 风险
             const risksEl = document.getElementById('detailRisks');
             if (tech.riskSignals && tech.riskSignals.length) {
@@ -3834,9 +3771,21 @@
                 risksEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无风险信号</span>';
             }
 
-            // 技术详情深度内容
+            // 主要玩家
             const details = techDetailsMap[tech.name] || {};
+            const playersEl = document.getElementById('detailPlayers');
+            if (details.keyPlayers && details.keyPlayers.length) {
+                playersEl.innerHTML = `
+                    <div class="tech-detail-rich-block">
+                        <div class="tech-detail-rich-title">主要玩家</div>
+                        ${renderRichSection(details.keyPlayers)}
+                    </div>
+                `;
+            } else {
+                playersEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无主要玩家数据</span>';
+            }
 
+            // 技术详情深度内容
             document.getElementById('detailPainPoints').innerHTML = `
                 <div class="tech-detail-rich-block">
                     <div class="tech-detail-rich-title">技术难点</div>
