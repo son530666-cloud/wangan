@@ -1609,9 +1609,37 @@
             font-size: 13px;
             color: #b0c0d8;
             line-height: 1.7;
-            min-height: 380px;
         }
         .tech-detail-advice strong { color: #39ff14; }
+
+        .tech-detail-players {
+            background: rgba(64, 169, 255, 0.05);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .tech-detail-players ul {
+            margin: 0;
+            padding-left: 18px;
+            list-style: none;
+        }
+        .tech-detail-players li {
+            font-size: 13px;
+            color: #b0c0d8;
+            line-height: 1.8;
+            position: relative;
+            padding-left: 14px;
+        }
+        .tech-detail-players li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #40a9ff;
+        }
 
         .tech-detail-rich {
             display: flex;
@@ -1842,6 +1870,11 @@
                         <div class="tech-detail-section">
                             <div class="tech-detail-section-title">💡 跟踪建议</div>
                             <div class="tech-detail-advice" id="detailAdvice"></div>
+                        </div>
+
+                        <div class="tech-detail-section">
+                            <div class="tech-detail-section-title">🏢 主要玩家</div>
+                            <div class="tech-detail-players" id="detailPlayers"></div>
                         </div>
                     </div>
                 </div>
@@ -3635,6 +3668,15 @@
 
             // 跟踪建议
             document.getElementById('detailAdvice').innerHTML = generateTechAdvice(tech);
+
+            // 主要玩家
+            const details = techDetailsMap[tech.name] || {};
+            const playersEl = document.getElementById('detailPlayers');
+            if (details.keyPlayers && details.keyPlayers.length) {
+                playersEl.innerHTML = `<ul>${details.keyPlayers.map(p => `<li>${p}</li>`).join('')}</ul>`;
+            } else {
+                playersEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无主要玩家数据</span>';
+            }
 
             // 渲染雷达图
             modal.classList.add('show');
