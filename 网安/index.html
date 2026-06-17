@@ -1332,6 +1332,144 @@
             font-weight: 700;
             font-family: 'Segoe UI', sans-serif;
         }
+
+        /* 智能检索模式 */
+        .info-mode-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            margin-bottom: 24px;
+        }
+        .info-mode-tab {
+            padding: 10px 32px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.05);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .info-mode-tab:first-child {
+            border-radius: 8px 0 0 8px;
+            border-right: none;
+        }
+        .info-mode-tab:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+        .info-mode-tab:hover {
+            color: var(--text);
+            background: rgba(0, 212, 255, 0.08);
+        }
+        .info-mode-tab.active {
+            background: linear-gradient(90deg, #2563eb, #3b82f6);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        .info-smart-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0 40px;
+            max-width: 720px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .info-smart-search {
+            width: 100%;
+            margin-bottom: 28px;
+        }
+        .info-smart-input-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        .info-smart-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: #333;
+            font-size: 15px;
+        }
+        .info-smart-input::placeholder {
+            color: #999;
+        }
+        .info-smart-send {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            transform: rotate(-45deg);
+        }
+        .info-smart-send:hover {
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+            transform: rotate(-45deg) scale(1.05);
+        }
+
+        .info-smart-suggestions {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .info-suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .info-suggestion-item:hover {
+            background: rgba(0, 212, 255, 0.06);
+            border-color: rgba(0, 212, 255, 0.2);
+            transform: translateX(4px);
+        }
+        .info-suggestion-tag {
+            flex-shrink: 0;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+        .info-suggestion-tag.tech { color: #f59e0b; background: rgba(245, 158, 11, 0.12); }
+        .info-suggestion-tag.policy { color: #22c55e; background: rgba(34, 197, 94, 0.12); }
+        .info-suggestion-tag.control { color: #06b6d4; background: rgba(6, 182, 212, 0.12); }
+        .info-suggestion-tag.org { color: #eab308; background: rgba(234, 179, 8, 0.12); }
+        .info-suggestion-tag.talent { color: #a855f7; background: rgba(168, 85, 247, 0.12); }
+        .info-suggestion-text {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text);
+        }
+        .info-suggestion-arrow {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .info-condition-panel {
+            flex: 1;
+            min-height: 0;
+        }
         .info-content {
             flex: 1;
             min-width: 0;
@@ -1470,7 +1608,7 @@
         <div class="nav-tabs">
             <span class="nav-tab active" data-view="home">首页</span>
             <span class="nav-tab" data-view="scan">事件扫描</span>
-            <span class="nav-tab" data-view="info">资讯检索</span>
+            <span class="nav-tab" data-view="info">技术检索</span>
             <span class="nav-tab" data-view="detail">事件详情分析</span>
         </div>
         <div class="system-time" id="systemTime"></div>
@@ -1729,85 +1867,132 @@
         </div>
     </div>
 
-    <!-- 资讯检索页面 -->
+    <!-- 技术检索页面 -->
     <div class="info-view" id="infoView">
         <div class="info-layout">
             <!-- 顶部标题 -->
             <div class="info-header">
-                <div class="info-header-icon">📰</div>
+                <div class="info-header-icon">🔍</div>
                 <div class="info-header-text">
-                    <div class="info-header-title">情报资讯</div>
-                    <div class="info-header-subtitle">实时同步多源情报 · 智能分级标注</div>
+                    <div class="info-header-title">技术检索</div>
+                    <div class="info-header-subtitle">十类数据一网打尽，智能语义精准定位</div>
                 </div>
             </div>
 
-            <div class="info-main">
-                <!-- 左侧筛选 -->
-                <div class="panel info-filter-panel">
-                    <div class="info-filter-title">🛰 筛选条件</div>
+            <!-- 检索模式切换 -->
+            <div class="info-mode-tabs">
+                <span class="info-mode-tab active" data-mode="smart">智能检索</span>
+                <span class="info-mode-tab" data-mode="condition">条件检索</span>
+            </div>
 
-                    <div class="info-filter-group">
-                        <label class="info-filter-label">
-                            <input type="checkbox" class="info-filter-checkbox" id="themeClassify" checked>
-                            <span>📂 按主题分类</span>
-                        </label>
+            <!-- 智能检索 -->
+            <div class="info-smart-panel" id="infoSmartPanel">
+                <div class="info-smart-search">
+                    <div class="info-smart-input-box">
+                        <input type="text" class="info-smart-input" placeholder="您可以在这里向我提问...">
+                        <button class="info-smart-send">➤</button>
                     </div>
-
-                    <div class="info-filter-group">
-                        <div class="info-filter-label-text">关键词搜索</div>
-                        <div class="info-search-box">
-                            <span class="info-search-icon">🔍</span>
-                            <input type="text" class="info-search-input" placeholder="全文检索：标题/摘要/正文...">
-                        </div>
-                    </div>
-
-                    <div class="info-filter-group">
-                        <div class="info-filter-label-text">模块</div>
-                        <div class="info-filter-tags" data-filter="module">
-                            <span class="info-filter-tag active" data-value="all">全部</span>
-                            <span class="info-filter-tag" data-value="ai">AI</span>
-                            <span class="info-filter-tag" data-value="security">网安</span>
-                            <span class="info-filter-tag" data-value="ai-security">AI+网安</span>
-                            <span class="info-filter-tag" data-value="uncategorized">未分类</span>
-                        </div>
-                    </div>
-
-                    <div class="info-filter-group">
-                        <div class="info-filter-label-text">分级</div>
-                        <div class="info-filter-tags" data-filter="level">
-                            <span class="info-filter-tag active" data-value="all">全部</span>
-                            <span class="info-filter-tag strategic" data-value="strategic">战略级</span>
-                            <span class="info-filter-tag important" data-value="important">重要级</span>
-                            <span class="info-filter-tag reference" data-value="reference">参考级</span>
-                            <span class="info-filter-tag unrated" data-value="unrated">未评级</span>
-                        </div>
-                    </div>
-
-                    <div class="info-filter-group">
-                        <div class="info-filter-label-text">时间范围</div>
-                        <div class="info-filter-tags" data-filter="time">
-                            <span class="info-filter-tag active" data-value="all">全部</span>
-                            <span class="info-filter-tag" data-value="today">今日</span>
-                            <span class="info-filter-tag" data-value="week">7天</span>
-                            <span class="info-filter-tag" data-value="month">30天</span>
-                        </div>
-                    </div>
-
-                    <div class="info-filter-group">
-                        <div class="info-filter-label-text">研判状态</div>
-                        <div class="info-filter-tags" data-filter="status">
-                            <span class="info-filter-tag active" data-value="all">全部</span>
-                            <span class="info-filter-tag" data-value="analyzed">已研判</span>
-                            <span class="info-filter-tag" data-value="unanalyzed">未研判</span>
-                        </div>
-                    </div>
-
-                    <div class="info-result-count">命中 <span id="infoResultCount">750</span> 条资讯</div>
                 </div>
 
-                <!-- 右侧资讯列表 -->
-                <div class="info-content">
-                    <div class="info-grid" id="infoGrid"></div>
+                <div class="info-smart-suggestions">
+                    <div class="info-suggestion-item">
+                        <span class="info-suggestion-tag tech">查询科技前沿</span>
+                        <span class="info-suggestion-text">查询近3年的固态电池科技前沿有哪些？</span>
+                        <span class="info-suggestion-arrow">></span>
+                    </div>
+                    <div class="info-suggestion-item">
+                        <span class="info-suggestion-tag policy">查询政策</span>
+                        <span class="info-suggestion-text">查询国内储能相关的最新政策？</span>
+                        <span class="info-suggestion-arrow">></span>
+                    </div>
+                    <div class="info-suggestion-item">
+                        <span class="info-suggestion-tag control">查询管控清单</span>
+                        <span class="info-suggestion-text">查询美国近2年新发布的全部管控清单</span>
+                        <span class="info-suggestion-arrow">></span>
+                    </div>
+                    <div class="info-suggestion-item">
+                        <span class="info-suggestion-tag org">查询机构</span>
+                        <span class="info-suggestion-text">查询固态电池国内外头部机构有哪些？</span>
+                        <span class="info-suggestion-arrow">></span>
+                    </div>
+                    <div class="info-suggestion-item">
+                        <span class="info-suggestion-tag talent">查询人才</span>
+                        <span class="info-suggestion-text">查询新兴光伏发电领域的国外人才有哪些？</span>
+                        <span class="info-suggestion-arrow">></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 条件检索 -->
+            <div class="info-condition-panel" id="infoConditionPanel" style="display:none;">
+                <div class="info-main">
+                    <!-- 左侧筛选 -->
+                    <div class="panel info-filter-panel">
+                        <div class="info-filter-title">🛰 筛选条件</div>
+
+                        <div class="info-filter-group">
+                            <label class="info-filter-label">
+                                <input type="checkbox" class="info-filter-checkbox" id="themeClassify" checked>
+                                <span>📂 按主题分类</span>
+                            </label>
+                        </div>
+
+                        <div class="info-filter-group">
+                            <div class="info-filter-label-text">关键词搜索</div>
+                            <div class="info-search-box">
+                                <span class="info-search-icon">🔍</span>
+                                <input type="text" class="info-search-input" placeholder="全文检索：标题/摘要/正文...">
+                            </div>
+                        </div>
+
+                        <div class="info-filter-group">
+                            <div class="info-filter-label-text">模块</div>
+                            <div class="info-filter-tags" data-filter="module">
+                                <span class="info-filter-tag active" data-value="all">全部</span>
+                                <span class="info-filter-tag" data-value="ai">AI</span>
+                                <span class="info-filter-tag" data-value="security">网安</span>
+                                <span class="info-filter-tag" data-value="ai-security">AI+网安</span>
+                                <span class="info-filter-tag" data-value="uncategorized">未分类</span>
+                            </div>
+                        </div>
+
+                        <div class="info-filter-group">
+                            <div class="info-filter-label-text">分级</div>
+                            <div class="info-filter-tags" data-filter="level">
+                                <span class="info-filter-tag active" data-value="all">全部</span>
+                                <span class="info-filter-tag strategic" data-value="strategic">战略级</span>
+                                <span class="info-filter-tag important" data-value="important">重要级</span>
+                                <span class="info-filter-tag reference" data-value="reference">参考级</span>
+                                <span class="info-filter-tag unrated" data-value="unrated">未评级</span>
+                            </div>
+                        </div>
+
+                        <div class="info-filter-group">
+                            <div class="info-filter-label-text">时间范围</div>
+                            <div class="info-filter-tags" data-filter="time">
+                                <span class="info-filter-tag active" data-value="all">全部</span>
+                                <span class="info-filter-tag" data-value="today">今日</span>
+                                <span class="info-filter-tag" data-value="week">7天</span>
+                                <span class="info-filter-tag" data-value="month">30天</span>
+                            </div>
+                        </div>
+
+                        <div class="info-filter-group">
+                            <div class="info-filter-label-text">研判状态</div>
+                            <div class="info-filter-tags" data-filter="status">
+                                <span class="info-filter-tag active" data-value="all">全部</span>
+                                <span class="info-filter-tag" data-value="analyzed">已研判</span>
+                                <span class="info-filter-tag" data-value="unanalyzed">未研判</span>
+                            </div>
+                        </div>
+
+                        <div class="info-result-count">命中 <span id="infoResultCount">750</span> 条资讯</div>
+                    </div>
+
+                    <!-- 右侧资讯列表 -->
+                    <div class="info-content">
+                        <div class="info-grid" id="infoGrid"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3793,6 +3978,34 @@
             }
         }
 
+        // 智能检索 / 条件检索 切换
+        function initInfoModeTabs() {
+            const tabs = document.querySelectorAll('.info-mode-tab');
+            const smartPanel = document.getElementById('infoSmartPanel');
+            const conditionPanel = document.getElementById('infoConditionPanel');
+            if (!tabs.length || !smartPanel || !conditionPanel) return;
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const mode = tab.dataset.mode;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    smartPanel.style.display = mode === 'smart' ? 'flex' : 'none';
+                    conditionPanel.style.display = mode === 'condition' ? 'block' : 'none';
+                    if (mode === 'condition') renderInfoGrid();
+                });
+            });
+
+            // 推荐问题点击填充到智能检索输入框
+            document.querySelectorAll('.info-suggestion-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const text = item.querySelector('.info-suggestion-text')?.textContent || '';
+                    const input = document.querySelector('.info-smart-input');
+                    if (input) input.value = text;
+                });
+            });
+        }
+
         function switchView(viewName) {
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.toggle('active', tab.dataset.view === viewName);
@@ -3857,6 +4070,7 @@
             initSourceTopChart();
             initSocialGraphChart();
             initInfoFilters();
+            initInfoModeTabs();
         });
 
         window.addEventListener('resize', () => {
