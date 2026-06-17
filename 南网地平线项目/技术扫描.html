@@ -1611,6 +1611,39 @@
         }
         .tech-detail-advice strong { color: #39ff14; }
 
+        .tech-detail-rich {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .tech-detail-rich-block {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .tech-detail-rich-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #40a9ff;
+            margin-bottom: 6px;
+        }
+        .tech-detail-rich-content {
+            font-size: 13px;
+            color: #b0c0d8;
+            line-height: 1.7;
+        }
+        .tech-detail-rich-list {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .tech-detail-rich-list li {
+            font-size: 13px;
+            color: #b0c0d8;
+            line-height: 1.7;
+            margin-bottom: 4px;
+        }
+
         .tech-detail-radar {
             width: 100%;
             height: 280px;
@@ -1847,6 +1880,42 @@
                             <div class="tech-detail-risks" id="detailRisks"></div>
                         </div>
                     </div>
+                </div>
+
+                <!-- 技术难点及解决方案 -->
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">🔧 技术难点及解决方案</div>
+                    <div class="tech-detail-rich" id="detailPainPoints"></div>
+                </div>
+
+                <!-- 关键指标及竞争优势 -->
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">🏆 关键指标及竞争优势</div>
+                    <div class="tech-detail-rich" id="detailAdvantages"></div>
+                </div>
+
+                <!-- 应用场景 -->
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">🎯 应用场景</div>
+                    <div class="tech-detail-rich" id="detailScenarios"></div>
+                </div>
+
+                <!-- 市场分析 -->
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">📈 市场分析</div>
+                    <div class="tech-detail-rich" id="detailMarket"></div>
+                </div>
+
+                <!-- 主要玩家 -->
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">🏢 主要玩家</div>
+                    <div class="tech-detail-rich" id="detailPlayers"></div>
+                </div>
+
+                <!-- 潜在影响 -->
+                <div class="tech-detail-section">
+                    <div class="tech-detail-section-title">🌊 潜在影响</div>
+                    <div class="tech-detail-rich" id="detailImpactPotential"></div>
                 </div>
 
                 <!-- 跟踪建议 -->
@@ -2487,6 +2556,199 @@
                 riskSignals: ['成本为传统变压器3-5倍；多端口协调控制算法不成熟']
             }
         ];
+
+        // 技术详情页深度数据
+        const techDetailsMap = {
+            '固态电池技术': {
+                painPoints: [
+                    { title: '固-固界面阻抗高', content: '固态电解质与电极间接触不良，锂离子传输阻力显著高于液态电池界面。' },
+                    { title: '硫化物电解质空气稳定性差', content: '硫化物固态电解质遇水易生成有毒硫化氢，对生产环境要求苛刻。' },
+                    { title: '量产成本高昂', content: '固态电解质材料与干法电极工艺成本约为液态电池的2-3倍。' }
+                ],
+                solutions: [
+                    { title: '界面工程优化', content: '引入超薄氧化物涂层、原位聚合包覆，降低界面阻抗并抑制副反应。' },
+                    { title: '复合电解质路线', content: '将聚合物与无机固态电解质复合，兼顾机械柔性与离子电导率。' },
+                    { title: '干法电极规模化', content: '开发无溶剂电极制备工艺，配合全固态电池产线降低制造成本。' }
+                ],
+                advantages: [
+                    { title: '能量密度', content: '理论可达400-500 Wh/kg，支撑电动汽车续航突破1000公里。' },
+                    { title: '本征安全性', content: '消除液态电解液泄漏、燃烧风险，热失控温度显著提升。' },
+                    { title: '循环寿命', content: '固态电解质抑制锂枝晶，循环寿命有望超过2000次。' }
+                ],
+                scenarios: ['长续航电动汽车', '电网级储能', '电动航空', '深海装备'],
+                marketAnalysis: '预计2030年全球固态电池市场规模将超过400亿美元，其中动力电池占比超70%。丰田、QuantumScape、宁德时代等企业计划在2027-2028年实现量产，日韩主导硫化物路线，欧美倾向氧化物/聚合物复合路线。',
+                keyPlayers: ['丰田汽车', 'QuantumScape', '宁德时代', '三星SDI', 'Solid Power', '卫蓝新能源'],
+                potentialImpact: '固态电池成熟后将重塑电动汽车与储能产业格局，推动电动飞机、长续航电动车等新兴市场爆发，同时对现有液态锂电池供应链形成替代压力。'
+            },
+            '数字孪生电网': {
+                painPoints: [
+                    { title: '多源异构数据融合难', content: '电网设备、调度、气象、GIS等数据来源异构，标准不统一。' },
+                    { title: '模型实时同步延迟', content: '物理电网状态高频变化，数字模型难以做到秒级同步。' },
+                    { title: '数据安全与隐私', content: '电网运行数据敏感，跨部门、跨企业共享存在安全顾虑。' }
+                ],
+                solutions: [
+                    { title: '统一数据模型', content: '基于IEC 61970/61968标准构建电网统一信息模型（CIM）。' },
+                    { title: '边缘-云端协同', content: '在边缘侧完成数据预处理与模型轻量化更新，降低同步延迟。' },
+                    { title: '隐私计算技术', content: '采用联邦学习与可信执行环境，实现数据可用不可见。' }
+                ],
+                advantages: [
+                    { title: '状态感知精度', content: '可实现设备级、馈线级、电网级多层级状态精准映射。' },
+                    { title: '故障预测能力', content: '结合AI算法实现设备故障提前72小时预警。' },
+                    { title: '仿真推演', content: '支持极端天气、网络攻击等场景下的电网韧性推演。' }
+                ],
+                scenarios: ['电网调度指挥', '变电站运维', '新能源并网仿真', '应急演练'],
+                marketAnalysis: '全球数字孪生电网市场年复合增长率约25%，中国南方电网、国家电网已开展多省市试点。PTC、AVEVA、南瑞信通、国网浙江电力为主要供应商。',
+                keyPlayers: ['PTC', 'AVEVA', '西门子', '南瑞信通', '国网浙江电力', '华为'],
+                potentialImpact: '数字孪生将推动电网从"被动运维"向"主动预测"转型，提升新能源消纳能力，成为新型电力系统的核心数字基础设施。'
+            },
+            '超导电缆输电': {
+                painPoints: [
+                    { title: '低温冷却成本高', content: '液氮或制冷机系统运维成本占全生命周期成本30%以上。' },
+                    { title: '脆性材料敷设难', content: '高温超导带材弯曲半径受限，城市地下敷设工艺复杂。' },
+                    { title: '故障电流限制', content: '超导电缆失超后恢复时间长，对电网保护配合提出挑战。' }
+                ],
+                solutions: [
+                    { title: '制冷机技术进步', content: '采用GM制冷机或斯特林制冷机替代液氮直冷，降低运维成本。' },
+                    { title: '柔性与加强型带材', content: '开发不锈钢基带加强型REBCO带材，提升机械柔韧性。' },
+                    { title: '超导限流器集成', content: '将超导电缆与超导故障电流限制器集成，提升系统安全性。' }
+                ],
+                advantages: [
+                    { title: '传输容量', content: '单回超导电缆输送容量可达同尺寸常规电缆5-10倍。' },
+                    { title: '损耗极低', content: '直流工况下几乎零电阻，交流损耗也远低于常规电缆。' },
+                    { title: '占地小', content: '相同容量下截面积仅为常规电缆的1/3，缓解城市走廊紧张。' }
+                ],
+                scenarios: ['城市中心高负荷供电', '数据中心集群供电', '海上风电汇集', '超导电网骨干通道'],
+                marketAnalysis: '超导电缆市场目前处于示范验证期，单公里造价约5000万-1亿元。上海、首尔、纽约等城市已有公里级示范段，预计2030年后进入商业化初期。',
+                keyPlayers: ['古河电工', '日立', '西部超导', '上海电缆所', '美国SuperPower', '韩国LS电缆'],
+                potentialImpact: '超导电缆将解决城市高密度负荷供电走廊受限问题，支撑数据中心、超大城市核心区供电，未来可能与超导限流器、超导变压器形成超导电网生态。'
+            },
+            '虚拟电厂聚合平台': {
+                painPoints: [
+                    { title: '资源异构性', content: '分布式光伏、储能、充电桩、可调负荷响应特性差异大。' },
+                    { title: '调度可靠性验证', content: '聚合资源响应存在不确定性，影响电网调度信任度。' },
+                    { title: '商业模式不成熟', content: '电力市场机制对VPP参与调峰调频的定价与结算仍在探索。' }
+                ],
+                solutions: [
+                    { title: '统一资源建模', content: '建立分布式资源标准化聚合模型与通信协议。' },
+                    { title: 'AI预测与优化', content: '利用机器学习预测资源可调节能力，优化聚合调度策略。' },
+                    { title: '参与电力市场', content: '推动VPP以独立主体身份参与现货、辅助服务市场。' }
+                ],
+                advantages: [
+                    { title: '响应速度快', content: '分钟级甚至秒级响应，可参与调频辅助服务。' },
+                    { title: '投资成本低', content: '无需新建集中式电厂，盘活存量分布式资源。' },
+                    { title: '灵活性高', content: '可快速扩展聚合规模，适应新能源高比例并网。' }
+                ],
+                scenarios: ['电力现货市场交易', '需求响应', '调峰调频辅助服务', '园区微电网能量管理'],
+                marketAnalysis: '全球虚拟电厂市场规模预计2030年突破500亿美元，中国深圳、上海、山东等地已开展电力现货市场试点。特斯拉Autobidder、Next Kraftwerke、国电投为头部玩家。',
+                keyPlayers: ['特斯拉Autobidder', 'Next Kraftwerke', 'AutoGrid', '国电投', '华能', '阿里云能耗云'],
+                potentialImpact: '虚拟电厂将重塑电力系统调节资源格局，使海量分布式资源成为电网"灵活调节器"，加速新型电力系统建设。'
+            },
+            '区块链电力交易': {
+                painPoints: [
+                    { title: '交易吞吐量低', content: '公链TPS难以支撑大规模电力交易实时清算需求。' },
+                    { title: '监管合规模糊', content: '去中心化交易与现有电力市场监管框架存在冲突。' },
+                    { title: '能耗争议', content: 'PoW共识机制高能耗与电力行业绿色低碳目标矛盾。' }
+                ],
+                solutions: [
+                    { title: '联盟链架构', content: '采用Hyperledger Fabric、Quorum等联盟链，提升吞吐与可控性。' },
+                    { title: '智能合约自动结算', content: '将交易规则编码为智能合约，实现T+0自动清结算。' },
+                    { title: '绿色共识机制', content: '采用PoS、PBFT等低能耗共识，降低区块链运行能耗。' }
+                ],
+                advantages: [
+                    { title: '交易透明', content: '所有交易记录不可篡改，提升市场信任度。' },
+                    { title: '去中介化', content: '降低交易中心、结算机构等中间环节成本。' },
+                    { title: '溯源可信', content: '可追踪绿电来源，支撑绿证交易与碳核算。' }
+                ],
+                scenarios: ['分布式光伏P2P交易', '绿电绿证交易', '碳排放权交易', '虚拟电厂结算'],
+                marketAnalysis: '区块链在电力交易领域的应用仍处于试点阶段，ROI尚不明确。澳大利亚PowerLedger、德国Enerchain、中国深圳区块链绿电交易试点为代表项目。',
+                keyPlayers: ['PowerLedger', 'Enerchain', 'IBM', '蚂蚁链', '趣链科技', '国家电网电商公司'],
+                potentialImpact: '区块链有望重构电力市场交易与结算体系，推动分布式能源点对点交易，但大规模应用仍取决于监管政策与市场机制完善。'
+            },
+            '钠离子电池': {
+                painPoints: [
+                    { title: '能量密度低', content: '钠离子电池能量密度（140-160 Wh/kg）低于磷酸铁锂。' },
+                    { title: '循环寿命差距', content: '当前循环寿命约3000-4000次，低于高端磷酸铁锂。' },
+                    { title: '低温性能不足', content: '-20°C容量保持率明显低于锂离子电池。' }
+                ],
+                solutions: [
+                    { title: '层状氧化物正极', content: '提升正极材料比容量与电压平台，缩小与锂电能量密度差距。' },
+                    { title: '硬碳负极优化', content: '开发高比容量、低平台硬碳负极，提升首次效率。' },
+                    { title: '电解液体系改进', content: '优化电解液配方，改善低温性能与循环稳定性。' }
+                ],
+                advantages: [
+                    { title: '成本优势', content: '钠资源丰富，正极材料成本约为锂电的1/3。' },
+                    { title: '安全性好', content: '钠离子电池热稳定性优于三元锂，针刺不起火。' },
+                    { title: '快充性能', content: '支持15分钟快充至80%，适配储能调峰场景。' }
+                ],
+                scenarios: ['电网储能', '低速电动车', '两轮车', '通信基站备电'],
+                marketAnalysis: '预计2028年钠离子电池成本降至约400元/kWh，在储能、两轮车市场快速渗透。宁德时代、中科海钠、华阳股份已实现量产，产业链以中国企业为主导。',
+                keyPlayers: ['宁德时代', '中科海钠', '华阳股份', '孚能科技', '多氟多', 'Farasis'],
+                potentialImpact: '钠离子电池将填补低成本储能电池市场空白，缓解锂资源约束，成为锂离子电池的重要补充，尤其适合对能量密度要求不高的固定式储能场景。'
+            },
+            '无线电能传输': {
+                painPoints: [
+                    { title: '传输效率低', content: '动态无线充电效率通常低于70%，能量损耗大。' },
+                    { title: '传输距离受限', content: '磁共振式传输有效距离通常小于20cm。' },
+                    { title: '电磁兼容与安全', content: '高频电磁场可能对其他设备产生干扰，生物电磁安全需验证。' }
+                ],
+                solutions: [
+                    { title: '谐振线圈优化', content: '采用多线圈阵列与阻抗匹配网络，提升传输效率与对准容差。' },
+                    { title: '宽范围耦合技术', content: '开发可变结构线圈，扩展有效传输距离与位置容差。' },
+                    { title: '电磁屏蔽设计', content: '增加铁氧体屏蔽层与主动EMI滤波，降低电磁泄漏。' }
+                ],
+                advantages: [
+                    { title: '无接触供电', content: '避免插头磨损、电弧火花，提升特殊场景安全性。' },
+                    { title: '部署灵活', content: '可嵌入道路、桌面、机床等多种基础设施。' },
+                    { title: '维护成本低', content: '无机械连接器，减少维护与更换成本。' }
+                ],
+                scenarios: ['电动汽车动态充电', 'AGV/RGV供电', '水下设备供电', '植入式医疗设备'],
+                marketAnalysis: '无线电能传输市场规模预计2030年达150亿美元，电动汽车动态充电为增长最快的细分领域。WiTricity、Plugless Power、比亚迪、华为为主要参与者。',
+                keyPlayers: ['WiTricity', 'Plugless Power', '比亚迪', '华为', 'Qualcomm Halo', 'Bombardier'],
+                potentialImpact: '动态无线充电有望改变电动汽车补能模式，推动自动驾驶与共享出行发展，同时在工业、医疗、海洋等领域拓展无接触供电应用。'
+            },
+            'AI电网调度大脑': {
+                painPoints: [
+                    { title: '模型可解释性不足', content: '深度学习调度决策难以解释，调度员信任度低。' },
+                    { title: '极端场景泛化差', content: '罕见故障与极端天气下，AI模型可能失效。' },
+                    { title: '数据质量参差不齐', content: '电网数据存在缺失、噪声、标注不一致等问题。' }
+                ],
+                solutions: [
+                    { title: '可解释AI技术', content: '引入注意力机制与知识图谱，提升调度决策可解释性。' },
+                    { title: '数字孪生仿真训练', content: '在数字孪生环境中生成极端场景样本，增强模型泛化能力。' },
+                    { title: '人在回路机制', content: 'AI提供决策建议，最终由调度员确认，保障安全。' }
+                ],
+                advantages: [
+                    { title: '计算速度快', content: '秒级完成传统优化算法需数分钟求解的调度问题。' },
+                    { title: '全局优化能力强', content: '可同时优化新能源消纳、网损、备用容量等多目标。' },
+                    { title: '自适应学习', content: '持续学习电网运行数据，适应新能源高比例并网。' }
+                ],
+                scenarios: ['日前调度计划', '实时潮流优化', '故障恢复决策', '新能源功率预测'],
+                marketAnalysis: 'AI电网调度市场处于快速上升期，预计2030年市场规模超百亿元。国家电网、南方电网已开展AI调度试点，谷歌DeepMind、华为、阿里云为技术供应商。',
+                keyPlayers: ['Google DeepMind', '华为', '阿里云', '南瑞集团', '国家电网', 'OpenAI'],
+                potentialImpact: 'AI调度大脑将推动电网调度从经验驱动向数据智能驱动转变，提升新能源消纳能力与电网运行经济性，是新型电力系统的核心智能组件。'
+            },
+            '石墨烯电力器件': {
+                painPoints: [
+                    { title: '大面积制备良率低', content: '高质量石墨烯晶圆规模化制备一致性差、成本高。' },
+                    { title: '器件可靠性待验证', content: '石墨烯功率器件长期运行稳定性与封装技术尚未成熟。' },
+                    { title: '产业链配套不足', content: '缺乏针对石墨烯器件的专用驱动、封装与测试标准。' }
+                ],
+                solutions: [
+                    { title: 'CVD工艺优化', content: '改进化学气相沉积工艺，提升石墨烯晶圆均匀性与产能。' },
+                    { title: '异质集成封装', content: '将石墨烯与硅、碳化硅材料异质集成，兼顾性能与可靠性。' },
+                    { title: '标准体系构建', content: '推动石墨烯功率器件测试方法与可靠性评估标准制定。' }
+                ],
+                advantages: [
+                    { title: '电子迁移率高', content: '石墨烯载流子迁移率远超硅，适合高频功率器件。' },
+                    { title: '热导率优异', content: '超高热导率有助于器件散热，提升功率密度。' },
+                    { title: '机械柔韧', content: '可制备柔性电力电子器件，拓展可穿戴、可弯曲应用。' }
+                ],
+                scenarios: ['高频功率转换', '柔性逆变器', '电动汽车电驱', '航空航天电力系统'],
+                marketAnalysis: '石墨烯电力器件仍处于实验室向工程化过渡阶段，预计2030年后进入商业化初期。欧盟石墨烯旗舰计划、IBM、华为、广汽集团为主要研发力量。',
+                keyPlayers: ['IBM', '华为', '欧盟石墨烯旗舰', '广汽集团', 'Skeleton Technologies', '贝特瑞'],
+                potentialImpact: '石墨烯器件有望突破硅基功率器件高频与散热瓶颈，推动电力电子系统小型化、高效化，未来或在电动汽车、航空航天等领域实现颠覆性应用。'
+            }
+        };
 
         // ========== 一二级领域映射 ==========
         const fieldMap = {
@@ -3412,6 +3674,27 @@
             return '<ul style="margin:0;padding-left:18px;">' + advices.map(a => `<li style="margin-bottom:6px;">${a}</li>`).join('') + '</ul>';
         }
 
+        // 渲染富文本详情块
+        function renderRichSection(data) {
+            if (!data) return '<span style="color:#8896b3;font-size:12px;">暂无数据</span>';
+            if (Array.isArray(data)) {
+                return `
+                    <ul class="tech-detail-rich-list">
+                        ${data.map(item => {
+                            if (typeof item === 'string') return `<li>${item}</li>`;
+                            return `
+                                <li>
+                                    <strong style="color:#e0e6ed;">${item.title || ''}</strong>：
+                                    ${item.content || ''}
+                                </li>
+                            `;
+                        }).join('')}
+                    </ul>
+                `;
+            }
+            return `<div class="tech-detail-rich-content">${data}</div>`;
+        }
+
         // ========== 打开技术详情页 ==========
         function openTechDetail(tech) {
             const modal = document.getElementById('techDetailModal');
@@ -3505,6 +3788,50 @@
             } else {
                 risksEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无风险信号</span>';
             }
+
+            // 技术详情深度内容
+            const details = techDetailsMap[tech.name] || {};
+
+            document.getElementById('detailPainPoints').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">技术难点</div>
+                    ${renderRichSection(details.painPoints)}
+                </div>
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">解决方案</div>
+                    ${renderRichSection(details.solutions)}
+                </div>
+            `;
+            document.getElementById('detailAdvantages').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">关键指标与竞争优势</div>
+                    ${renderRichSection(details.advantages)}
+                </div>
+            `;
+            document.getElementById('detailScenarios').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">典型应用场景</div>
+                    ${renderRichSection(details.scenarios)}
+                </div>
+            `;
+            document.getElementById('detailMarket').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">市场分析</div>
+                    ${renderRichSection(details.marketAnalysis)}
+                </div>
+            `;
+            document.getElementById('detailPlayers').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">主要玩家</div>
+                    ${renderRichSection(details.keyPlayers)}
+                </div>
+            `;
+            document.getElementById('detailImpactPotential').innerHTML = `
+                <div class="tech-detail-rich-block">
+                    <div class="tech-detail-rich-title">潜在影响</div>
+                    ${renderRichSection(details.potentialImpact)}
+                </div>
+            `;
 
             // 跟踪建议
             document.getElementById('detailAdvice').innerHTML = generateTechAdvice(tech);
