@@ -1055,6 +1055,74 @@
             border: 1px solid rgba(115, 209, 61, 0.15);
         }
 
+        /* 技术变革依据 */
+        .history-change-basis {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .history-change-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-left: 3px solid #8896b3;
+            font-size: 12px;
+        }
+
+        .history-change-item.trend-up { border-left-color: #39ff14; }
+        .history-change-item.trend-flat { border-left-color: #ffa940; }
+        .history-change-item.trend-down { border-left-color: #ff4d4f; }
+
+        .history-change-dim {
+            flex-shrink: 0;
+            width: 34px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 0;
+            border-radius: 3px;
+            background: rgba(64, 169, 255, 0.1);
+            color: #40a9ff;
+            border: 1px solid rgba(64, 169, 255, 0.2);
+        }
+
+        .history-change-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+        }
+
+        .history-change-label {
+            font-size: 10px;
+            color: #8896b3;
+            letter-spacing: 0.5px;
+        }
+
+        .history-change-value {
+            color: #c8d4e8;
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        .history-change-trend {
+            flex-shrink: 0;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .trend-up .history-change-trend { color: #39ff14; }
+        .trend-flat .history-change-trend { color: #ffa940; }
+        .trend-down .history-change-trend { color: #ff4d4f; }
+
         /* 关联技术 */
         .history-related {
             display: flex;
@@ -2293,6 +2361,12 @@
                     { type: '论文', content: 'Nature Energy近三年发文量年增80%' },
                     { type: '资讯', content: '半固态已装车（蔚来150kWh），全固态预计2027示范' }
                 ],
+                changeBasis: [
+                    { dim: '论文', label: '科研热度', value: 'Nature Energy 发文量年增 80%', trend: 'up' },
+                    { dim: '专利', label: '技术布局', value: '全球年申请 >5000 件，CR3 占比 40%', trend: 'up' },
+                    { dim: '智库', label: '战略关注', value: 'BNEF 列为"十年颠覆技术"', trend: 'up' },
+                    { dim: '产业', label: '落地进度', value: '半固态已装车，全固态 2027 示范', trend: 'up' }
+                ],
                 impactScope: [
                     { type: 'supply', label: '供给侧（储能密度）' },
                     { type: 'demand', label: '消费侧（电动汽车续航）' }
@@ -2324,6 +2398,12 @@
                     { type: '专利', content: '西门子/GE/南瑞信通专利布局加速' },
                     { type: '论文', content: 'IEEE Trans Smart Grid年发文量增长65%' },
                     { type: '资讯', content: '南网深圳试点、国网雄安示范区落地' }
+                ],
+                changeBasis: [
+                    { dim: '论文', label: '科研热度', value: 'IEEE Trans Smart Grid 年增 65%', trend: 'up' },
+                    { dim: '专利', label: '技术布局', value: '西门子/GE/南瑞信通布局加速', trend: 'up' },
+                    { dim: '智库', label: '战略关注', value: 'Gartner 2025 十大趋势', trend: 'up' },
+                    { dim: '产业', label: '落地进度', value: '南网深圳、国网雄安试点投运', trend: 'up' }
                 ],
                 impactScope: [
                     { type: 'grid', label: '电网侧（调度优化）' },
@@ -2357,6 +2437,12 @@
                     { type: '论文', content: 'Superconductor Science and Technology热点' },
                     { type: '资讯', content: '上海浦东1.2km示范段投运，液氢冷却成本待降' }
                 ],
+                changeBasis: [
+                    { dim: '论文', label: '科研热度', value: 'SuST 期刊持续热点，稳中有升', trend: 'up' },
+                    { dim: '专利', label: '技术布局', value: '日立/古河/西部超导三强格局', trend: 'flat' },
+                    { dim: '智库', label: '战略关注', value: 'IEA 评估 2030 商业化概率 60%', trend: 'flat' },
+                    { dim: '产业', label: '落地进度', value: '上海浦东 1.2km 示范段投运', trend: 'up' }
+                ],
                 impactScope: [
                     { type: 'grid', label: '电网侧（城市输电）' },
                     { type: 'supply', label: '供给侧（损耗降低）' }
@@ -2388,6 +2474,12 @@
                     { type: '专利', content: 'AutoGrid/Next Kraftwerke/特斯拉专利壁垒' },
                     { type: '论文', content: 'Applied Energy虚拟电厂专题年增40%' },
                     { type: '资讯', content: '深圳/上海/山东电力现货市场已准入VPP' }
+                ],
+                changeBasis: [
+                    { dim: '论文', label: '科研热度', value: 'Applied Energy 专题年增 40%', trend: 'up' },
+                    { dim: '专利', label: '技术布局', value: 'AutoGrid/Next Kraftwerke 专利壁垒', trend: 'flat' },
+                    { dim: '智库', label: '战略关注', value: 'WoodMac 预测 2030 装机超 500GW', trend: 'up' },
+                    { dim: '产业', label: '落地进度', value: '深圳/上海/山东现货市场已准入', trend: 'up' }
                 ],
                 impactScope: [
                     { type: 'grid', label: '电网侧（调峰调频）' },
@@ -2421,6 +2513,12 @@
                     { type: '论文', content: 'Blockchain for Energy发文量趋稳' },
                     { type: '资讯', content: '澳大利亚PowerLedger、德国Enerchain试点' }
                 ],
+                changeBasis: [
+                    { dim: '论文', label: '科研热度', value: 'Blockchain for Energy 发文量趋稳', trend: 'flat' },
+                    { dim: '专利', label: '技术布局', value: 'IBM/EWF 主导标准，新增放缓', trend: 'flat' },
+                    { dim: '智库', label: '战略关注', value: 'RMI：结算 ROI 仍不明确', trend: 'down' },
+                    { dim: '产业', label: '落地进度', value: '试点为主，规模化落地停滞', trend: 'down' }
+                ],
                 impactScope: [
                     { type: 'grid', label: '电网侧（结算透明）' },
                     { type: 'demand', label: '消费侧（P2P交易）' }
@@ -2452,6 +2550,12 @@
                     { type: '专利', content: '宁德时代/中科海钠/Farasis全球前三' },
                     { type: '论文', content: 'Nature Reviews Materials钠电专辑（2024）' },
                     { type: '资讯', content: '宁德时代钠电量产，两轮车/储能电站批量交付' }
+                ],
+                changeBasis: [
+                    { dim: '论文', label: '科研热度', value: 'Nature Reviews Materials 钠电专辑', trend: 'up' },
+                    { dim: '专利', label: '技术布局', value: '宁德时代/中科海钠/Farasis 全球前三', trend: 'up' },
+                    { dim: '智库', label: '战略关注', value: 'BNEF 预测 2028 降至 $50/kWh', trend: 'up' },
+                    { dim: '产业', label: '落地进度', value: '宁德量产，两轮车/储能批量交付', trend: 'up' }
                 ],
                 impactScope: [
                     { type: 'supply', label: '供给侧（低成本储能）' },
@@ -2485,6 +2589,12 @@
                     { type: '论文', content: 'IEEE Transactions on PE热点下降' },
                     { type: '资讯', content: '宝马/奔驰高端车型选配，公共场景渗透率低' }
                 ],
+                changeBasis: [
+                    { dim: '论文', label: '科研热度', value: 'IEEE Trans on PE 热点下降', trend: 'down' },
+                    { dim: '专利', label: '技术布局', value: 'WiTricity/Plugless 专利池已稳定', trend: 'flat' },
+                    { dim: '智库', label: '战略关注', value: 'Navigant：动态充电成本仍高 10x', trend: 'down' },
+                    { dim: '产业', label: '落地进度', value: '高端车型选配，公共渗透率低', trend: 'down' }
+                ],
                 impactScope: [
                     { type: 'demand', label: '消费侧（车载充电）' },
                     { type: 'grid', label: '电网侧（间接）' }
@@ -2517,6 +2627,12 @@
                     { type: '论文', content: 'IEEE Electron Device Letters年增50%' },
                     { type: '资讯', content: '特斯拉Model 3/Y全系搭载，光伏逆变器渗透率>40%' }
                 ],
+                changeBasis: [
+                    { dim: '论文', label: '科研热度', value: 'IEEE Electron Device Letters 年增 50%', trend: 'up' },
+                    { dim: '专利', label: '技术布局', value: 'Wolfspeed/英飞凌/罗姆/三安四强竞赛', trend: 'up' },
+                    { dim: '智库', label: '战略关注', value: 'Yole 预测 2030 市场 $80 亿', trend: 'up' },
+                    { dim: '产业', label: '落地进度', value: '特斯拉全系搭载，逆变器渗透 >40%', trend: 'up' }
+                ],
                 impactScope: [
                     { type: 'supply', label: '供给侧（效率提升）' },
                     { type: 'demand', label: '消费侧（电动车快充）' }
@@ -2548,6 +2664,12 @@
                     { type: '专利', content: '清华大学/华为/南瑞联合布局' },
                     { type: '论文', content: 'IEEE Trans on Sustainable Energy热点' },
                     { type: '资讯', content: '张家口/苏州示范园区小批量部署' }
+                ],
+                changeBasis: [
+                    { dim: '论文', label: '科研热度', value: 'IEEE Trans Sustainable Energy 热点', trend: 'up' },
+                    { dim: '专利', label: '技术布局', value: '清华/华为/南瑞联合布局', trend: 'up' },
+                    { dim: '智库', label: '战略关注', value: 'IEA 净零路径 DER 占比超 50%', trend: 'up' },
+                    { dim: '产业', label: '落地进度', value: '张家口/苏州园区小批量部署', trend: 'flat' }
                 ],
                 impactScope: [
                     { type: 'grid', label: '电网侧（潮流控制）' },
@@ -3408,6 +3530,26 @@
                 const hasDetails = !!tech.lifecycle;
                 const details = techDetailsMap[tech.name] || {};
 
+                // 技术变革依据（量化动态指标：论文/专利/智库/产业）
+                const trendMeta = {
+                    up: '↗ 加速',
+                    flat: '→ 平稳',
+                    down: '↘ 降温'
+                };
+                const changeBasisHtml = tech.changeBasis && tech.changeBasis.length ? `
+                    <div class="history-section-title">技术变革依据</div>
+                    <div class="history-change-basis">${tech.changeBasis.map(c => `
+                        <div class="history-change-item trend-${c.trend}">
+                            <span class="history-change-dim">${c.dim}</span>
+                            <span class="history-change-body">
+                                <span class="history-change-label">${c.label}</span>
+                                <span class="history-change-value">${c.value}</span>
+                            </span>
+                            <span class="history-change-trend">${trendMeta[c.trend] || ''}</span>
+                        </div>
+                    `).join('')}</div>
+                ` : '';
+
                 // 主要玩家
                 const playersHtml = details.keyPlayers && details.keyPlayers.length ? `
                     <div class="history-section-title">主要玩家</div>
@@ -3464,6 +3606,7 @@
                         </div>
                         ${lifeHtml}
                         ${dimTagsHtml}
+                        ${changeBasisHtml}
                         ${playersHtml}
                         ${metricHtml}
                         ${riskHtml}
