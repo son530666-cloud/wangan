@@ -1998,73 +1998,6 @@
             <div class="popup-section-title">评估指标</div>
             <div id="popupDimList"></div>
         </div>
-
-        <!-- 技术详情页 -->
-        <div class="tech-detail-modal" id="techDetailModal">
-            <div class="tech-detail-backdrop" onclick="closeTechDetail()"></div>
-            <div class="tech-detail-panel">
-                <div class="tech-detail-close" onclick="closeTechDetail()">×</div>
-                <div class="tech-detail-header">
-                    <div class="tech-detail-icon" id="detailIcon"></div>
-                    <div class="tech-detail-title-wrap">
-                        <div class="tech-detail-name" id="detailName"></div>
-                        <div class="tech-detail-meta" id="detailMeta"></div>
-                    </div>
-                    <div class="tech-detail-score" id="detailScore"></div>
-                </div>
-
-                <div class="tech-detail-body">
-                    <div class="tech-detail-left">
-                        <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">📡 评估指标雷达图</div>
-                            <div class="tech-detail-radar" id="detailRadar"></div>
-                        </div>
-
-                        <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">🎯 技术关键指标</div>
-                            <div class="tech-detail-metrics" id="detailMetrics"></div>
-                        </div>
-                    </div>
-
-                    <div class="tech-detail-right">
-                        <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">💡 跟踪总结与建议</div>
-                            <div class="tech-detail-advice" id="detailAdvice"></div>
-                        </div>
-
-                        <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">🏢 主要玩家</div>
-                            <div class="tech-detail-players" id="detailPlayers"></div>
-                        </div>
-
-                        <div class="tech-detail-section">
-                            <div class="tech-detail-section-title">⚠️ 风险与影响</div>
-                            <div class="tech-detail-risks-impact" id="detailRisksImpact"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tech-detail-section">
-                    <div class="tech-detail-section-title">🔧 技术难点及解决方案</div>
-                    <div class="tech-detail-rich" id="detailPainPoints"></div>
-                </div>
-
-                <div class="tech-detail-section">
-                    <div class="tech-detail-section-title">🏆 关键指标及竞争优势</div>
-                    <div class="tech-detail-rich" id="detailAdvantages"></div>
-                </div>
-
-                <div class="tech-detail-section">
-                    <div class="tech-detail-section-title">🎯 应用场景</div>
-                    <div class="tech-detail-rich" id="detailScenarios"></div>
-                </div>
-
-                <div class="tech-detail-section">
-                    <div class="tech-detail-section-title">📈 市场分析</div>
-                    <div class="tech-detail-rich" id="detailMarket"></div>
-                </div>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -3922,8 +3855,6 @@
             if (popup) popup.classList.remove('show');
         }
 
-        let detailRadarChart = null;
-
         // 生成技术详情页跟踪总结与建议
         function generateTechAdvice(tech) {
             const advices = [];
@@ -3974,66 +3905,38 @@
             return `<div class="tech-detail-rich-content">${data}</div>`;
         }
 
-        // ========== 打开技术详情页 ==========
-        function openTechDetail(tech) {
-            const modal = document.getElementById('techDetailModal');
-            if (!modal || !tech) return;
-
-            document.getElementById('detailIcon').innerHTML = `<img src="${getTechIcon(tech.category)}" alt="${tech.name}">`;
-            document.getElementById('detailName').textContent = tech.name;
-            document.getElementById('detailScore').textContent = `${tech.score}分`;
-            document.getElementById('detailMeta').innerHTML = `
-                <span>🏷️ ${tech.category}</span>
-                <span>📅 识别时间：${tech.firstSeen}</span>
-                <span>📊 综合评分：${tech.score}</span>
-                <span>🚀 ${getTrlByScore(tech.lifecycleScore)}</span>
-            `;
-
-            // 跟踪总结与建议
-            document.getElementById('detailAdvice').innerHTML = generateTechAdvice(tech);
-
-            // 主要玩家
+        // ========== 打开技术详情页（跳转到独立「技术详情」一级导航页） ==========
+        function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
-            const playersEl = document.getElementById('detailPlayers');
-            if (details.keyPlayers && details.keyPlayers.length) {
-                playersEl.innerHTML = `<ul>${details.keyPlayers.map(p => `<li>${p}</li>`).join('')}</ul>`;
-            } else {
-                playersEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无主要玩家数据</span>';
-            }
 
-            // 技术关键指标
-            const metricsEl = document.getElementById('detailMetrics');
-            if (tech.keyMetrics && tech.keyMetrics.length) {
-                metricsEl.innerHTML = tech.keyMetrics.map(m => `
-                    <span class="tech-detail-metric">${m.label} ${m.value}</span>
-                `).join('');
-            } else {
-                metricsEl.innerHTML = '<span style="color:#8896b3;font-size:12px;">暂无关键指标</span>';
-            }
+            const adviceHtml = generateTechAdvice(tech);
 
-            // 风险与影响
-            const risksImpactEl = document.getElementById('detailRisksImpact');
+            const playersHtml = (details.keyPlayers && details.keyPlayers.length)
+                ? `<ul>${details.keyPlayers.map(p => `<li>${p}</li>`).join('')}</ul>`
+                : '<span style="color:#8896b3;font-size:12px;">暂无主要玩家数据</span>';
+
+            const metricsHtml = (tech.keyMetrics && tech.keyMetrics.length)
+                ? tech.keyMetrics.map(m => `<span class="tech-detail-metric">${m.label} ${m.value}</span>`).join('')
+                : '<span style="color:#8896b3;font-size:12px;">暂无关键指标</span>';
+
             let risksImpactHtml = '';
             if (tech.riskSignals && tech.riskSignals.length) {
                 risksImpactHtml += `
                     <div class="tech-detail-rich-block">
                         <div class="tech-detail-rich-title">潜在风险</div>
                         ${tech.riskSignals.map(r => `<div class="tech-detail-risk-item">${r}</div>`).join('')}
-                    </div>
-                `;
+                    </div>`;
             }
             if (details.potentialImpact) {
                 risksImpactHtml += `
                     <div class="tech-detail-rich-block">
                         <div class="tech-detail-rich-title">潜在影响</div>
                         ${renderRichSection(details.potentialImpact)}
-                    </div>
-                `;
+                    </div>`;
             }
-            risksImpactEl.innerHTML = risksImpactHtml || '<span style="color:#8896b3;font-size:12px;">暂无风险与影响数据</span>';
+            if (!risksImpactHtml) risksImpactHtml = '<span style="color:#8896b3;font-size:12px;">暂无风险与影响数据</span>';
 
-            // 技术难点及解决方案
-            document.getElementById('detailPainPoints').innerHTML = `
+            const painPointsHtml = `
                 <div class="tech-detail-rich-block">
                     <div class="tech-detail-rich-title">技术难点</div>
                     ${renderRichSection(details.painPoints)}
@@ -4041,62 +3944,61 @@
                 <div class="tech-detail-rich-block">
                     <div class="tech-detail-rich-title">解决方案</div>
                     ${renderRichSection(details.solutions)}
-                </div>
-            `;
+                </div>`;
 
-            // 关键指标及竞争优势
-            document.getElementById('detailAdvantages').innerHTML = `
+            const advHalf = Math.ceil((details.advantages?.length || 0) / 2);
+            const advantagesHtml = `
                 <div class="tech-detail-rich-block">
                     <div class="tech-detail-rich-title">关键指标</div>
-                    ${renderRichSection(details.advantages?.slice(0, Math.ceil((details.advantages?.length || 0) / 2)))}
+                    ${renderRichSection(details.advantages?.slice(0, advHalf))}
                 </div>
                 <div class="tech-detail-rich-block">
                     <div class="tech-detail-rich-title">竞争优势</div>
-                    ${renderRichSection(details.advantages?.slice(Math.ceil((details.advantages?.length || 0) / 2)) || [])}
-                </div>
-            `;
+                    ${renderRichSection(details.advantages?.slice(advHalf) || [])}
+                </div>`;
 
-            // 应用场景
-            document.getElementById('detailScenarios').innerHTML = `
+            const scenariosHtml = `
                 <div class="tech-detail-rich-block">
                     <div class="tech-detail-rich-title">典型应用场景</div>
                     ${renderRichSection(details.scenarios)}
-                </div>
-            `;
+                </div>`;
 
-            // 市场分析
-            document.getElementById('detailMarket').innerHTML = `
+            const marketHtml = `
                 <div class="tech-detail-rich-block">
                     <div class="tech-detail-rich-title">市场分析</div>
                     ${renderRichSection(details.marketAnalysis)}
-                </div>
-            `;
+                </div>`;
 
-            // 渲染雷达图
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden';
-            setTimeout(() => renderDetailRadar(tech), 50);
+            return {
+                name: tech.name,
+                score: tech.score,
+                category: tech.category,
+                firstSeen: tech.firstSeen || '',
+                lastActive: tech.lastActive || '',
+                trl: getTrlByScore(tech.lifecycleScore),
+                iconSrc: getTechIcon(tech.category),
+                radarSvg: buildDetailRadarSvg(tech),
+                adviceHtml, playersHtml, metricsHtml, risksImpactHtml,
+                painPointsHtml, advantagesHtml, scenariosHtml, marketHtml
+            };
         }
 
-        function closeTechDetail() {
-            const modal = document.getElementById('techDetailModal');
-            if (modal) modal.classList.remove('show');
-            document.body.style.overflow = '';
-            if (detailRadarChart) {
-                detailRadarChart.dispose();
-                detailRadarChart = null;
+        function openTechDetail(tech) {
+            if (!tech) return;
+            const json = JSON.stringify(buildDetailPayload(tech));
+            // 双通道传递：sessionStorage + window.name（window.name 在同一框架内跨页面导航始终保留，兼容 file://）
+            try { sessionStorage.setItem('techDetailPayload', json); } catch (e) { console.error('保存技术详情失败:', e); }
+            try { window.name = 'TECH_DETAIL:' + json; } catch (e) {}
+            // 通知外层综合看板切换到「技术详情」一级导航；独立打开时直接跳转
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'navigateTo', page: '技术详情.html' }, '*');
+            } else {
+                window.location.href = '技术详情.html';
             }
         }
 
-        // ========== 详情页雷达图（纯 SVG，不依赖 ECharts） ==========
-        function renderDetailRadar(tech) {
-            const dom = document.getElementById('detailRadar');
-            if (!dom) return;
-            if (detailRadarChart) {
-                detailRadarChart.dispose();
-                detailRadarChart = null;
-            }
-
+        // ========== 详情页雷达图（纯 SVG，返回字符串） ==========
+        function buildDetailRadarSvg(tech) {
             const d4 = tech.dimensions4 || { novelty: 80, value: 80, relevance: 80, prospect: 80 };
             const indicators = [
                 { name: '新颖性', key: 'novelty', color: '#ff4d4f' },
@@ -4115,7 +4017,6 @@
                 return { x: CX + R * ratio * Math.cos(angle), y: CY + R * ratio * Math.sin(angle) };
             }
 
-            // 网格
             let grid = '';
             [0.25, 0.5, 0.75, 1.0].forEach((ratio, idx) => {
                 const gPoints = [0, 1, 2, 3].map(i => {
@@ -4126,7 +4027,6 @@
                 grid += `<polygon points="${gPoints}" fill="rgba(57,255,20,${opacity})" stroke="rgba(57,255,20,0.12)" stroke-width="0.5"/>`;
             });
 
-            // 轴线
             let axes = '';
             [0, 1, 2, 3].forEach(i => {
                 const angle = startAngle + i * angleStep;
@@ -4135,11 +4035,9 @@
                 axes += `<line x1="${CX}" y1="${CY}" x2="${x2}" y2="${y2}" stroke="rgba(57,255,20,0.15)" stroke-width="0.5"/>`;
             });
 
-            // 数据点
             const points = indicators.map((ind, i) => ({ ...getPoint(d4[ind.key], i), score: d4[ind.key], ...ind }));
             const polyPoints = points.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
 
-            // 标签 + 分值
             const labelDist = R + 26;
             let labels = '';
             points.forEach((p, i) => {
@@ -4157,12 +4055,11 @@
                 `;
             });
 
-            // 顶点圆点
             const dots = points.map(p => `
                 <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${p.color}" stroke="#0a1628" stroke-width="1.5"/>
             `).join('');
 
-            dom.innerHTML = `
+            return `
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;">
                     ${grid}${axes}
                     <polygon points="${polyPoints}" fill="rgba(57,255,20,0.15)" stroke="#39ff14" stroke-width="2" stroke-linejoin="round"/>

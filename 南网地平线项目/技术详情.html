@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术详情 - 技术变革地平线</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #080e1a;
+            font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+            color: #e0e6ed;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .detail-page {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .detail-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            font-size: 14px;
+            color: #40a9ff;
+            background: rgba(64, 169, 255, 0.08);
+            border: 1px solid rgba(64, 169, 255, 0.25);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: rgba(64, 169, 255, 0.18); color: #fff; }
+        .detail-crumb { font-size: 13px; color: #8896b3; }
+
+        .tech-detail-panel {
+            position: relative;
+            background: rgba(10, 22, 45, 0.98);
+            border: 1px solid rgba(64, 169, 255, 0.2);
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+        }
+
+        .tech-detail-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(64, 169, 255, 0.12);
+        }
+        .tech-detail-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
+            background: rgba(64, 169, 255, 0.12);
+            border: 1px solid rgba(64, 169, 255, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 12px;
+        }
+        .tech-detail-icon img { width: 100%; height: 100%; object-fit: contain; }
+        .tech-detail-title-wrap { flex: 1; min-width: 0; }
+        .tech-detail-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+        .tech-detail-meta {
+            font-size: 13px;
+            color: #8896b3;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .tech-detail-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .tech-detail-score {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff4d4f;
+            background: rgba(255, 77, 79, 0.1);
+            border: 1px solid rgba(255, 77, 79, 0.2);
+            padding: 6px 16px;
+            border-radius: 8px;
+        }
+
+        .tech-detail-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+        .tech-detail-section { margin-bottom: 24px; }
+        .tech-detail-section:last-child { margin-bottom: 0; }
+        .tech-detail-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #40a9ff;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid #40a9ff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .tech-detail-metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .tech-detail-metrics .tech-detail-metric {
+            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: rgba(64, 169, 255, 0.08);
+            color: #40a9ff;
+            border: 1px solid rgba(64, 169, 255, 0.15);
+        }
+
+        .tech-detail-advice {
+            background: rgba(57, 255, 20, 0.05);
+            border: 1px solid rgba(57, 255, 20, 0.12);
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 13px;
+            color: #b0c0d8;
+            line-height: 1.7;
+        }
+        .tech-detail-advice strong { color: #39ff14; }
+
+        .tech-detail-players {
+            background: rgba(64, 169, 255, 0.05);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .tech-detail-players ul {
+            margin: 0;
+            padding-left: 18px;
+            list-style: none;
+        }
+        .tech-detail-players li {
+            font-size: 13px;
+            color: #b0c0d8;
+            line-height: 1.8;
+            position: relative;
+            padding-left: 14px;
+        }
+        .tech-detail-players li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #40a9ff;
+        }
+
+        .tech-detail-risks-impact {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .tech-detail-rich {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .tech-detail-rich-block {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .tech-detail-rich-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #40a9ff;
+            margin-bottom: 6px;
+        }
+        .tech-detail-rich-content {
+            font-size: 13px;
+            color: #b0c0d8;
+            line-height: 1.7;
+        }
+        .tech-detail-rich-list {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .tech-detail-rich-list li {
+            font-size: 13px;
+            color: #b0c0d8;
+            line-height: 1.7;
+            margin-bottom: 4px;
+        }
+
+        .tech-detail-radar {
+            width: 100%;
+            height: 320px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .tech-detail-risk-item {
+            font-size: 13px;
+            color: #ff7875;
+            background: rgba(255, 77, 79, 0.06);
+            border: 1px solid rgba(255, 77, 79, 0.12);
+            border-radius: 8px;
+            padding: 10px 12px;
+            line-height: 1.6;
+        }
+        .tech-detail-risk-item::before {
+            content: '⚠';
+            margin-right: 6px;
+        }
+
+        .detail-empty {
+            text-align: center;
+            padding: 80px 20px;
+            color: #8896b3;
+        }
+        .detail-empty .icon { font-size: 48px; margin-bottom: 16px; }
+        .detail-empty .hint { font-size: 14px; line-height: 1.8; }
+
+        @media (max-width: 768px) {
+            .tech-detail-body { grid-template-columns: 1fr; }
+            .tech-detail-panel { padding: 20px; }
+            .tech-detail-header { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div class="detail-page">
+        <div class="detail-toolbar">
+            <button class="back-btn" id="backBtn">← 返回技术扫描</button>
+            <span class="detail-crumb">技术扫描 / 技术详情</span>
+        </div>
+
+        <div id="detailRoot"></div>
+    </div>
+
+    <script>
+        // 返回技术扫描
+        document.getElementById('backBtn').addEventListener('click', () => {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'navigateTo', page: '技术扫描.html' }, '*');
+            } else {
+                window.location.href = '技术扫描.html';
+            }
+        });
+
+        function renderEmpty() {
+            document.getElementById('detailRoot').innerHTML = `
+                <div class="detail-empty">
+                    <div class="icon">📄</div>
+                    <div class="hint">尚未选择技术。<br>请前往「技术扫描」页，点击任意技术卡片查看其详情。</div>
+                </div>
+            `;
+        }
+
+        function renderDetail(p) {
+            document.getElementById('detailRoot').innerHTML = `
+                <div class="tech-detail-panel">
+                    <div class="tech-detail-header">
+                        <div class="tech-detail-icon">${p.iconSrc ? `<img src="${p.iconSrc}" alt="${p.name}">` : ''}</div>
+                        <div class="tech-detail-title-wrap">
+                            <div class="tech-detail-name">${p.name || ''}</div>
+                            <div class="tech-detail-meta">
+                                <span>🏷️ ${p.category || ''}</span>
+                                ${p.lastActive ? `<span>🕐 最近活跃时间：${p.lastActive}</span>` : ''}
+                                ${p.firstSeen ? `<span>📅 识别时间：${p.firstSeen}</span>` : ''}
+                                <span>📊 综合评分：${p.score}</span>
+                                <span>🚀 ${p.trl || ''}</span>
+                            </div>
+                        </div>
+                        <div class="tech-detail-score">${p.score}分</div>
+                    </div>
+
+                    <div class="tech-detail-body">
+                        <div class="tech-detail-left">
+                            <div class="tech-detail-section">
+                                <div class="tech-detail-section-title">📡 评估指标雷达图</div>
+                                <div class="tech-detail-radar">${p.radarSvg || ''}</div>
+                            </div>
+                            <div class="tech-detail-section">
+                                <div class="tech-detail-section-title">🎯 技术关键指标</div>
+                                <div class="tech-detail-metrics">${p.metricsHtml || ''}</div>
+                            </div>
+                        </div>
+
+                        <div class="tech-detail-right">
+                            <div class="tech-detail-section">
+                                <div class="tech-detail-section-title">💡 跟踪总结与建议</div>
+                                <div class="tech-detail-advice">${p.adviceHtml || ''}</div>
+                            </div>
+                            <div class="tech-detail-section">
+                                <div class="tech-detail-section-title">🏢 主要玩家</div>
+                                <div class="tech-detail-players">${p.playersHtml || ''}</div>
+                            </div>
+                            <div class="tech-detail-section">
+                                <div class="tech-detail-section-title">⚠️ 风险与影响</div>
+                                <div class="tech-detail-risks-impact">${p.risksImpactHtml || ''}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tech-detail-section">
+                        <div class="tech-detail-section-title">🔧 技术难点及解决方案</div>
+                        <div class="tech-detail-rich">${p.painPointsHtml || ''}</div>
+                    </div>
+
+                    <div class="tech-detail-section">
+                        <div class="tech-detail-section-title">🏆 关键指标及竞争优势</div>
+                        <div class="tech-detail-rich">${p.advantagesHtml || ''}</div>
+                    </div>
+
+                    <div class="tech-detail-section">
+                        <div class="tech-detail-section-title">🎯 应用场景</div>
+                        <div class="tech-detail-rich">${p.scenariosHtml || ''}</div>
+                    </div>
+
+                    <div class="tech-detail-section">
+                        <div class="tech-detail-section-title">📈 市场分析</div>
+                        <div class="tech-detail-rich">${p.marketHtml || ''}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        (function init() {
+            let raw = null;
+            try { raw = sessionStorage.getItem('techDetailPayload'); } catch (e) {}
+            // window.name 兜底（跨 file:// 页面导航可靠）
+            if (!raw && typeof window.name === 'string' && window.name.indexOf('TECH_DETAIL:') === 0) {
+                raw = window.name.slice('TECH_DETAIL:'.length);
+            }
+
+            let payload = null;
+            try { if (raw) payload = JSON.parse(raw); } catch (e) { console.error('读取技术详情失败:', e); }
+
+            if (payload && payload.name) {
+                renderDetail(payload);
+                document.title = `${payload.name} - 技术详情`;
+            } else {
+                renderEmpty();
+            }
+        })();
+    </script>
+</body>
+</html>

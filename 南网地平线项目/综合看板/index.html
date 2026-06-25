@@ -64,6 +64,7 @@
   </div>
   <nav class="main-nav" id="mainNav">
     <a data-page="技术扫描.html" class="active">技术扫描</a>
+    <a data-page="技术详情.html">技术详情</a>
     <a data-page="态势追踪-完整版.html">态势追踪</a>
     <a data-page="决策分析.html">决策分析</a>
     <a data-page="分析报告生成.html">分析报告</a>
@@ -97,11 +98,21 @@
   }
 
   links.forEach(link => {
-    link.addEventListener('click', () => {
-      links.forEach(l => l.classList.remove('active'));
-      link.classList.add('active');
-      frame.src = '../' + link.dataset.page;
-    });
+    link.addEventListener('click', () => navigateTo(link.dataset.page));
+  });
+
+  function navigateTo(page) {
+    if (!page) return;
+    links.forEach(l => l.classList.toggle('active', l.dataset.page === page));
+    frame.src = '../' + page;
+  }
+
+  // 子页面（如技术扫描点击技术卡片）请求切换一级导航
+  window.addEventListener('message', (e) => {
+    const data = e.data || {};
+    if (data.type === 'navigateTo' && data.page) {
+      navigateTo(data.page);
+    }
   });
 
   frame.addEventListener('load', hideSubNav);
