@@ -244,9 +244,33 @@
             font-size: 13px;
             line-height: 1.8;
             color: #9fb0cc;
-            margin-bottom: 6px;
+            margin-bottom: 12px;
         }
         .drivers-items strong { color: #e0e6ed; }
+        .driver-text { color: #9fb0cc; }
+        .driver-source { margin-top: 5px; }
+        .driver-source summary {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #40a9ff;
+            font-size: 12px;
+            list-style: none;
+            user-select: none;
+        }
+        .driver-source summary::-webkit-details-marker { display: none; }
+        .driver-source summary:hover { text-decoration: underline; }
+        .driver-source-body {
+            margin-top: 6px;
+            font-size: 12px;
+            color: #8896b3;
+            line-height: 1.7;
+            background: rgba(64, 169, 255, 0.06);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-radius: 6px;
+            padding: 8px 10px;
+        }
 
         /* ===== 内容区：扁平分块，去弹窗感 ===== */
         .detail-body {
