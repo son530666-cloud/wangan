@@ -4318,15 +4318,37 @@
         }
 
         // ===== 技术全球分布 + 扩散速度与采用率 =====
+        const WORLD_COORD = {
+            '中国': [789, 150], '美国': [232, 150], '欧洲': [525, 115], '日本': [885, 150], '韩国': [858, 170],
+            '印度': [700, 205], '英国': [488, 105], '德国': [527, 110], '法国': [510, 120], '俄罗斯': [700, 92], '加拿大': [232, 95]
+        };
+        function heatColor(l) { return l >= 85 ? '#ff4d4f' : l >= 70 ? '#ffa940' : l >= 55 ? '#73d13d' : '#40a9ff'; }
+        function buildWorldHeatSvg(countries) {
+            if (!countries || !countries.length) return '';
+            const W = 1000, H = 500;
+            let bg = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a1a2f"/>`;
+            let grat = '';
+            for (let x = 100; x < W; x += 100) grat += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="rgba(255,255,255,0.04)"/>`;
+            for (let y = 100; y < H; y += 100) grat += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="rgba(255,255,255,0.04)"/>`;
+            const conts = [[232, 160, 80, 60], [300, 330, 52, 90], [525, 135, 52, 52], [545, 280, 68, 95], [760, 165, 145, 82], [885, 365, 52, 38]];
+            const land = conts.map(c => `<ellipse cx="${c[0]}" cy="${c[1]}" rx="${c[2]}" ry="${c[3]}" fill="rgba(120,160,210,0.07)"/>`).join('');
+            let dots = '';
+            countries.forEach((c, i) => {
+                const pos = WORLD_COORD[c.name] || [160 + i * 160, 260];
+                const color = heatColor(c.level);
+                const glowR = Math.round(16 + c.level / 100 * 30);
+                const coreR = Math.round(6 + c.level / 100 * 6);
+                dots += `<circle cx="${pos[0]}" cy="${pos[1]}" r="${glowR}" fill="${color}" opacity="0.32" filter="url(#wblur)"/>`;
+                dots += `<circle cx="${pos[0]}" cy="${pos[1]}" r="${coreR}" fill="${color}" stroke="#0a1628" stroke-width="1.5"><title>${c.name} ${c.level}${c.note ? '\n' + c.note : ''}</title></circle>`;
+                dots += `<text x="${pos[0]}" y="${pos[1] - glowR - 4}" text-anchor="middle" fill="#e0e6ed" font-size="13" font-weight="600">${c.name} ${c.level}</text>`;
+            });
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;"><defs><filter id="wblur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="11"/></filter></defs>${bg}${land}${grat}${dots}</svg>`;
+        }
         function globalDistToHtml(countries) {
             if (!countries || !countries.length) return '';
-            const max = Math.max(...countries.map(c => c.level), 1);
-            return `<div class="gd-list">${countries.map(c => `
-                <div class="gd-item">
-                    <div class="gd-head"><span class="gd-name">${c.flag || ''} ${c.name}</span><span class="gd-level">${c.level}</span></div>
-                    <div class="gd-bar"><div class="gd-bar-inner" style="width:${(c.level / max * 100).toFixed(0)}%;"></div></div>
-                    ${c.note ? `<div class="gd-note">${c.note}</div>` : ''}
-                </div>`).join('')}</div>`;
+            const legend = `<div class="heat-legend">采用度热力：<span class="hl-dot" style="background:#40a9ff;"></span>低<span class="hl-dot" style="background:#73d13d;"></span>中<span class="hl-dot" style="background:#ffa940;"></span>较高<span class="hl-dot" style="background:#ff4d4f;"></span>高</div>`;
+            const notes = `<div class="heat-notes">${countries.map(c => `<div class="heat-note"><span class="heat-note-name">${c.flag || ''} ${c.name} · ${c.level}</span>${c.note ? `<span class="heat-note-text">${c.note}</span>` : ''}</div>`).join('')}</div>`;
+            return `<div class="world-heat">${buildWorldHeatSvg(countries)}</div>${legend}${notes}`;
         }
         function adoptionToHtml(a) {
             if (!a) return '';
