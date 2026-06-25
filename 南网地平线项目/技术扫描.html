@@ -2437,6 +2437,21 @@
                         }
                     ]
                 },
+                application: {
+                    scenarios: [
+                        { title: '长续航电动汽车', content: '高能量密度支撑单次充电续航突破1000公里，缓解里程焦虑，是最大的目标市场。' },
+                        { title: '电网级储能', content: '高安全与长循环寿命适配大规模调峰调频储能电站，降低消防与运维风险。' },
+                        { title: '电动航空 / eVTOL', content: '轻量化与本征安全满足航空对能量密度与安全的严苛要求。' },
+                        { title: '消费电子与可穿戴', content: '小型化、高安全特性适配高端手机、AR/VR 及医疗植入设备。' }
+                    ],
+                    fusions: [
+                        { tech: '锂金属负极', content: '固态电解质抑制锂枝晶，使锂金属负极成为可能，进一步将能量密度推高至 500 Wh/kg。' },
+                        { tech: 'CTC 一体化底盘', content: '与电芯到底盘一体化集成，提升整车空间利用率与结构强度。' },
+                        { tech: '800V 高压快充', content: '固态体系耐高压、热稳定，配合高压平台实现更快充电而不牺牲安全。' },
+                        { tech: '数字孪生 BMS', content: '结合电池数字孪生与 AI 算法，实现界面状态在线监测与寿命精准预测。' },
+                        { tech: '干法电极工艺', content: '与无溶剂干法电极装备耦合，降低制造能耗与成本，加速量产。' }
+                    ]
+                },
                 diffusion: [
                     { scene: '消费电子', speed: 72, level: '快', bottleneck: '小容量电芯成本偏高，与成熟液态锂电正面竞争' },
                     { scene: '高端电动汽车', speed: 48, level: '中', bottleneck: '量产良率不足50%、车规安全认证周期长' },
@@ -4345,6 +4360,26 @@
             };
         }
 
+        // ===== 技术应用分析（应用场景 + 与其他技术交叉融合） =====
+        function applicationToHtml(a) {
+            if (!a) return '';
+            let html = '';
+            if (a.scenarios && a.scenarios.length) {
+                html += `<div class="app-sub"><div class="app-sub-title">🎯 典型应用场景</div><ul class="app-list">${a.scenarios.map(s => `<li><strong>${s.title}：</strong>${s.content}</li>`).join('')}</ul></div>`;
+            }
+            if (a.fusions && a.fusions.length) {
+                html += `<div class="app-sub"><div class="app-sub-title">🔗 与其他技术交叉融合</div><ul class="app-list">${a.fusions.map(f => `<li><strong>${f.tech}：</strong>${f.content}</li>`).join('')}</ul></div>`;
+            }
+            return html;
+        }
+        function autoApplication(tech, details) {
+            const scenarios = (details.scenarios || []).map(s => ({ title: s.title, content: s.content }));
+            const related = tech.relatedTechs || [];
+            const fusions = related.map(r => ({ tech: r, content: `与${r}协同集成，可在性能、成本或系统集成度上形成互补，拓展${tech.name}的应用边界与综合竞争力。` }));
+            if (!scenarios.length && !fusions.length) return null;
+            return { scenarios, fusions };
+        }
+
         function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
 
@@ -4439,6 +4474,9 @@
             // 驱动力分析（应用场景痛点 / 技术难点 / 政策导向）
             const driversHtml = driversToHtml(tech.drivers || autoDrivers(tech, details));
 
+            // 技术应用分析（应用场景 + 交叉融合）
+            const applicationHtml = applicationToHtml(tech.application || autoApplication(tech, details));
+
             // 技术扩散速度（各场景扩散速度与瓶颈）
             const diffusionHtml = diffusionToHtml(tech.diffusion || autoDiffusion(tech, details));
 
@@ -4471,6 +4509,7 @@
                 intro: intro,
                 changeBasisHtml,
                 driversHtml,
+                applicationHtml,
                 diffusionHtml,
                 globalDistHtml,
                 adoptionHtml,

@@ -283,6 +283,14 @@
         .drivers-items strong { color: #e0e6ed; }
         .driver-text { color: #9fb0cc; }
 
+        /* 技术应用分析 */
+        .app-sub { margin-bottom: 16px; }
+        .app-sub:last-child { margin-bottom: 0; }
+        .app-sub-title { font-size: 13px; font-weight: 600; color: #40a9ff; margin-bottom: 8px; }
+        .app-list { margin: 0; padding-left: 18px; }
+        .app-list li { font-size: 13px; line-height: 1.8; color: #9fb0cc; margin-bottom: 6px; }
+        .app-list strong { color: #e0e6ed; }
+
         /* 技术扩散速度 */
         .diff-list { display: flex; flex-direction: column; gap: 16px; }
         .diff-item {
@@ -740,25 +748,31 @@
                         <div class="detail-card-title">🚀 驱动力分析</div>
                         <div class="drivers-wrap">${p.driversHtml}</div>
                     </div>` : ''}
+                    ${p.applicationHtml ? `
+                    <div class="detail-card">
+                        <div class="detail-card-title">🧩 技术应用分析</div>
+                        <div class="app-wrap">${p.applicationHtml}</div>
+                    </div>` : ''}
+                </div>
+
+                <div class="detail-body">
                     ${p.diffusionHtml ? `
                     <div class="detail-card">
                         <div class="detail-card-title">📶 技术扩散速度</div>
                         <div class="diffusion-wrap">${p.diffusionHtml}</div>
                     </div>` : ''}
-                </div>
-
-                <div class="detail-body">
                     ${p.globalDistHtml ? `
                     <div class="detail-card">
                         <div class="detail-card-title">🌍 技术全球分布</div>
                         <div class="gd-wrap">${p.globalDistHtml}</div>
                     </div>` : ''}
-                    ${p.adoptionHtml ? `
-                    <div class="detail-card">
-                        <div class="detail-card-title">📊 扩散速度与采用率</div>
-                        <div class="ad-wrap">${p.adoptionHtml}</div>
-                    </div>` : ''}
                 </div>
+
+                ${p.adoptionHtml ? `
+                <div class="detail-card">
+                    <div class="detail-card-title">📊 扩散速度与采用率</div>
+                    <div class="ad-wrap">${p.adoptionHtml}</div>
+                </div>` : ''}
 
                 ${p.landscapeHtml ? `
                 <div class="detail-card">
