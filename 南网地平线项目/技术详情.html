@@ -58,11 +58,30 @@
 
         /* ===== 头部横幅（融合评分/识别时间/成熟度/主要玩家/简介） ===== */
         .detail-banner {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
             background: linear-gradient(135deg, rgba(64, 169, 255, 0.10), rgba(8, 14, 26, 0));
             border: 1px solid rgba(64, 169, 255, 0.14);
             border-radius: 14px;
             padding: 22px 26px;
             margin-bottom: 24px;
+        }
+        .banner-main { flex: 1; min-width: 0; }
+        .banner-side {
+            flex-shrink: 0;
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 12px;
+        }
+        .banner-radar {
+            width: 260px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+            padding: 6px;
         }
         .banner-top {
             display: flex;
@@ -124,6 +143,7 @@
             gap: 8px;
             font-size: 14px;
         }
+        .meta-cell.full { flex-basis: 100%; }
         .meta-label {
             color: #8896b3;
             display: inline-flex;
@@ -272,6 +292,10 @@
         .detail-empty .icon { font-size: 48px; margin-bottom: 16px; }
         .detail-empty .hint { font-size: 14px; line-height: 1.8; }
 
+        @media (max-width: 900px) {
+            .detail-banner { flex-direction: column; }
+            .banner-side { width: 100%; align-items: flex-start; }
+        }
         @media (max-width: 768px) {
             .detail-body { grid-template-columns: 1fr; }
             .banner-meta { gap: 12px 20px; }
@@ -384,20 +408,25 @@
             const introHtml = `${p.desc ? `<p style="margin:0 0 8px;">${p.desc}</p>` : ''}<p style="margin:0;">${introExtra}</p>`;
             document.getElementById('detailRoot').innerHTML = `
                 <div class="detail-banner">
-                    <div class="banner-top">
-                        <div class="banner-icon">${p.iconSrc ? `<img src="${p.iconSrc}" alt="${p.name}">` : ''}</div>
-                        <div class="banner-title">${p.name || ''}</div>
+                    <div class="banner-main">
+                        <div class="banner-top">
+                            <div class="banner-icon">${p.iconSrc ? `<img src="${p.iconSrc}" alt="${p.name}">` : ''}</div>
+                            <div class="banner-title">${p.name || ''}</div>
+                        </div>
+                        <div class="banner-meta">
+                            ${p.lastActive ? `<div class="meta-cell"><span class="meta-label">最近活跃时间</span><span class="meta-value">${p.lastActive}</span></div>` : ''}
+                            ${p.firstSeen ? `<div class="meta-cell"><span class="meta-label">识别时间</span><span class="meta-value">${p.firstSeen}</span></div>` : ''}
+                            ${p.trl ? `<div class="meta-cell"><span class="meta-label">技术成熟度</span><span class="meta-value">${p.trl}</span></div>` : ''}
+                            ${p.category ? `<div class="meta-cell"><span class="meta-label">所属领域</span><span class="meta-value">${p.category}</span></div>` : ''}
+                            ${p.playersInline ? `<div class="meta-cell full"><span class="meta-label">主要玩家</span><span class="meta-value">${p.playersInline}</span></div>` : ''}
+                        </div>
+                    </div>
+                    <div class="banner-side">
                         <div class="banner-score">
                             <span class="banner-score-val">${p.score}</span>
                             ${p.rating ? `<span class="banner-score-rating">${p.rating}</span>` : ''}
                         </div>
-                    </div>
-                    <div class="banner-meta">
-                        ${p.lastActive ? `<div class="meta-cell"><span class="meta-label">最近活跃时间</span><span class="meta-value">${p.lastActive}</span></div>` : ''}
-                        ${p.firstSeen ? `<div class="meta-cell"><span class="meta-label">识别时间</span><span class="meta-value">${p.firstSeen}</span></div>` : ''}
-                        ${p.trl ? `<div class="meta-cell"><span class="meta-label">技术成熟度</span><span class="meta-value">${p.trl}</span></div>` : ''}
-                        ${p.category ? `<div class="meta-cell"><span class="meta-label">所属领域</span><span class="meta-value">${p.category}</span></div>` : ''}
-                        ${p.playersInline ? `<div class="meta-cell"><span class="meta-label">主要玩家</span><span class="meta-value">${p.playersInline}</span></div>` : ''}
+                        <div class="banner-radar">${p.radarSvg || ''}</div>
                     </div>
                 </div>
 
@@ -412,25 +441,20 @@
                         <div class="tech-detail-advice">${p.adviceHtml || ''}</div>
                     </div>
                     <div class="detail-card">
-                        <div class="detail-card-title">📡 评估指标雷达图</div>
-                        <div class="tech-detail-radar">${p.radarSvg || ''}</div>
+                        <div class="detail-card-title">🎯 技术关键指标</div>
+                        <div class="tech-detail-metrics">${p.metricsHtml || ''}</div>
                     </div>
                 </div>
 
                 <div class="detail-body">
                     <div class="detail-card">
-                        <div class="detail-card-title">🎯 技术关键指标</div>
-                        <div class="tech-detail-metrics">${p.metricsHtml || ''}</div>
-                    </div>
-                    <div class="detail-card">
                         <div class="detail-card-title">🏢 主要玩家</div>
                         <div class="tech-detail-players">${p.playersHtml || ''}</div>
                     </div>
-                </div>
-
-                <div class="detail-card">
-                    <div class="detail-card-title">⚠️ 风险与影响</div>
-                    <div class="tech-detail-risks-impact">${p.risksImpactHtml || ''}</div>
+                    <div class="detail-card">
+                        <div class="detail-card-title">⚠️ 风险与影响</div>
+                        <div class="tech-detail-risks-impact">${p.risksImpactHtml || ''}</div>
+                    </div>
                 </div>
 
                 <div class="detail-card">
