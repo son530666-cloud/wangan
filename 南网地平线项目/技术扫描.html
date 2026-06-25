@@ -646,7 +646,30 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .tech-card::-webkit-scrollbar {
+            width: 6px;
+        }
+        .tech-card::-webkit-scrollbar-thumb {
+            background: rgba(64, 169, 255, 0.25);
+            border-radius: 3px;
+        }
+
+        /* 新技术卡片内的技术变革理由：紧凑排版 */
+        .tech-card .history-section-title {
+            margin: 10px 0 6px 0;
+        }
+        .tech-card .history-change-basis {
+            gap: 5px;
+        }
+        .tech-card .history-change-item {
+            padding: 5px 9px;
+        }
+        .tech-card .history-change-value {
+            font-size: 11px;
         }
 
         .tech-card:hover {
@@ -730,11 +753,11 @@
         }
 
         .tech-card-radar {
-            margin: 14px 0;
+            margin: 10px 0;
             background: rgba(0, 0, 0, 0.15);
             border-radius: 8px;
-            padding: 16px;
-            height: 160px;
+            padding: 10px;
+            height: 130px;
             display: flex;
             align-items: center;
             justify-content: center;
