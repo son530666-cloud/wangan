@@ -3969,13 +3969,23 @@
                     ${renderRichSection(details.marketAnalysis)}
                 </div>`;
 
+            const ratingOf = (s) => s >= 85 ? '极高' : s >= 75 ? '高' : s >= 60 ? '中' : '低';
+            const players = details.keyPlayers || [];
+            const playersInline = players.length
+                ? players.slice(0, 4).join('、') + (players.length > 4 ? ' 等' : '')
+                : '暂无';
+
             return {
                 name: tech.name,
                 score: tech.score,
+                rating: ratingOf(tech.score),
+                scoreTip: '综合评分由技术新颖性、价值性、关联性、前瞻性四维加权得出，分值越高代表越值得重点跟踪。',
                 category: tech.category,
+                desc: tech.desc || '',
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',
                 trl: getTrlByScore(tech.lifecycleScore),
+                playersInline,
                 iconSrc: getTechIcon(tech.category),
                 radarSvg: buildDetailRadarSvg(tech),
                 adviceHtml, playersHtml, metricsHtml, risksImpactHtml,

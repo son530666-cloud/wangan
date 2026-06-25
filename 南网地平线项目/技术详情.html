@@ -11,19 +11,19 @@
             font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
             color: #e0e6ed;
             min-height: 100vh;
-            padding: 24px;
         }
 
         .detail-page {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
+            padding: 20px 28px 48px;
         }
 
         .detail-toolbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
         .back-btn {
             display: inline-flex;
@@ -41,26 +41,22 @@
         .back-btn:hover { background: rgba(64, 169, 255, 0.18); color: #fff; }
         .detail-crumb { font-size: 13px; color: #8896b3; }
 
-        .tech-detail-panel {
-            position: relative;
-            background: rgba(10, 22, 45, 0.98);
-            border: 1px solid rgba(64, 169, 255, 0.2);
-            border-radius: 16px;
-            padding: 28px;
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+        /* ===== 头部横幅（融合评分/识别时间/成熟度/主要玩家/简介） ===== */
+        .detail-banner {
+            background: linear-gradient(135deg, rgba(64, 169, 255, 0.10), rgba(8, 14, 26, 0));
+            border: 1px solid rgba(64, 169, 255, 0.14);
+            border-radius: 14px;
+            padding: 22px 26px;
+            margin-bottom: 24px;
         }
-
-        .tech-detail-header {
+        .banner-top {
             display: flex;
             align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid rgba(64, 169, 255, 0.12);
+            gap: 18px;
         }
-        .tech-detail-icon {
-            width: 64px;
-            height: 64px;
+        .banner-icon {
+            width: 60px;
+            height: 60px;
             border-radius: 14px;
             background: rgba(64, 169, 255, 0.12);
             border: 1px solid rgba(64, 169, 255, 0.25);
@@ -68,62 +64,112 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
-            padding: 12px;
+            padding: 11px;
         }
-        .tech-detail-icon img { width: 100%; height: 100%; object-fit: contain; }
-        .tech-detail-title-wrap { flex: 1; min-width: 0; }
-        .tech-detail-name {
-            font-size: 24px;
+        .banner-icon img { width: 100%; height: 100%; object-fit: contain; }
+        .banner-title {
+            flex: 1;
+            min-width: 0;
+            font-size: 26px;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 6px;
         }
-        .tech-detail-meta {
-            font-size: 13px;
-            color: #8896b3;
+        .banner-score {
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
         }
-        .tech-detail-meta span {
+        .banner-score-val {
+            font-size: 30px;
+            font-weight: 800;
+            color: #ff4d4f;
+            line-height: 1;
+        }
+        .banner-score-rating {
+            font-size: 12px;
+            color: #ff7875;
+            background: rgba(255, 77, 79, 0.12);
+            border: 1px solid rgba(255, 77, 79, 0.25);
+            border-radius: 4px;
+            padding: 1px 8px;
+        }
+
+        .banner-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px 36px;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(64, 169, 255, 0.12);
+        }
+        .meta-cell {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .meta-label {
+            color: #8896b3;
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            white-space: nowrap;
         }
-        .tech-detail-score {
-            font-size: 28px;
-            font-weight: 700;
-            color: #ff4d4f;
-            background: rgba(255, 77, 79, 0.1);
-            border: 1px solid rgba(255, 77, 79, 0.2);
-            padding: 6px 16px;
-            border-radius: 8px;
+        .meta-value { color: #e0e6ed; font-weight: 500; }
+        .meta-value.score { color: #ff7875; font-weight: 700; }
+        .info-mark {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid #8896b3;
+            color: #8896b3;
+            font-size: 10px;
+            font-style: normal;
+            cursor: help;
         }
 
-        .tech-detail-body {
+        .banner-desc {
+            margin-top: 16px;
+            font-size: 13px;
+            line-height: 1.85;
+            color: #b0c0d8;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        /* ===== 内容区：扁平分块，去弹窗感 ===== */
+        .detail-body {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 28px;
+            gap: 20px;
             align-items: start;
         }
-        .tech-detail-section { margin-bottom: 24px; }
-        .tech-detail-section:last-child { margin-bottom: 0; }
-        .tech-detail-section-title {
+        .detail-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(64, 169, 255, 0.10);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+        }
+        .detail-body .detail-card { margin-bottom: 0; }
+        .detail-card-title {
             font-size: 14px;
             font-weight: 600;
             color: #40a9ff;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             padding-left: 10px;
             border-left: 3px solid #40a9ff;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        .tech-detail-metrics {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
+
+        .tech-detail-metrics { display: flex; flex-wrap: wrap; gap: 10px; }
         .tech-detail-metrics .tech-detail-metric {
             font-size: 12px;
             padding: 6px 12px;
@@ -143,47 +189,29 @@
             line-height: 1.7;
         }
         .tech-detail-advice strong { color: #39ff14; }
+        .tech-detail-advice ul { margin: 0; padding-left: 18px; }
 
-        .tech-detail-players {
-            background: rgba(64, 169, 255, 0.05);
-            border: 1px solid rgba(64, 169, 255, 0.12);
-            border-radius: 8px;
-            padding: 14px;
-        }
-        .tech-detail-players ul {
-            margin: 0;
-            padding-left: 18px;
-            list-style: none;
-        }
+        .tech-detail-players ul { margin: 0; padding-left: 4px; list-style: none; }
         .tech-detail-players li {
             font-size: 13px;
             color: #b0c0d8;
-            line-height: 1.8;
+            line-height: 1.9;
             position: relative;
-            padding-left: 14px;
+            padding-left: 16px;
         }
         .tech-detail-players li::before {
             content: '';
             position: absolute;
             left: 0;
-            top: 10px;
+            top: 11px;
             width: 5px;
             height: 5px;
             border-radius: 50%;
             background: #40a9ff;
         }
 
-        .tech-detail-risks-impact {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .tech-detail-rich {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        .tech-detail-risks-impact { display: flex; flex-direction: column; gap: 12px; }
+        .tech-detail-rich { display: flex; flex-direction: column; gap: 12px; }
         .tech-detail-rich-block {
             background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(0, 212, 255, 0.08);
@@ -196,21 +224,9 @@
             color: #40a9ff;
             margin-bottom: 6px;
         }
-        .tech-detail-rich-content {
-            font-size: 13px;
-            color: #b0c0d8;
-            line-height: 1.7;
-        }
-        .tech-detail-rich-list {
-            margin: 0;
-            padding-left: 18px;
-        }
-        .tech-detail-rich-list li {
-            font-size: 13px;
-            color: #b0c0d8;
-            line-height: 1.7;
-            margin-bottom: 4px;
-        }
+        .tech-detail-rich-content { font-size: 13px; color: #b0c0d8; line-height: 1.7; }
+        .tech-detail-rich-list { margin: 0; padding-left: 18px; }
+        .tech-detail-rich-list li { font-size: 13px; color: #b0c0d8; line-height: 1.7; margin-bottom: 4px; }
 
         .tech-detail-radar {
             width: 100%;
@@ -228,23 +244,15 @@
             padding: 10px 12px;
             line-height: 1.6;
         }
-        .tech-detail-risk-item::before {
-            content: '⚠';
-            margin-right: 6px;
-        }
+        .tech-detail-risk-item::before { content: '⚠'; margin-right: 6px; }
 
-        .detail-empty {
-            text-align: center;
-            padding: 80px 20px;
-            color: #8896b3;
-        }
+        .detail-empty { text-align: center; padding: 80px 20px; color: #8896b3; }
         .detail-empty .icon { font-size: 48px; margin-bottom: 16px; }
         .detail-empty .hint { font-size: 14px; line-height: 1.8; }
 
         @media (max-width: 768px) {
-            .tech-detail-body { grid-template-columns: 1fr; }
-            .tech-detail-panel { padding: 20px; }
-            .tech-detail-header { flex-direction: column; align-items: flex-start; }
+            .detail-body { grid-template-columns: 1fr; }
+            .banner-meta { gap: 12px 20px; }
         }
     </style>
 </head>
@@ -259,7 +267,6 @@
     </div>
 
     <script>
-        // 返回技术扫描
         document.getElementById('backBtn').addEventListener('click', () => {
             if (window.parent && window.parent !== window) {
                 window.parent.postMessage({ type: 'navigateTo', page: '技术扫描.html' }, '*');
@@ -279,69 +286,74 @@
 
         function renderDetail(p) {
             document.getElementById('detailRoot').innerHTML = `
-                <div class="tech-detail-panel">
-                    <div class="tech-detail-header">
-                        <div class="tech-detail-icon">${p.iconSrc ? `<img src="${p.iconSrc}" alt="${p.name}">` : ''}</div>
-                        <div class="tech-detail-title-wrap">
-                            <div class="tech-detail-name">${p.name || ''}</div>
-                            <div class="tech-detail-meta">
-                                <span>🏷️ ${p.category || ''}</span>
-                                ${p.lastActive ? `<span>🕐 最近活跃时间：${p.lastActive}</span>` : ''}
-                                ${p.firstSeen ? `<span>📅 识别时间：${p.firstSeen}</span>` : ''}
-                                <span>📊 综合评分：${p.score}</span>
-                                <span>🚀 ${p.trl || ''}</span>
-                            </div>
-                        </div>
-                        <div class="tech-detail-score">${p.score}分</div>
-                    </div>
-
-                    <div class="tech-detail-body">
-                        <div class="tech-detail-left">
-                            <div class="tech-detail-section">
-                                <div class="tech-detail-section-title">📡 评估指标雷达图</div>
-                                <div class="tech-detail-radar">${p.radarSvg || ''}</div>
-                            </div>
-                            <div class="tech-detail-section">
-                                <div class="tech-detail-section-title">🎯 技术关键指标</div>
-                                <div class="tech-detail-metrics">${p.metricsHtml || ''}</div>
-                            </div>
-                        </div>
-
-                        <div class="tech-detail-right">
-                            <div class="tech-detail-section">
-                                <div class="tech-detail-section-title">💡 跟踪总结与建议</div>
-                                <div class="tech-detail-advice">${p.adviceHtml || ''}</div>
-                            </div>
-                            <div class="tech-detail-section">
-                                <div class="tech-detail-section-title">🏢 主要玩家</div>
-                                <div class="tech-detail-players">${p.playersHtml || ''}</div>
-                            </div>
-                            <div class="tech-detail-section">
-                                <div class="tech-detail-section-title">⚠️ 风险与影响</div>
-                                <div class="tech-detail-risks-impact">${p.risksImpactHtml || ''}</div>
-                            </div>
+                <div class="detail-banner">
+                    <div class="banner-top">
+                        <div class="banner-icon">${p.iconSrc ? `<img src="${p.iconSrc}" alt="${p.name}">` : ''}</div>
+                        <div class="banner-title">${p.name || ''}</div>
+                        <div class="banner-score">
+                            <span class="banner-score-val">${p.score}</span>
+                            ${p.rating ? `<span class="banner-score-rating">${p.rating}</span>` : ''}
                         </div>
                     </div>
-
-                    <div class="tech-detail-section">
-                        <div class="tech-detail-section-title">🔧 技术难点及解决方案</div>
-                        <div class="tech-detail-rich">${p.painPointsHtml || ''}</div>
+                    <div class="banner-meta">
+                        <div class="meta-cell">
+                            <span class="meta-label">综合评分 ${p.scoreTip ? `<i class="info-mark" title="${p.scoreTip}">?</i>` : ''}</span>
+                            <span class="meta-value score">${p.score}分${p.rating ? `（${p.rating}）` : ''}</span>
+                        </div>
+                        ${p.lastActive ? `<div class="meta-cell"><span class="meta-label">最近活跃时间</span><span class="meta-value">${p.lastActive}</span></div>` : ''}
+                        ${p.firstSeen ? `<div class="meta-cell"><span class="meta-label">识别时间</span><span class="meta-value">${p.firstSeen}</span></div>` : ''}
+                        ${p.trl ? `<div class="meta-cell"><span class="meta-label">技术成熟度</span><span class="meta-value">${p.trl}</span></div>` : ''}
+                        ${p.category ? `<div class="meta-cell"><span class="meta-label">所属领域</span><span class="meta-value">${p.category}</span></div>` : ''}
+                        ${p.playersInline ? `<div class="meta-cell"><span class="meta-label">主要玩家</span><span class="meta-value">${p.playersInline}</span></div>` : ''}
                     </div>
+                    ${p.desc ? `<div class="banner-desc">${p.desc}</div>` : ''}
+                </div>
 
-                    <div class="tech-detail-section">
-                        <div class="tech-detail-section-title">🏆 关键指标及竞争优势</div>
-                        <div class="tech-detail-rich">${p.advantagesHtml || ''}</div>
+                <div class="detail-body">
+                    <div class="detail-card">
+                        <div class="detail-card-title">📡 评估指标雷达图</div>
+                        <div class="tech-detail-radar">${p.radarSvg || ''}</div>
                     </div>
+                    <div class="detail-card">
+                        <div class="detail-card-title">💡 跟踪总结与建议</div>
+                        <div class="tech-detail-advice">${p.adviceHtml || ''}</div>
+                    </div>
+                </div>
 
-                    <div class="tech-detail-section">
-                        <div class="tech-detail-section-title">🎯 应用场景</div>
-                        <div class="tech-detail-rich">${p.scenariosHtml || ''}</div>
+                <div class="detail-body">
+                    <div class="detail-card">
+                        <div class="detail-card-title">🎯 技术关键指标</div>
+                        <div class="tech-detail-metrics">${p.metricsHtml || ''}</div>
                     </div>
+                    <div class="detail-card">
+                        <div class="detail-card-title">🏢 主要玩家</div>
+                        <div class="tech-detail-players">${p.playersHtml || ''}</div>
+                    </div>
+                </div>
 
-                    <div class="tech-detail-section">
-                        <div class="tech-detail-section-title">📈 市场分析</div>
-                        <div class="tech-detail-rich">${p.marketHtml || ''}</div>
-                    </div>
+                <div class="detail-card">
+                    <div class="detail-card-title">⚠️ 风险与影响</div>
+                    <div class="tech-detail-risks-impact">${p.risksImpactHtml || ''}</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-title">🔧 技术难点及解决方案</div>
+                    <div class="tech-detail-rich">${p.painPointsHtml || ''}</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-title">🏆 关键指标及竞争优势</div>
+                    <div class="tech-detail-rich">${p.advantagesHtml || ''}</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-title">🎯 应用场景</div>
+                    <div class="tech-detail-rich">${p.scenariosHtml || ''}</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-title">📈 市场分析</div>
+                    <div class="tech-detail-rich">${p.marketHtml || ''}</div>
                 </div>
             `;
         }
@@ -349,7 +361,6 @@
         (function init() {
             let raw = null;
             try { raw = sessionStorage.getItem('techDetailPayload'); } catch (e) {}
-            // window.name 兜底（跨 file:// 页面导航可靠）
             if (!raw && typeof window.name === 'string' && window.name.indexOf('TECH_DETAIL:') === 0) {
                 raw = window.name.slice('TECH_DETAIL:'.length);
             }
