@@ -198,6 +198,28 @@
         }
         .tech-detail-intro strong { color: #e0e6ed; font-weight: 600; }
 
+        /* 技术变革理由 */
+        .tech-change-list { display: flex; flex-direction: column; gap: 12px; }
+        .tech-change-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(64, 169, 255, 0.10);
+            border-left: 3px solid #39ff14;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .tech-change-item.trend-down { border-left-color: #ff4d4f; }
+        .tech-change-head {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e0e6ed;
+            margin-bottom: 6px;
+        }
+        .tech-change-detail {
+            font-size: 13px;
+            line-height: 1.75;
+            color: #9fb0cc;
+        }
+
         /* ===== 内容区：扁平分块，去弹窗感 ===== */
         .detail-body {
             display: grid;
@@ -441,6 +463,12 @@
                         <div class="banner-radar">${p.radarSvg || ''}</div>
                     </div>
                 </div>
+
+                ${p.changeBasisHtml ? `
+                <div class="detail-card">
+                    <div class="detail-card-title">📈 技术变革理由</div>
+                    <div class="tech-change-list">${p.changeBasisHtml}</div>
+                </div>` : ''}
 
                 <div class="detail-card">
                     <div class="detail-card-title">⚠️ 风险与影响</div>

@@ -3982,6 +3982,21 @@
                 intro += `典型应用场景包括${scenarioTitles.join('、')}等。`;
             }
 
+            // 技术变革理由：每条指标 + 详细解释（按维度生成）
+            const changeBasisDetail = (val) => {
+                if (val.includes('论文')) return '论文发表量反映学术界对该技术的研究投入与关注热度。增速越快，说明基础研究越活跃、原理与材料体系仍在快速迭代，通常领先产业化 2-3 年，是判断技术成长性的先行指标。';
+                if (val.includes('专利')) return '专利申请量体现企业与科研机构的技术布局强度与产业化意图。增速攀升意味着核心玩家正加速抢占知识产权高地，往往预示该技术进入工程化与量产准备阶段。';
+                if (val.includes('智库')) return '智库报告与战略机构的提及频次代表政策与产业界的战略关注度。提及增长说明该技术正被纳入国家及行业中长期规划视野，有望获得政策与资本资源倾斜。';
+                if (val.includes('扩散')) return '技术扩散指数综合示范项目、装机出货量、企业渗透率等维度，衡量技术从实验室走向规模化落地的速度。指数上行表明商业化进程正在加速、市场接受度提升。';
+                return '该指标反映技术在对应维度上的动态变化趋势，是研判技术演进阶段与跟踪优先级的重要依据。';
+            };
+            const changeBasisHtml = (tech.changeBasis || []).map(c => `
+                <div class="tech-change-item trend-${c.trend}">
+                    <div class="tech-change-head">${c.value}</div>
+                    <div class="tech-change-detail">${changeBasisDetail(c.value)}</div>
+                </div>
+            `).join('');
+
             return {
                 name: tech.name,
                 score: tech.score,
@@ -3992,6 +4007,7 @@
                 secondaryField: tech.secondaryField || '',
                 desc: tech.desc || '',
                 intro: intro,
+                changeBasisHtml,
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',
                 trl: getTrlByScore(tech.lifecycleScore),
