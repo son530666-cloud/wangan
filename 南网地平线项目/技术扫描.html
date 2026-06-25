@@ -3535,11 +3535,7 @@
                     <div class="history-section-title">技术变革理由</div>
                     <div class="history-change-basis">${tech.changeBasis.map(c => `
                         <div class="history-change-item trend-${c.trend}">
-                            <span class="history-change-dim">${c.dim}</span>
-                            <span class="history-change-body">
-                                <span class="history-change-label">${c.label}</span>
-                                <span class="history-change-value">${c.value}</span>
-                            </span>
+                            <span class="history-change-value">${c.value}</span>
                         </div>
                     `).join('')}</div>
                 ` : '';
