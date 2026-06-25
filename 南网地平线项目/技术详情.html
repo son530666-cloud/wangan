@@ -308,10 +308,10 @@
         .diff-bottleneck { font-size: 12px; line-height: 1.7; color: #9fb0cc; margin-top: 8px; }
 
         /* 技术全球分布（世界地图区块热力） */
-        .world-map { width: 100%; height: 440px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+        .world-map { width: 100%; height: 360px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
         .heat-legend { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12px; color: #8896b3; margin-top: 12px; }
         .hl-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 3px 0 10px; }
-        .heat-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin-top: 14px; }
+        .heat-notes { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
         .heat-note { font-size: 12px; line-height: 1.6; }
         .heat-note-name { color: #e0e6ed; font-weight: 600; margin-right: 6px; }
         .heat-note-text { color: #8896b3; }
@@ -786,7 +786,10 @@
             loadWorld().then(() => {
                 if (worldChart) { worldChart.dispose(); worldChart = null; }
                 worldChart = echarts.init(dom);
-                const data = countries.map(c => ({ name: CN2EN[c.name] || c.name, value: c.level, _cn: c.name, _note: c.note || '' }));
+                const data = countries.map(c => ({
+                    name: CN2EN[c.name] || c.name, value: c.level, _cn: c.name, _note: c.note || '',
+                    label: { show: true, color: '#fff', fontSize: 12, fontWeight: 'bold', textShadowColor: '#000', textShadowBlur: 3, formatter: () => c.name }
+                }));
                 const vals = countries.map(c => c.level);
                 worldChart.setOption({
                     backgroundColor: 'transparent',
@@ -892,18 +895,19 @@
                     </div>` : ''}
                 </div>
 
-                ${p.globalDistHtml ? `
-                <div class="detail-card">
-                    <div class="detail-card-title">🌍 技术全球分布</div>
-                    <div id="worldMap" class="world-map"></div>
-                    <div class="gd-wrap">${p.globalDistHtml}</div>
-                </div>` : ''}
-
-                ${p.adoptionHtml ? `
-                <div class="detail-card">
-                    <div class="detail-card-title">📊 技术扩散速度</div>
-                    <div class="ad-wrap">${p.adoptionHtml}</div>
-                </div>` : ''}
+                <div class="detail-body">
+                    ${p.globalDistHtml ? `
+                    <div class="detail-card">
+                        <div class="detail-card-title">🌍 技术全球分布</div>
+                        <div id="worldMap" class="world-map"></div>
+                        <div class="gd-wrap">${p.globalDistHtml}</div>
+                    </div>` : ''}
+                    ${p.adoptionHtml ? `
+                    <div class="detail-card">
+                        <div class="detail-card-title">📊 技术扩散速度</div>
+                        <div class="ad-wrap">${p.adoptionHtml}</div>
+                    </div>` : ''}
+                </div>
 
                 ${p.landscapeHtml ? `
                 <div class="detail-card">
