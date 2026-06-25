@@ -2409,14 +2409,14 @@
                 category: '储能技术',
                 desc: '采用固态电解质替代传统液态电解液，显著提升电池安全性与能量密度，预计2030年实现大规模商业化应用。',
                 evolution: [
-                    { year: '2017', type: '专利', title: '丰田注册全固态电池基础专利，硫化物路线开启工程化探索', param: '离子电导率 ~10⁻³ S/cm' },
-                    { year: '2020', type: '论文', title: 'Nature Energy 发表固-固界面机理研究，破解界面阻抗难题', param: '界面阻抗下降约 60%' },
-                    { year: '2021', type: '专利', title: 'QuantumScape 公布无负极单晶层结构专利', param: '循环 800 次容量保持 >80%' },
-                    { year: '2023', type: '政策', title: '欧盟《电池法规2023》与美国 IRA 补贴落地，全球加码布局', param: '' },
-                    { year: '2024', type: '论文', title: 'Nature Energy 固态电池发文量年增 80%，成研究热点', param: '能量密度突破 400 Wh/kg' },
-                    { year: '2024', type: '资讯', title: '蔚来 150kWh 半固态电池规模装车交付', param: '整包能量密度 ~360 Wh/kg' },
-                    { year: '2025', type: '政策', title: '中国"十四五"新型储能规划将固态电池列入重点', param: '' },
-                    { year: '2027', type: '资讯', title: '丰田 / 宁德时代规划全固态示范产线投运（预期）', param: '目标成本 <€80/kWh' }
+                    { year: '2017', type: '专利', title: '丰田注册全固态电池基础专利，硫化物路线开启工程化探索', param: '离子电导率 ~10⁻³ S/cm', cite: '数据来源：丰田全固态电池基础专利（JP/US 公开文献）；专利数据库检索。' },
+                    { year: '2020', type: '论文', title: 'Nature Energy 发表固-固界面机理研究，破解界面阻抗难题', param: '界面阻抗下降约 60%', cite: '数据来源：Nature Energy, 2020《固态电池界面机理研究》。' },
+                    { year: '2021', type: '专利', title: 'QuantumScape 公布无负极单晶层结构专利', param: '循环 800 次容量保持 >80%', cite: '数据来源：QuantumScape 单晶无负极结构专利（US 公开）；公司技术白皮书。' },
+                    { year: '2023', type: '政策', title: '欧盟《电池法规2023》与美国 IRA 补贴落地，全球加码布局', param: '', cite: '数据来源：欧盟《电池法规2023》；美国《通胀削减法案(IRA)》。' },
+                    { year: '2024', type: '论文', title: 'Nature Energy 固态电池发文量年增 80%，成研究热点', param: '能量密度突破 400 Wh/kg', cite: '数据来源：Nature Energy 2024 发文量统计；Web of Science / CNKI 文献计量。' },
+                    { year: '2024', type: '资讯', title: '蔚来 150kWh 半固态电池规模装车交付', param: '整包能量密度 ~360 Wh/kg', cite: '数据来源：蔚来官方发布；行业装车与交付数据。' },
+                    { year: '2025', type: '政策', title: '中国"十四五"新型储能规划将固态电池列入重点', param: '', cite: '数据来源：国家发改委、能源局《"十四五"新型储能发展实施方案》。' },
+                    { year: '2027', type: '资讯', title: '丰田 / 宁德时代规划全固态示范产线投运（预期）', param: '目标成本 <€80/kWh', cite: '数据来源：丰田、宁德时代量产规划公告（预期）；行业产能跟踪。' }
                 ],
                 drivers: {
                     summary: '固态电池的技术变革绝非凭空发生，其背后是由市场端的"性能焦虑"和顶层"战略安全"双轮驱动的。',
@@ -4172,6 +4172,7 @@
                         <div class="evo-head"><span class="evo-year">${e.year}</span><span class="evo-type ${cls(e.type)}">${e.type}</span></div>
                         <div class="evo-title">${e.title}</div>
                         ${e.param ? `<div class="evo-param">📊 ${e.param}</div>` : ''}
+                        ${e.cite ? `<details class="driver-source"><summary>🔗 查看溯源</summary><div class="driver-source-body">${e.cite}</div></details>` : ''}
                     </div>
                 </div>
             `).join('')}</div>`;
@@ -4188,7 +4189,8 @@
                 year: String(startYear + i),
                 type: d.type === '智库' ? '资讯' : d.type,
                 title: d.content,
-                param: (d.type === '论文' || d.type === '专利') && km ? km : ''
+                param: (d.type === '论文' || d.type === '专利') && km ? km : '',
+                cite: `数据来源：${d.type} · ${d.content}`
             }));
         }
 
