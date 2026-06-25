@@ -4087,8 +4087,7 @@
                     <div class="ls-chart">${buildLandscapeSvg(ls.institutions)}</div>
                     <div class="ls-table-wrap">${instTableHtml(ls.institutions)}</div>
                 </div>
-                ${summary ? `<div class="ls-summary"><div class="ls-summary-title">📋 机构竞争力综合研判</div><div class="ls-summary-text">${summary}</div></div>` : ''}
-                <div class="ls-narrative">${landscapeNarrativeHtml(ls.narrative)}</div>`;
+                ${summary ? `<div class="ls-summary"><div class="ls-summary-title">📋 机构竞争力综合研判</div><div class="ls-summary-text">${summary}</div></div>` : ''}`;
         }
         function autoLandscape(tech, details) {
             const players = (details.keyPlayers || []).slice(0, 10);
