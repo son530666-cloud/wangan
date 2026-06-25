@@ -112,7 +112,14 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end;
-            gap: 2px;
+            gap: 4px;
+        }
+        .banner-score-label {
+            font-size: 13px;
+            color: #8896b3;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
         .banner-score-val {
             font-size: 30px;
@@ -432,8 +439,8 @@
                     </div>
                     <div class="banner-side">
                         <div class="banner-score">
+                            <span class="banner-score-label">综合评分 ${p.scoreTip ? `<i class="info-mark" title="${p.scoreTip}">?</i>` : ''}</span>
                             <span class="banner-score-val">${p.score}</span>
-                            ${p.rating ? `<span class="banner-score-rating">${p.rating}</span>` : ''}
                         </div>
                         <div class="banner-radar">${p.radarSvg || ''}</div>
                     </div>
