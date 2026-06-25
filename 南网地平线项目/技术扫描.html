@@ -4173,19 +4173,20 @@
         function evolutionToHtml(evo) {
             if (!evo || !evo.length) return '';
             const cls = t => t === '论文' ? 'paper' : t === '专利' ? 'patent' : t === '政策' ? 'policy' : 'news';
-            return `<div class="evo-timeline">${evo.map(e => `
+            return `<div class="evo-timeline">${evo.map(e => {
+                const citeHtml = e.cite ? `<details class="driver-source evo-src-inline"><summary>🔗 查看溯源</summary><div class="driver-source-body">${e.cite}</div></details>` : '';
+                const paramLine = e.param ? `<div class="evo-param">📊 ${e.param} ${citeHtml}</div>` : '';
+                const titleLine = e.param ? `<div class="evo-title">${e.title}</div>` : `<div class="evo-title">${e.title} ${citeHtml}</div>`;
+                return `
                 <div class="evo-item">
                     <div class="evo-dot ${cls(e.type)}"></div>
                     <div class="evo-body">
-                        <div class="evo-main">
-                            <div class="evo-head"><span class="evo-year">${e.year}</span><span class="evo-type ${cls(e.type)}">${e.type}</span></div>
-                            <div class="evo-title">${e.title}</div>
-                            ${e.param ? `<div class="evo-param">📊 ${e.param}</div>` : ''}
-                        </div>
-                        ${e.cite ? `<details class="driver-source evo-src"><summary>🔗 查看溯源</summary><div class="driver-source-body">${e.cite}</div></details>` : ''}
+                        <div class="evo-head"><span class="evo-year">${e.year}</span><span class="evo-type ${cls(e.type)}">${e.type}</span></div>
+                        ${titleLine}
+                        ${paramLine}
                     </div>
-                </div>
-            `).join('')}</div>`;
+                </div>`;
+            }).join('')}</div>`;
         }
         function autoEvolution(tech) {
             const ds = tech.dataSources || [];
