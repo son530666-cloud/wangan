@@ -232,6 +232,26 @@
             margin-top: 6px;
         }
 
+        .warning-reason {
+            font-size: 12px;
+            line-height: 1.55;
+            color: #ffd6c9;
+            margin-top: 8px;
+            padding: 8px 10px 8px 24px;
+            background: rgba(255, 77, 79, 0.06);
+            border: 1px solid rgba(255, 77, 79, 0.15);
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .warning-reason::before {
+            content: '⚡';
+            position: absolute;
+            left: 8px;
+            top: 8px;
+            font-size: 11px;
+        }
+
         /* ========== 第二部分：雷达图 + 新技术清单 ========== */
         .scan-section {
             display: grid;
@@ -2113,6 +2133,8 @@
                 tags: ['新能源', '材料科学'],
                 isNew: false,
                 firstSeen: '2026-05-12',
+                lastActive: '2026-06-23',
+                warnReason: '综合评分 94 连续领跑；近半年论文增长 38%、专利增长 10%，半固态已装车、全固态量产临近，技术扩散加速。',
                 dimensions4: { novelty: 92, value: 95, relevance: 88, prospect: 96 }
             },
             {
@@ -2123,6 +2145,8 @@
                 tags: ['AI应用', '仿真技术'],
                 isNew: false,
                 firstSeen: '2026-04-28',
+                lastActive: '2026-06-22',
+                warnReason: '评分 91 高位运行；关联性达 92，南网/国网多省试点加速落地，被 Gartner 列入年度十大趋势。',
                 dimensions4: { novelty: 85, value: 90, relevance: 92, prospect: 88 }
             },
             {
@@ -2133,6 +2157,8 @@
                 tags: ['超导材料', '电力传输'],
                 isNew: false,
                 firstSeen: '2026-05-05',
+                lastActive: '2026-06-18',
+                warnReason: '评分 87 接近预警线；上海浦东示范段投运，REBCO 带材临界电流持续提升，需关注成本拐点。',
                 dimensions4: { novelty: 78, value: 82, relevance: 85, prospect: 80 }
             },
             // 7个新技术（新增四维评估与上周对比）
@@ -2145,7 +2171,9 @@
                 tags: ['光伏', '新材料'],
                 isNew: true,
                 firstSeen: '2026-06-08',
+                lastActive: '2026-06-24',
                 identifyTime: '2026-06-08 14:32',
+                warnReason: '评分周环比 +6 跃升至 93；叠层电池效率突破 33%，新颖性 94、前瞻性 96 双高，资本与论文热度骤增。',
                 dimensions4: { novelty: 94, value: 92, relevance: 85, prospect: 96 }
             },
             {
@@ -2157,7 +2185,9 @@
                 tags: ['量子技术', '网络安全'],
                 isNew: true,
                 firstSeen: '2026-06-08',
+                lastActive: '2026-06-23',
                 identifyTime: '2026-06-08 11:15',
+                warnReason: '评分 89 逼近预警线；新颖性高达 96，量子密钥分发进入城域组网试点，信息安全战略关注度上升。',
                 dimensions4: { novelty: 96, value: 85, relevance: 78, prospect: 90 }
             },
             {
@@ -2169,7 +2199,9 @@
                 tags: ['直流输电', '智能电网'],
                 isNew: true,
                 firstSeen: '2026-06-07',
+                lastActive: '2026-06-20',
                 identifyTime: '2026-06-07 16:45',
+                warnReason: '评分 86 但周环比 -2 有回落；关联性 92 仍突出，柔直工程造价偏高，需跟踪示范项目进度。',
                 dimensions4: { novelty: 78, value: 88, relevance: 92, prospect: 82 }
             },
             {
@@ -2181,7 +2213,9 @@
                 tags: ['AI', '调度优化'],
                 isNew: true,
                 firstSeen: '2026-06-07',
+                lastActive: '2026-06-24',
                 identifyTime: '2026-06-07 09:20',
+                warnReason: '评分 92 且周环比 +3；价值性 94 居全榜首位，电网调度刚需明确，AI 大模型落地速度极快。',
                 dimensions4: { novelty: 90, value: 94, relevance: 88, prospect: 93 }
             },
             {
@@ -2193,7 +2227,9 @@
                 tags: ['氢能', '储能'],
                 isNew: true,
                 firstSeen: '2026-06-06',
+                lastActive: '2026-06-21',
                 identifyTime: '2026-06-06 15:10',
+                warnReason: '评分 85 周环比 +5 快速上行；储运一体化降本路径清晰，绿氢政策加码，前瞻性 88 值得关注。',
                 dimensions4: { novelty: 82, value: 86, relevance: 80, prospect: 88 }
             },
             {
@@ -2205,7 +2241,9 @@
                 tags: ['IoT', '边缘智能'],
                 isNew: true,
                 firstSeen: '2026-06-06',
+                lastActive: '2026-06-19',
                 identifyTime: '2026-06-06 10:55',
+                warnReason: '评分 83 周环比 -2 略降；边缘智能与配网终端结合度高，关联性 85，需观察规模化部署节奏。',
                 dimensions4: { novelty: 80, value: 82, relevance: 85, prospect: 78 }
             },
             {
@@ -2217,7 +2255,9 @@
                 tags: ['石墨烯', '功率器件'],
                 isNew: true,
                 firstSeen: '2026-06-05',
+                lastActive: '2026-06-22',
                 identifyTime: '2026-06-05 13:40',
+                warnReason: '评分周环比 +6 升至 88；新颖性 92，石墨烯功率器件论文/专利高增长，材料突破或带来器件代际跃迁。',
                 dimensions4: { novelty: 92, value: 85, relevance: 80, prospect: 88 }
             }
         ];
@@ -3006,7 +3046,8 @@
                             <span class="warning-score">${tech.score}</span>
                             <span class="warning-tag">${tech.category}</span>
                         </div>
-                        <div class="warning-date">识别时间：${tech.firstSeen} ${tech.isNew ? '<span style="color:#ff4d4f;margin-left:8px;">本周新识别</span>' : ''}</div>
+                        <div class="warning-date">最近活跃时间：${tech.lastActive || tech.firstSeen} ${tech.isNew ? '<span style="color:#ff4d4f;margin-left:8px;">本周新识别</span>' : ''}</div>
+                        ${tech.warnReason ? `<div class="warning-reason">高分预警理由：${tech.warnReason}</div>` : ''}
                     </div>
                 </div>
             `).join('');
