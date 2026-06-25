@@ -144,6 +144,8 @@
             font-size: 14px;
         }
         .meta-cell.full { flex-basis: 100%; }
+        .meta-cell.metrics { align-items: center; }
+        .meta-metrics { display: inline-flex; flex-wrap: wrap; gap: 8px; }
         .meta-label {
             color: #8896b3;
             display: inline-flex;
@@ -419,6 +421,7 @@
                             ${p.trl ? `<div class="meta-cell"><span class="meta-label">技术成熟度</span><span class="meta-value">${p.trl}</span></div>` : ''}
                             ${p.category ? `<div class="meta-cell"><span class="meta-label">所属领域</span><span class="meta-value">${p.category}</span></div>` : ''}
                             ${p.playersInline ? `<div class="meta-cell full"><span class="meta-label">主要玩家</span><span class="meta-value">${p.playersInline}</span></div>` : ''}
+                            ${p.metricsHtml ? `<div class="meta-cell full metrics"><span class="meta-label">技术关键指标</span><span class="meta-metrics">${p.metricsHtml}</span></div>` : ''}
                         </div>
                     </div>
                     <div class="banner-side">
@@ -441,20 +444,14 @@
                         <div class="tech-detail-advice">${p.adviceHtml || ''}</div>
                     </div>
                     <div class="detail-card">
-                        <div class="detail-card-title">🎯 技术关键指标</div>
-                        <div class="tech-detail-metrics">${p.metricsHtml || ''}</div>
-                    </div>
-                </div>
-
-                <div class="detail-body">
-                    <div class="detail-card">
                         <div class="detail-card-title">🏢 主要玩家</div>
                         <div class="tech-detail-players">${p.playersHtml || ''}</div>
                     </div>
-                    <div class="detail-card">
-                        <div class="detail-card-title">⚠️ 风险与影响</div>
-                        <div class="tech-detail-risks-impact">${p.risksImpactHtml || ''}</div>
-                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-title">⚠️ 风险与影响</div>
+                    <div class="tech-detail-risks-impact">${p.risksImpactHtml || ''}</div>
                 </div>
 
                 <div class="detail-card">
