@@ -2464,7 +2464,7 @@
                         { name: '日本', flag: '🇯🇵', level: 85, note: '丰田硫化物路线专利领先，主攻全固态车规量产' },
                         { name: '韩国', flag: '🇰🇷', level: 78, note: '三星SDI/LG/SK 加速布局硫化物电芯' },
                         { name: '美国', flag: '🇺🇸', level: 72, note: 'QuantumScape / Solid Power 初创引领，资本驱动' },
-                        { name: '欧洲', flag: '🇪🇺', level: 60, note: '依托车企与电池法规推进，量产产能相对滞后' }
+                        { name: '德国', flag: '🇩🇪', level: 60, note: '依托车企与欧盟电池法规推进，量产产能相对滞后' }
                     ],
                     adoption: {
                         leader: '中日韩三国主导全固态产业化：中国在半固态规模装车与产业链配套上速度最快，日本在全固态核心专利与硫化物工艺上领先，韩国紧随其后；欧美以初创公司与资本驱动为主，量产进度相对滞后。',
@@ -4346,9 +4346,9 @@
         }
         function globalDistToHtml(countries) {
             if (!countries || !countries.length) return '';
-            const legend = `<div class="heat-legend">采用度热力：<span class="hl-dot" style="background:#40a9ff;"></span>低<span class="hl-dot" style="background:#73d13d;"></span>中<span class="hl-dot" style="background:#ffa940;"></span>较高<span class="hl-dot" style="background:#ff4d4f;"></span>高</div>`;
+            const legend = `<div class="heat-legend">扩散速度热力（颜色越深越快）：<span class="hl-dot" style="background:#fde68a;"></span>慢<span class="hl-dot" style="background:#f97316;"></span>中<span class="hl-dot" style="background:#b91c1c;"></span>快</div>`;
             const notes = `<div class="heat-notes">${countries.map(c => `<div class="heat-note"><span class="heat-note-name">${c.flag || ''} ${c.name} · ${c.level}</span>${c.note ? `<span class="heat-note-text">${c.note}</span>` : ''}</div>`).join('')}</div>`;
-            return `<div class="world-heat">${buildWorldHeatSvg(countries)}</div>${legend}${notes}`;
+            return `${legend}${notes}`;
         }
         // 依据热力图（各国采用度）生成"领先国家与速度对比"分析（≥100字）
         function buildLeaderText(countries, techName) {
@@ -4379,7 +4379,7 @@
             const countries = [
                 { name: '中国', flag: '🇨🇳', level: 88, note: '产业化与市场规模领先，政策与资本支持力度大' },
                 { name: '美国', flag: '🇺🇸', level: 76, note: '前沿研究与初创企业活跃，资本驱动明显' },
-                { name: '欧洲', flag: '🇪🇺', level: 68, note: '依托标准法规与传统工业基础稳步推进' },
+                { name: '德国', flag: '🇩🇪', level: 68, note: '依托标准法规与传统工业基础稳步推进' },
                 { name: '日本', flag: '🇯🇵', level: 66, note: '在材料与精密制造环节具备优势' },
                 { name: '韩国', flag: '🇰🇷', level: 60, note: '在电子与电池产业链上快速跟进' }
             ];
@@ -4554,6 +4554,7 @@
                 applicationHtml,
                 diffusionHtml,
                 globalDistHtml,
+                countries: gd.countries,
                 adoptionHtml,
                 landscapeHtml,
                 socialHtml: industryViewsHtml,

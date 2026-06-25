@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>技术详情 - 技术变革地平线</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -306,8 +307,8 @@
         .diff-bar-inner { height: 100%; border-radius: 4px; transition: width 0.4s; }
         .diff-bottleneck { font-size: 12px; line-height: 1.7; color: #9fb0cc; margin-top: 8px; }
 
-        /* 技术全球分布（世界地图热力） */
-        .world-heat { background: rgba(0, 0, 0, 0.2); border-radius: 10px; padding: 8px; }
+        /* 技术全球分布（世界地图区块热力） */
+        .world-map { width: 100%; height: 440px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
         .heat-legend { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12px; color: #8896b3; margin-top: 12px; }
         .hl-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 3px 0 10px; }
         .heat-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; margin-top: 14px; }
@@ -672,8 +673,52 @@
             currentName = name;
             renderDetail(payload);
             syncFilters(name);
+            initWorldMap(payload.countries);
             document.title = `${payload.name} - 技术详情`;
         }
+
+        // ===== 技术全球分布：世界地图区块热力（颜色越深=扩散越快） =====
+        let worldChart = null;
+        let worldJsonPromise = null;
+        const CN2EN = { '中国': 'China', '美国': 'United States', '日本': 'Japan', '韩国': 'Korea', '德国': 'Germany', '英国': 'United Kingdom', '法国': 'France', '印度': 'India', '俄罗斯': 'Russia', '加拿大': 'Canada', '欧洲': 'Germany' };
+        function loadWorld() {
+            if (worldJsonPromise) return worldJsonPromise;
+            worldJsonPromise = fetch('https://fastly.jsdelivr.net/npm/echarts@4.9.0/map/json/world.json')
+                .then(r => r.json()).then(j => { echarts.registerMap('world', j); return true; });
+            return worldJsonPromise;
+        }
+        function initWorldMap(countries) {
+            const dom = document.getElementById('worldMap');
+            if (!dom || !countries || !countries.length) return;
+            if (typeof echarts === 'undefined') { dom.innerHTML = '<div style="color:#8896b3;padding:24px;text-align:center;">地图组件加载失败（需联网）</div>'; return; }
+            loadWorld().then(() => {
+                if (worldChart) { worldChart.dispose(); worldChart = null; }
+                worldChart = echarts.init(dom);
+                const data = countries.map(c => ({ name: CN2EN[c.name] || c.name, value: c.level, _cn: c.name, _note: c.note || '' }));
+                const vals = countries.map(c => c.level);
+                worldChart.setOption({
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: pr => { const d = data.find(x => x.name === pr.name); return d ? `${d._cn} · 扩散速度 ${d.value}${d._note ? '<br/>' + d._note : ''}` : pr.name; }
+                    },
+                    visualMap: {
+                        min: Math.min(...vals, 40), max: Math.max(...vals, 100),
+                        text: ['快', '慢'], calculable: true, left: 12, bottom: 12,
+                        textStyle: { color: '#8896b3' },
+                        inRange: { color: ['#fde68a', '#fbbf24', '#f97316', '#ef4444', '#b91c1c'] }
+                    },
+                    series: [{
+                        type: 'map', map: 'world', roam: false, zoom: 1.2, center: [80, 35],
+                        itemStyle: { areaColor: 'rgba(18,50,90,0.35)', borderColor: 'rgba(0,212,255,0.18)', borderWidth: 0.6 },
+                        emphasis: { itemStyle: { areaColor: '#00a8e8' }, label: { show: false } },
+                        label: { show: false },
+                        data
+                    }]
+                });
+            }).catch(() => { dom.innerHTML = '<div style="color:#8896b3;padding:24px;text-align:center;">地图数据加载失败（需联网）</div>'; });
+        }
+        window.addEventListener('resize', () => { if (worldChart) worldChart.resize(); });
 
         function bindFilters() {
             const lv1 = document.getElementById('lv1');
@@ -758,6 +803,7 @@
                 ${p.globalDistHtml ? `
                 <div class="detail-card">
                     <div class="detail-card-title">🌍 技术全球分布</div>
+                    <div id="worldMap" class="world-map"></div>
                     <div class="gd-wrap">${p.globalDistHtml}</div>
                 </div>` : ''}
 
