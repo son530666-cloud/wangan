@@ -157,6 +157,13 @@
             padding: 14px 16px;
         }
 
+        .tech-detail-intro {
+            font-size: 14px;
+            line-height: 1.9;
+            color: #b0c0d8;
+        }
+        .tech-detail-intro strong { color: #e0e6ed; font-weight: 600; }
+
         /* ===== 内容区：扁平分块，去弹窗感 ===== */
         .detail-body {
             display: grid;
@@ -370,6 +377,11 @@
 
         function renderDetail(p) {
             document.getElementById('detailFilters').style.display = 'flex';
+            const fieldPath = [p.primaryField || p.category, p.secondaryField].filter(Boolean).join(' · ');
+            const introExtra = `当前技术成熟度为 <strong>${p.trl || '—'}</strong>` +
+                (fieldPath ? `；所属领域为 <strong>${fieldPath}</strong>` : '') +
+                (p.playersInline && p.playersInline !== '暂无' ? `；主要参与者包括 <strong>${p.playersInline}</strong>` : '') + '。';
+            const introHtml = `${p.desc ? `<p style="margin:0 0 8px;">${p.desc}</p>` : ''}<p style="margin:0;">${introExtra}</p>`;
             document.getElementById('detailRoot').innerHTML = `
                 <div class="detail-banner">
                     <div class="banner-top">
@@ -391,7 +403,11 @@
                         ${p.category ? `<div class="meta-cell"><span class="meta-label">所属领域</span><span class="meta-value">${p.category}</span></div>` : ''}
                         ${p.playersInline ? `<div class="meta-cell"><span class="meta-label">主要玩家</span><span class="meta-value">${p.playersInline}</span></div>` : ''}
                     </div>
-                    ${p.desc ? `<div class="banner-desc">${p.desc}</div>` : ''}
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-card-title">📖 技术介绍</div>
+                    <div class="tech-detail-intro">${introHtml}</div>
                 </div>
 
                 <div class="detail-body">
