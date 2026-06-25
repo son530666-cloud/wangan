@@ -4019,6 +4019,13 @@
             if (r <= 0.7) return '理论研究型';
             return '均衡型';
         }
+        function instAdvantage(i) {
+            if (i.focus) return i.focus;
+            const s = instStrength(i);
+            if (s === '理论研究型') return '论文产出领先，基础机理与材料创新见长';
+            if (s === '产业能力型') return '专利布局密集，工程化与量产能力突出';
+            return '论文专利双强，研产协同、全链覆盖';
+        }
         function buildLandscapeSvg(insts) {
             if (!insts || !insts.length) return '';
             const W = 760, H = 440, padL = 70, padR = 28, padT = 36, padB = 54;
@@ -4051,12 +4058,12 @@
         }
         function instTableHtml(insts) {
             return `<table class="inst-table">
-                <thead><tr><th>机构</th><th>地区</th><th>论文</th><th>专利</th><th>侧重方向</th><th>定位</th></tr></thead>
+                <thead><tr><th>机构</th><th>地区</th><th>论文</th><th>专利</th><th>核心优势</th><th>定位</th></tr></thead>
                 <tbody>${insts.map(i => `<tr>
                     <td class="inst-name">${i.name}</td>
                     <td><span class="inst-region ${i.region === '国外' ? 'foreign' : 'domestic'}">${i.region}</span></td>
                     <td>${i.papers}</td><td>${i.patents}</td>
-                    <td>${i.focus || '—'}</td>
+                    <td>${instAdvantage(i)}</td>
                     <td>${instStrength(i)}</td>
                 </tr>`).join('')}</tbody>
             </table>`;
