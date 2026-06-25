@@ -1925,6 +1925,8 @@
                 <div class="filter-group">
                     <label class="filter-label">排序方式</label>
                     <select class="filter-select" id="filterSort">
+                        <option value="lastActive-desc">活跃时间（最新）</option>
+                        <option value="lastActive-asc">活跃时间（最早）</option>
                         <option value="firstSeen-desc">识别时间（最新）</option>
                         <option value="firstSeen-asc">识别时间（最早）</option>
                         <option value="score-desc">综合评分（高→低）</option>
@@ -3510,7 +3512,7 @@
             const container = document.getElementById('historyGrid');
             const primaryFilter = document.getElementById('filterPrimary')?.value || '';
             const secondaryFilter = document.getElementById('filterSecondary')?.value || '';
-            const sortValue = document.getElementById('filterSort')?.value || 'firstSeen-desc';
+            const sortValue = document.getElementById('filterSort')?.value || 'lastActive-desc';
 
             const filtered = historyTechs.filter(tech => {
                 if (primaryFilter && tech.primaryField !== primaryFilter) return false;
@@ -3520,6 +3522,10 @@
 
             filtered.sort((a, b) => {
                 switch (sortValue) {
+                    case 'lastActive-desc':
+                        return (b.lastActive || '').localeCompare(a.lastActive || '');
+                    case 'lastActive-asc':
+                        return (a.lastActive || '').localeCompare(b.lastActive || '');
                     case 'firstSeen-desc':
                         return (b.firstSeen || '').localeCompare(a.firstSeen || '');
                     case 'firstSeen-asc':
@@ -3691,7 +3697,7 @@
             resetBtn.addEventListener('click', () => {
                 primarySelect.value = '';
                 fillSecondary('');
-                if (sortSelect) sortSelect.value = 'firstSeen-desc';
+                if (sortSelect) sortSelect.value = 'lastActive-desc';
                 renderHistoryList();
             });
         }
