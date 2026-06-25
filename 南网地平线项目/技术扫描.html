@@ -2437,6 +2437,12 @@
                         }
                     ]
                 },
+                diffusion: [
+                    { scene: '消费电子', speed: 72, level: '快', bottleneck: '小容量电芯成本偏高，与成熟液态锂电正面竞争' },
+                    { scene: '高端电动汽车', speed: 48, level: '中', bottleneck: '量产良率不足50%、车规安全认证周期长' },
+                    { scene: '电网级储能', speed: 30, level: '慢', bottleneck: '初始成本高、循环经济性待验证，相关标准与法规缺位' },
+                    { scene: '电动航空 / eVTOL', speed: 22, level: '慢', bottleneck: '适航认证严苛、硬件可靠性与量产规模尚不具备' }
+                ],
                 landscape: {
                     institutions: [
                         { name: '丰田汽车', region: '国外', papers: 420, patents: 1320, focus: '硫化物全固态 · 车规量产', diff: '硫化物全固态 · 离子电导率 >10⁻² S/cm' },
@@ -4205,6 +4211,35 @@
             }));
         }
 
+        // ===== 技术扩散速度（各应用场景的扩散速度与主要瓶颈） =====
+        function diffusionToHtml(items) {
+            if (!items || !items.length) return '';
+            const color = s => s >= 70 ? '#39ff14' : s >= 45 ? '#ffa940' : '#ff4d4f';
+            return `<div class="diff-list">${items.map(d => `
+                <div class="diff-item">
+                    <div class="diff-head"><span class="diff-scene">${d.scene}</span><span class="diff-level" style="color:${color(d.speed)};">${d.level || ''} ${d.speed}%</span></div>
+                    <div class="diff-bar"><div class="diff-bar-inner" style="width:${d.speed}%;background:${color(d.speed)};"></div></div>
+                    <div class="diff-bottleneck">🚧 主要瓶颈：${d.bottleneck}</div>
+                </div>
+            `).join('')}</div>`;
+        }
+        function autoDiffusion(tech, details) {
+            const scenes = (details.scenarios || []).slice(0, 4);
+            if (!scenes.length) return [];
+            const hash = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 131 + s.charCodeAt(i)) >>> 0; return h; };
+            const base = tech.lifecycleScore || 60;
+            const pains = (details.painPoints || []).map(p => p.title);
+            const generic = ['标准与法规尚不完善', '硬件成本偏高', '可靠性与寿命验证不足', '上下游供应链配套不成熟', '规模化产能受限'];
+            return scenes.map((sc, i) => {
+                const h = hash(sc.title);
+                let speed = base + ((h % 31) - 15);
+                speed = Math.max(20, Math.min(95, speed));
+                const level = speed >= 70 ? '快' : speed >= 45 ? '中' : '慢';
+                const bottleneck = pains[i] || generic[h % generic.length];
+                return { scene: sc.title, speed, level, bottleneck };
+            });
+        }
+
         function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
 
@@ -4299,6 +4334,9 @@
             // 驱动力分析（应用场景痛点 / 技术难点 / 政策导向）
             const driversHtml = driversToHtml(tech.drivers || autoDrivers(tech, details));
 
+            // 技术扩散速度（各场景扩散速度与瓶颈）
+            const diffusionHtml = diffusionToHtml(tech.diffusion || autoDiffusion(tech, details));
+
             // 机构竞争力图谱
             const landscapeHtml = landscapeToHtml(tech.landscape || autoLandscape(tech, details), tech);
 
@@ -4320,6 +4358,7 @@
                 intro: intro,
                 changeBasisHtml,
                 driversHtml,
+                diffusionHtml,
                 landscapeHtml,
                 socialHtml: industryViewsHtml,
                 evolutionHtml,

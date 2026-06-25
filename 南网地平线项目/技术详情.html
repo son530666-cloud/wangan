@@ -283,6 +283,21 @@
         .drivers-items strong { color: #e0e6ed; }
         .driver-text { color: #9fb0cc; }
 
+        /* 技术扩散速度 */
+        .diff-list { display: flex; flex-direction: column; gap: 16px; }
+        .diff-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(64, 169, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .diff-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .diff-scene { font-size: 14px; font-weight: 600; color: #e0e6ed; }
+        .diff-level { font-size: 13px; font-weight: 700; }
+        .diff-bar { height: 8px; background: rgba(255, 255, 255, 0.06); border-radius: 4px; overflow: hidden; }
+        .diff-bar-inner { height: 100%; border-radius: 4px; transition: width 0.4s; }
+        .diff-bottleneck { font-size: 12px; line-height: 1.7; color: #9fb0cc; margin-top: 8px; }
+
         /* 机构竞争力图谱 */
         .ls-top {
             display: grid;
@@ -642,11 +657,18 @@
                     </div>` : ''}
                 </div>
 
-                ${p.driversHtml ? `
-                <div class="detail-card">
-                    <div class="detail-card-title">🚀 驱动力分析</div>
-                    <div class="drivers-wrap">${p.driversHtml}</div>
-                </div>` : ''}
+                <div class="detail-body">
+                    ${p.driversHtml ? `
+                    <div class="detail-card">
+                        <div class="detail-card-title">🚀 驱动力分析</div>
+                        <div class="drivers-wrap">${p.driversHtml}</div>
+                    </div>` : ''}
+                    ${p.diffusionHtml ? `
+                    <div class="detail-card">
+                        <div class="detail-card-title">📶 技术扩散速度</div>
+                        <div class="diffusion-wrap">${p.diffusionHtml}</div>
+                    </div>` : ''}
+                </div>
 
                 ${p.landscapeHtml ? `
                 <div class="detail-card">
