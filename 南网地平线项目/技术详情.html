@@ -146,6 +146,9 @@
         .meta-cell.full { flex-basis: 100%; }
         .meta-cell.metrics { align-items: center; }
         .meta-metrics { display: inline-flex; flex-wrap: wrap; gap: 8px; }
+        .meta-cell.intro-cell { flex-direction: column; align-items: flex-start; gap: 6px; }
+        .banner-intro { font-size: 13px; line-height: 1.85; color: #b0c0d8; }
+        .banner-intro p { margin: 0; }
         .meta-label {
             color: #8896b3;
             display: inline-flex;
@@ -407,7 +410,9 @@
             const introExtra = `当前技术成熟度为 <strong>${p.trl || '—'}</strong>` +
                 (fieldPath ? `；所属领域为 <strong>${fieldPath}</strong>` : '') +
                 (p.playersInline && p.playersInline !== '暂无' ? `；主要参与者包括 <strong>${p.playersInline}</strong>` : '') + '。';
-            const introHtml = `${p.desc ? `<p style="margin:0 0 8px;">${p.desc}</p>` : ''}<p style="margin:0;">${introExtra}</p>`;
+            const introHtml = p.intro
+                ? `<p>${p.intro}</p>`
+                : `${p.desc ? `<p style="margin:0 0 8px;">${p.desc}</p>` : ''}<p style="margin:0;">${introExtra}</p>`;
             document.getElementById('detailRoot').innerHTML = `
                 <div class="detail-banner">
                     <div class="banner-main">
@@ -422,6 +427,7 @@
                             ${p.category ? `<div class="meta-cell"><span class="meta-label">所属领域</span><span class="meta-value">${p.category}</span></div>` : ''}
                             ${p.playersInline ? `<div class="meta-cell full"><span class="meta-label">主要玩家</span><span class="meta-value">${p.playersInline}</span></div>` : ''}
                             ${p.metricsHtml ? `<div class="meta-cell full metrics"><span class="meta-label">技术关键指标</span><span class="meta-metrics">${p.metricsHtml}</span></div>` : ''}
+                            ${introHtml ? `<div class="meta-cell full intro-cell"><span class="meta-label">📖 技术介绍</span><div class="banner-intro">${introHtml}</div></div>` : ''}
                         </div>
                     </div>
                     <div class="banner-side">
@@ -431,11 +437,6 @@
                         </div>
                         <div class="banner-radar">${p.radarSvg || ''}</div>
                     </div>
-                </div>
-
-                <div class="detail-card">
-                    <div class="detail-card-title">📖 技术介绍</div>
-                    <div class="tech-detail-intro">${introHtml}</div>
                 </div>
 
                 <div class="detail-body">
