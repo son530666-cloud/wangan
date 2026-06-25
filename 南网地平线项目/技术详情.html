@@ -415,13 +415,7 @@
 
         function renderDetail(p) {
             document.getElementById('detailFilters').style.display = 'flex';
-            const fieldPath = [p.primaryField || p.category, p.secondaryField].filter(Boolean).join(' · ');
-            const introExtra = `当前技术成熟度为 <strong>${p.trl || '—'}</strong>` +
-                (fieldPath ? `；所属领域为 <strong>${fieldPath}</strong>` : '') +
-                (p.playersInline && p.playersInline !== '暂无' ? `；主要参与者包括 <strong>${p.playersInline}</strong>` : '') + '。';
-            const introHtml = p.intro
-                ? `<p>${p.intro}</p>`
-                : `${p.desc ? `<p style="margin:0 0 8px;">${p.desc}</p>` : ''}<p style="margin:0;">${introExtra}</p>`;
+            const introHtml = p.intro ? `<p>${p.intro}</p>` : '';
             document.getElementById('detailRoot').innerHTML = `
                 <div class="detail-banner">
                     <div class="banner-main">
@@ -445,17 +439,6 @@
                             <span class="banner-score-val">${p.score}</span>
                         </div>
                         <div class="banner-radar">${p.radarSvg || ''}</div>
-                    </div>
-                </div>
-
-                <div class="detail-body">
-                    <div class="detail-card">
-                        <div class="detail-card-title">💡 跟踪总结与建议</div>
-                        <div class="tech-detail-advice">${p.adviceHtml || ''}</div>
-                    </div>
-                    <div class="detail-card">
-                        <div class="detail-card-title">🏢 主要玩家</div>
-                        <div class="tech-detail-players">${p.playersHtml || ''}</div>
                     </div>
                 </div>
 
