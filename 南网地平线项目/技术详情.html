@@ -19,27 +19,42 @@
             padding: 20px 28px 48px;
         }
 
-        .detail-toolbar {
+        /* 一二三级技术级联筛选 */
+        .detail-filters {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 18px;
+            align-items: flex-end;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(64, 169, 255, 0.10);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 22px;
         }
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 18px;
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .filter-group label {
+            font-size: 12px;
+            color: #8896b3;
+            letter-spacing: 0.5px;
+        }
+        .filter-select {
+            min-width: 180px;
             font-size: 14px;
-            color: #40a9ff;
-            background: rgba(64, 169, 255, 0.08);
+            color: #e0e6ed;
+            background: rgba(10, 22, 45, 0.9);
             border: 1px solid rgba(64, 169, 255, 0.25);
             border-radius: 8px;
+            padding: 8px 12px;
             cursor: pointer;
-            transition: all 0.2s;
+            outline: none;
         }
-        .back-btn:hover { background: rgba(64, 169, 255, 0.18); color: #fff; }
-        .detail-crumb { font-size: 13px; color: #8896b3; }
+        .filter-select:focus { border-color: rgba(64, 169, 255, 0.55); }
+        .filter-select option { background: #0a162d; color: #e0e6ed; }
+        .filter-sep { color: #46506a; align-self: center; padding-bottom: 8px; font-size: 13px; }
 
         /* ===== 头部横幅（融合评分/识别时间/成熟度/主要玩家/简介） ===== */
         .detail-banner {
@@ -258,24 +273,32 @@
 </head>
 <body>
     <div class="detail-page">
-        <div class="detail-toolbar">
-            <button class="back-btn" id="backBtn">← 返回技术扫描</button>
-            <span class="detail-crumb">技术扫描 / 态势追踪</span>
+        <div class="detail-filters" id="detailFilters" style="display:none;">
+            <div class="filter-group">
+                <label>一级领域</label>
+                <select class="filter-select" id="lv1"></select>
+            </div>
+            <span class="filter-sep">›</span>
+            <div class="filter-group">
+                <label>二级领域</label>
+                <select class="filter-select" id="lv2"></select>
+            </div>
+            <span class="filter-sep">›</span>
+            <div class="filter-group">
+                <label>三级技术</label>
+                <select class="filter-select" id="lv3"></select>
+            </div>
         </div>
 
         <div id="detailRoot"></div>
     </div>
 
     <script>
-        document.getElementById('backBtn').addEventListener('click', () => {
-            if (window.parent && window.parent !== window) {
-                window.parent.postMessage({ type: 'navigateTo', page: '技术扫描.html' }, '*');
-            } else {
-                window.location.href = '技术扫描.html';
-            }
-        });
+        let BUNDLE = null;      // { selectedName, taxonomy, payloads }
+        let currentName = null;
 
         function renderEmpty() {
+            document.getElementById('detailFilters').style.display = 'none';
             document.getElementById('detailRoot').innerHTML = `
                 <div class="detail-empty">
                     <div class="icon">📄</div>
@@ -284,7 +307,69 @@
             `;
         }
 
+        function fillSelect(sel, options, selected) {
+            sel.innerHTML = options.map(o => `<option value="${o}"${o === selected ? ' selected' : ''}>${o}</option>`).join('');
+        }
+
+        // 根据技术名定位其一二级路径，回显三个下拉框
+        function findPath(name) {
+            const tax = BUNDLE.taxonomy;
+            for (const p of Object.keys(tax)) {
+                for (const s of Object.keys(tax[p])) {
+                    if (tax[p][s].includes(name)) return { primary: p, secondary: s };
+                }
+            }
+            return null;
+        }
+
+        function syncFilters(name) {
+            const tax = BUNDLE.taxonomy;
+            const path = findPath(name) || {};
+            const lv1 = document.getElementById('lv1');
+            const lv2 = document.getElementById('lv2');
+            const lv3 = document.getElementById('lv3');
+
+            fillSelect(lv1, Object.keys(tax), path.primary);
+            fillSelect(lv2, Object.keys(tax[path.primary] || {}), path.secondary);
+            fillSelect(lv3, (tax[path.primary] && tax[path.primary][path.secondary]) || [], name);
+        }
+
+        function showTech(name) {
+            const payload = BUNDLE.payloads[name];
+            if (!payload) return;
+            currentName = name;
+            renderDetail(payload);
+            syncFilters(name);
+            document.title = `${payload.name} - 技术详情`;
+        }
+
+        function bindFilters() {
+            const lv1 = document.getElementById('lv1');
+            const lv2 = document.getElementById('lv2');
+            const lv3 = document.getElementById('lv3');
+            const tax = BUNDLE.taxonomy;
+
+            lv1.addEventListener('change', () => {
+                const p = lv1.value;
+                const sec = Object.keys(tax[p] || {});
+                fillSelect(lv2, sec, sec[0]);
+                const third = (tax[p][sec[0]]) || [];
+                fillSelect(lv3, third, third[0]);
+                if (third[0]) showTech(third[0]);
+            });
+            lv2.addEventListener('change', () => {
+                const p = lv1.value, s = lv2.value;
+                const third = (tax[p][s]) || [];
+                fillSelect(lv3, third, third[0]);
+                if (third[0]) showTech(third[0]);
+            });
+            lv3.addEventListener('change', () => {
+                if (lv3.value) showTech(lv3.value);
+            });
+        }
+
         function renderDetail(p) {
+            document.getElementById('detailFilters').style.display = 'flex';
             document.getElementById('detailRoot').innerHTML = `
                 <div class="detail-banner">
                     <div class="banner-top">
@@ -365,12 +450,21 @@
                 raw = window.name.slice('TECH_DETAIL:'.length);
             }
 
-            let payload = null;
-            try { if (raw) payload = JSON.parse(raw); } catch (e) { console.error('读取技术详情失败:', e); }
+            let data = null;
+            try { if (raw) data = JSON.parse(raw); } catch (e) { console.error('读取技术详情失败:', e); }
 
-            if (payload && payload.name) {
-                renderDetail(payload);
-                document.title = `${payload.name} - 技术详情`;
+            // 兼容旧的单 payload 结构
+            if (data && !data.payloads && data.name) {
+                data = { selectedName: data.name, taxonomy: {}, payloads: { [data.name]: data } };
+            }
+
+            if (data && data.payloads && data.selectedName && data.payloads[data.selectedName]) {
+                BUNDLE = data;
+                if (Object.keys(BUNDLE.taxonomy).length) bindFilters();
+                showTech(BUNDLE.selectedName);
+                if (!Object.keys(BUNDLE.taxonomy).length) {
+                    document.getElementById('detailFilters').style.display = 'none';
+                }
             } else {
                 renderEmpty();
             }

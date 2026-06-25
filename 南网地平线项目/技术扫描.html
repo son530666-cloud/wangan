@@ -3981,6 +3981,8 @@
                 rating: ratingOf(tech.score),
                 scoreTip: '综合评分由技术新颖性、价值性、关联性、前瞻性四维加权得出，分值越高代表越值得重点跟踪。',
                 category: tech.category,
+                primaryField: tech.primaryField || '',
+                secondaryField: tech.secondaryField || '',
                 desc: tech.desc || '',
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',
@@ -3993,9 +3995,24 @@
             };
         }
 
+        // 构建包含全部历史技术详情 + 一二三级分类的 bundle，供详情页下拉切换
+        function buildDetailBundle(selectedName) {
+            const taxonomy = {};
+            const payloads = {};
+            historyTechs.forEach(t => {
+                const primary = t.primaryField || '未分类';
+                const secondary = t.secondaryField || '其他';
+                if (!taxonomy[primary]) taxonomy[primary] = {};
+                if (!taxonomy[primary][secondary]) taxonomy[primary][secondary] = [];
+                if (!taxonomy[primary][secondary].includes(t.name)) taxonomy[primary][secondary].push(t.name);
+                payloads[t.name] = buildDetailPayload(t);
+            });
+            return { selectedName, taxonomy, payloads };
+        }
+
         function openTechDetail(tech) {
             if (!tech) return;
-            const json = JSON.stringify(buildDetailPayload(tech));
+            const json = JSON.stringify(buildDetailBundle(tech.name));
             // 双通道传递：sessionStorage + window.name（window.name 在同一框架内跨页面导航始终保留，兼容 file://）
             try { sessionStorage.setItem('techDetailPayload', json); } catch (e) { console.error('保存技术详情失败:', e); }
             try { window.name = 'TECH_DETAIL:' + json; } catch (e) {}
