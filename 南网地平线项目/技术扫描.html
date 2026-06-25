@@ -946,6 +946,26 @@
             letter-spacing: 1px;
         }
 
+        .history-section-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .history-last-active {
+            font-size: 11px;
+            font-weight: 500;
+            color: #8ab4f8;
+            background: rgba(138, 180, 248, 0.08);
+            border: 1px solid rgba(138, 180, 248, 0.18);
+            border-radius: 4px;
+            padding: 2px 8px;
+            text-transform: none;
+            letter-spacing: 0;
+            white-space: nowrap;
+        }
+
         .history-datasource {
             display: flex;
             flex-direction: column;
@@ -2349,6 +2369,7 @@
                 category: '储能技术',
                 desc: '采用固态电解质替代传统液态电解液，显著提升电池安全性与能量密度，预计2030年实现大规模商业化应用。',
                 firstSeen: '2026-05-12',
+                lastActive: '2026-06-23',
                 status: 'tracking',
                 statusText: '持续追踪',
                 lifecycle: '快速上升期',
@@ -2387,6 +2408,7 @@
                 category: '数字化',
                 desc: '构建电网物理实体与数字模型的实时映射系统，实现设备状态监测、故障预测与运行优化。',
                 firstSeen: '2026-04-28',
+                lastActive: '2026-06-22',
                 status: 'tracking',
                 statusText: '持续追踪',
                 lifecycle: '快速上升期',
@@ -2425,6 +2447,7 @@
                 category: '输电技术',
                 desc: '利用超导材料的零电阻特性实现大功率低损耗输电，适用于城市中心高负荷密度区域。',
                 firstSeen: '2026-05-05',
+                lastActive: '2026-06-18',
                 status: 'tracking',
                 statusText: '持续追踪',
                 lifecycle: '示范验证期',
@@ -2463,6 +2486,7 @@
                 category: '能源互联网',
                 desc: '通过软件系统聚合分布式电源、储能及可调负荷，参与电力市场交易与电网调度。',
                 firstSeen: '2026-03-20',
+                lastActive: '2026-06-20',
                 status: 'mature',
                 statusText: '趋于成熟',
                 lifecycle: '趋于成熟期',
@@ -2501,6 +2525,7 @@
                 category: '交易机制',
                 desc: '基于区块链技术的点对点电力交易机制，实现分布式能源的去中心化交易与结算。',
                 firstSeen: '2026-02-15',
+                lastActive: '2026-05-28',
                 status: 'mature',
                 statusText: '趋于成熟',
                 lifecycle: '趋于成熟期',
@@ -2539,6 +2564,7 @@
                 category: '储能技术',
                 desc: '以钠离子为载流子的新型储能电池技术，原材料成本低廉，适用于大规模储能场景。',
                 firstSeen: '2026-01-10',
+                lastActive: '2026-06-24',
                 status: 'mature',
                 statusText: '趋于成熟',
                 lifecycle: '快速上升期',
@@ -2577,6 +2603,7 @@
                 category: '输电技术',
                 desc: '通过电磁感应或磁共振实现非接触式电能传输，适用于电动汽车充电及特殊供电场景。',
                 firstSeen: '2025-12-05',
+                lastActive: '2026-05-15',
                 status: 'obsolete',
                 statusText: '关注降低',
                 lifecycle: '成熟期',
@@ -2615,6 +2642,7 @@
                 category: '电力电子',
                 desc: '碳化硅功率器件具有高耐压、低损耗、高频特性，正在逐步替代传统硅基器件。',
                 firstSeen: '2025-11-20',
+                lastActive: '2026-06-21',
                 status: 'mature',
                 statusText: '趋于成熟',
                 lifecycle: '快速上升期',
@@ -2653,6 +2681,7 @@
                 category: '电网设备',
                 desc: '实现多种能源形式接入、变换与分配的智能化设备，是能源互联网的核心节点装置。',
                 firstSeen: '2025-10-15',
+                lastActive: '2026-06-19',
                 status: 'tracking',
                 statusText: '持续追踪',
                 lifecycle: '示范验证期',
@@ -3532,7 +3561,10 @@
 
                 // 技术变革理由（量化动态指标：论文/专利/智库/产业）
                 const changeBasisHtml = tech.changeBasis && tech.changeBasis.length ? `
-                    <div class="history-section-title">技术变革理由</div>
+                    <div class="history-section-title history-section-title-row">
+                        <span>技术变革理由</span>
+                        ${tech.lastActive ? `<span class="history-last-active">🕐 最近活跃 ${tech.lastActive}</span>` : ''}
+                    </div>
                     <div class="history-change-basis">${tech.changeBasis.map(c => `
                         <div class="history-change-item trend-${c.trend}">
                             <span class="history-change-value">${c.value}</span>
