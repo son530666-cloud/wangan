@@ -2443,6 +2443,21 @@
                     { scene: '电网级储能', speed: 30, level: '慢', bottleneck: '初始成本高、循环经济性待验证，相关标准与法规缺位' },
                     { scene: '电动航空 / eVTOL', speed: 22, level: '慢', bottleneck: '适航认证严苛、硬件可靠性与量产规模尚不具备' }
                 ],
+                globalDist: {
+                    countries: [
+                        { name: '中国', flag: '🇨🇳', level: 90, note: '产业链最完整，半固态量产装车领先，政策与资本密集投入' },
+                        { name: '日本', flag: '🇯🇵', level: 85, note: '丰田硫化物路线专利领先，主攻全固态车规量产' },
+                        { name: '韩国', flag: '🇰🇷', level: 78, note: '三星SDI/LG/SK 加速布局硫化物电芯' },
+                        { name: '美国', flag: '🇺🇸', level: 72, note: 'QuantumScape / Solid Power 初创引领，资本驱动' },
+                        { name: '欧洲', flag: '🇪🇺', level: 60, note: '依托车企与电池法规推进，量产产能相对滞后' }
+                    ],
+                    adoption: {
+                        leader: '中日韩三国主导全固态产业化：中国在半固态规模装车与产业链配套上速度最快，日本在全固态核心专利与硫化物工艺上领先，韩国紧随其后；欧美以初创公司与资本驱动为主，量产进度相对滞后。',
+                        inflection: '预计 2027-2028 年随着试点线（Pilot Line）良率突破，全固态将在高端车型迎来爆发式增长拐点，2030 年后进入加速普及期。',
+                        bottlenecks: ['量产良率与成本', '车规安全认证周期', '锂/硫关键矿产供应', '回收与标准法规缺位', '用户对新体系信任'],
+                        china: '中国凭借最完整的锂电产业链、全球最大的电动车市场与积极的政策补贴，在半固态规模装车上全球领先；但在硫化物全固态的核心专利与高端装备上仍落后于日本，需在原始创新与量产工艺上加速追赶，整体扩散呈"应用牵引、快速跟进"的特征。'
+                    }
+                },
                 forecast: {
                     summary: '根据固态电解质三条主要技术路线（聚合物、氧化物、硫化物）的成熟度，全固态电池的商业化扩散将呈现明显的"由特种到通用、由高端到普及"的阶段性特征：',
                     phases: [
@@ -4287,6 +4302,49 @@
             };
         }
 
+        // ===== 技术全球分布 + 扩散速度与采用率 =====
+        function globalDistToHtml(countries) {
+            if (!countries || !countries.length) return '';
+            const max = Math.max(...countries.map(c => c.level), 1);
+            return `<div class="gd-list">${countries.map(c => `
+                <div class="gd-item">
+                    <div class="gd-head"><span class="gd-name">${c.flag || ''} ${c.name}</span><span class="gd-level">${c.level}</span></div>
+                    <div class="gd-bar"><div class="gd-bar-inner" style="width:${(c.level / max * 100).toFixed(0)}%;"></div></div>
+                    ${c.note ? `<div class="gd-note">${c.note}</div>` : ''}
+                </div>`).join('')}</div>`;
+        }
+        function adoptionToHtml(a) {
+            if (!a) return '';
+            const block = (label, content) => content ? `<div class="ad-block"><div class="ad-label">${label}</div><div class="ad-text">${content}</div></div>` : '';
+            let html = '';
+            html += block('🏁 领先国家与速度对比', a.leader);
+            html += block('📈 扩散拐点', a.inflection);
+            if (a.bottlenecks && a.bottlenecks.length) {
+                html += `<div class="ad-block"><div class="ad-label">🚧 主要瓶颈</div><div class="ad-tags">${a.bottlenecks.map(b => `<span class="ad-tag">${b}</span>`).join('')}</div></div>`;
+            }
+            html += block('🇨🇳 中国扩散情况', a.china);
+            return html;
+        }
+        function autoGlobalDist(tech) {
+            const comp = tech.competition || '各国在该技术上的布局各有侧重';
+            const countries = [
+                { name: '中国', flag: '🇨🇳', level: 88, note: '产业化与市场规模领先，政策与资本支持力度大' },
+                { name: '美国', flag: '🇺🇸', level: 76, note: '前沿研究与初创企业活跃，资本驱动明显' },
+                { name: '欧洲', flag: '🇪🇺', level: 68, note: '依托标准法规与传统工业基础稳步推进' },
+                { name: '日本', flag: '🇯🇵', level: 66, note: '在材料与精密制造环节具备优势' },
+                { name: '韩国', flag: '🇰🇷', level: 60, note: '在电子与电池产业链上快速跟进' }
+            ];
+            return {
+                countries,
+                adoption: {
+                    leader: `从全球看，${comp}。总体上中国凭借市场规模与产业链配套在扩散速度上占据优势，欧美在前沿研究与标准制定上保持领先。`,
+                    inflection: `预计随着关键性能指标突破与成本下行，${tech.name}将在未来 3-5 年内迎来扩散拐点，从示范应用转向规模化普及。`,
+                    bottlenecks: ['标准与法规', '用户使用习惯', '基础设施配套', '成本与可靠性'],
+                    china: `中国在${tech.category}领域具备完整产业链与广阔应用市场，扩散速度位居全球前列，但在部分核心技术与高端环节仍需突破，整体呈现"应用规模领先、核心技术追赶"的扩散态势。`
+                }
+            };
+        }
+
         function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
 
@@ -4384,6 +4442,11 @@
             // 技术扩散速度（各场景扩散速度与瓶颈）
             const diffusionHtml = diffusionToHtml(tech.diffusion || autoDiffusion(tech, details));
 
+            // 技术全球分布 + 扩散速度与采用率（国家对比）
+            const gd = tech.globalDist || autoGlobalDist(tech);
+            const globalDistHtml = globalDistToHtml(gd.countries);
+            const adoptionHtml = adoptionToHtml(gd.adoption);
+
             // 机构竞争力图谱
             const landscapeHtml = landscapeToHtml(tech.landscape || autoLandscape(tech, details), tech);
 
@@ -4409,6 +4472,8 @@
                 changeBasisHtml,
                 driversHtml,
                 diffusionHtml,
+                globalDistHtml,
+                adoptionHtml,
                 landscapeHtml,
                 socialHtml: industryViewsHtml,
                 evolutionHtml,

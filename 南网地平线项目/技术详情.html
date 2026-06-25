@@ -298,6 +298,31 @@
         .diff-bar-inner { height: 100%; border-radius: 4px; transition: width 0.4s; }
         .diff-bottleneck { font-size: 12px; line-height: 1.7; color: #9fb0cc; margin-top: 8px; }
 
+        /* 技术全球分布 */
+        .gd-list { display: flex; flex-direction: column; gap: 14px; }
+        .gd-item { }
+        .gd-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+        .gd-name { font-size: 14px; font-weight: 600; color: #e0e6ed; }
+        .gd-level { font-size: 13px; font-weight: 700; color: #40a9ff; }
+        .gd-bar { height: 8px; background: rgba(255, 255, 255, 0.06); border-radius: 4px; overflow: hidden; }
+        .gd-bar-inner { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #40a9ff, #73d13d); }
+        .gd-note { font-size: 12px; line-height: 1.7; color: #8896b3; margin-top: 5px; }
+
+        /* 扩散速度与采用率 */
+        .ad-block { margin-bottom: 14px; }
+        .ad-block:last-child { margin-bottom: 0; }
+        .ad-label { font-size: 13px; font-weight: 600; color: #40a9ff; margin-bottom: 6px; }
+        .ad-text { font-size: 13px; line-height: 1.8; color: #9fb0cc; }
+        .ad-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .ad-tag {
+            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 4px;
+            color: #ff7875;
+            background: rgba(255, 77, 79, 0.08);
+            border: 1px solid rgba(255, 77, 79, 0.18);
+        }
+
         /* 未来趋势预测 */
         .fc-summary {
             font-size: 13px;
@@ -719,6 +744,19 @@
                     <div class="detail-card">
                         <div class="detail-card-title">📶 技术扩散速度</div>
                         <div class="diffusion-wrap">${p.diffusionHtml}</div>
+                    </div>` : ''}
+                </div>
+
+                <div class="detail-body">
+                    ${p.globalDistHtml ? `
+                    <div class="detail-card">
+                        <div class="detail-card-title">🌍 技术全球分布</div>
+                        <div class="gd-wrap">${p.globalDistHtml}</div>
+                    </div>` : ''}
+                    ${p.adoptionHtml ? `
+                    <div class="detail-card">
+                        <div class="detail-card-title">📊 扩散速度与采用率</div>
+                        <div class="ad-wrap">${p.adoptionHtml}</div>
                     </div>` : ''}
                 </div>
 
