@@ -308,7 +308,7 @@
         .diff-bottleneck { font-size: 12px; line-height: 1.7; color: #9fb0cc; margin-top: 8px; }
 
         /* 技术全球分布（世界地图区块热力） */
-        .world-map { width: 100%; height: 360px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+        .world-map { width: 100%; height: 390px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
         .heat-legend { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12px; color: #8896b3; margin-top: 12px; }
         .hl-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 3px 0 10px; }
         .heat-notes { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
@@ -510,6 +510,22 @@
             margin-bottom: 20px;
         }
         .detail-body .detail-card { margin-bottom: 0; }
+
+        /* 成对模块等高 + 内部滚动 */
+        .detail-body.eq-row, .detail-body.eq-row2 { align-items: stretch; }
+        .detail-body.eq-row .detail-card { height: 540px; }
+        .detail-body.eq-row2 .detail-card { height: 620px; }
+        .detail-body.eq-row .detail-card, .detail-body.eq-row2 .detail-card {
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .eq-row .detail-card-title, .eq-row2 .detail-card-title { flex-shrink: 0; }
+        .eq-row .drivers-wrap, .eq-row .app-wrap, .eq-row2 .gd-wrap, .eq-row2 .ad-wrap {
+            flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px;
+        }
+        .eq-row .drivers-wrap::-webkit-scrollbar, .eq-row .app-wrap::-webkit-scrollbar,
+        .eq-row2 .gd-wrap::-webkit-scrollbar, .eq-row2 .ad-wrap::-webkit-scrollbar { width: 6px; }
+        .eq-row .drivers-wrap::-webkit-scrollbar-thumb, .eq-row .app-wrap::-webkit-scrollbar-thumb,
+        .eq-row2 .gd-wrap::-webkit-scrollbar-thumb, .eq-row2 .ad-wrap::-webkit-scrollbar-thumb { background: rgba(64,169,255,0.25); border-radius: 3px; }
         .detail-card-title {
             font-size: 14px;
             font-weight: 600;
@@ -973,7 +989,7 @@
                     </div>` : ''}
                 </div>
 
-                <div class="detail-body">
+                <div class="detail-body eq-row">
                     ${p.driversHtml ? `
                     <div class="detail-card">
                         <div class="detail-card-title">🚀 驱动力分析</div>
@@ -986,12 +1002,14 @@
                     </div>` : ''}
                 </div>
 
-                <div class="detail-body">
+                <div class="detail-body eq-row2">
                     ${p.globalDistHtml ? `
                     <div class="detail-card">
                         <div class="detail-card-title">🌍 技术全球分布</div>
-                        <div id="worldMap" class="world-map"></div>
-                        <div class="gd-wrap">${p.globalDistHtml}</div>
+                        <div class="gd-wrap">
+                            <div id="worldMap" class="world-map"></div>
+                            ${p.globalDistHtml}
+                        </div>
                     </div>` : ''}
                     ${p.adoptionHtml ? `
                     <div class="detail-card">
