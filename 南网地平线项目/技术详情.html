@@ -250,17 +250,22 @@
         .driver-text { color: #9fb0cc; }
 
         /* 机构竞争力图谱 */
+        .ls-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            align-items: center;
+            margin-bottom: 18px;
+        }
         .ls-chart {
             background: rgba(0, 0, 0, 0.18);
             border-radius: 10px;
             padding: 12px;
-            margin-bottom: 18px;
         }
         .inst-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            margin-bottom: 18px;
         }
         .inst-table th {
             text-align: left;
@@ -446,6 +451,7 @@
         @media (max-width: 900px) {
             .detail-banner { flex-direction: column; }
             .banner-side { width: 100%; align-items: flex-start; }
+            .ls-top { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
             .detail-body { grid-template-columns: 1fr; }

@@ -4061,8 +4061,10 @@
         }
         function landscapeToHtml(ls) {
             if (!ls || !ls.institutions || !ls.institutions.length) return '';
-            return `<div class="ls-chart">${buildLandscapeSvg(ls.institutions)}</div>
-                <div class="ls-table-wrap">${instTableHtml(ls.institutions)}</div>
+            return `<div class="ls-top">
+                    <div class="ls-chart">${buildLandscapeSvg(ls.institutions)}</div>
+                    <div class="ls-table-wrap">${instTableHtml(ls.institutions)}</div>
+                </div>
                 <div class="ls-narrative">${landscapeNarrativeHtml(ls.narrative)}</div>`;
         }
         function autoLandscape(tech, details) {
