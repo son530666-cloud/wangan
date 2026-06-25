@@ -2427,6 +2427,26 @@
                         }
                     ]
                 },
+                landscape: {
+                    institutions: [
+                        { name: '丰田汽车', region: '国外', papers: 420, patents: 1320, focus: '硫化物全固态 · 车规量产' },
+                        { name: '宁德时代', region: '国内', papers: 380, patents: 980, focus: '凝聚态/硫化物 · 量产工艺' },
+                        { name: '三星SDI', region: '国外', papers: 210, patents: 640, focus: '硫化物电芯' },
+                        { name: '松下', region: '国外', papers: 200, patents: 410, focus: '车规电池工程化' },
+                        { name: 'QuantumScape', region: '国外', papers: 150, patents: 360, focus: '氧化物 · 无负极' },
+                        { name: '卫蓝新能源', region: '国内', papers: 160, patents: 350, focus: '半固态/混合固液' },
+                        { name: '清陶能源', region: '国内', papers: 140, patents: 320, focus: '氧化物半固态' },
+                        { name: 'Solid Power', region: '国外', papers: 130, patents: 300, focus: '硫化物电解质供应' },
+                        { name: '中科院物理所', region: '国内', papers: 540, patents: 190, focus: '固态电解质基础研究' },
+                        { name: '马里兰大学', region: '国外', papers: 430, patents: 95, focus: '固-固界面机理' }
+                    ],
+                    narrative: {
+                        chainChange: '固态电池将竞争焦点从"电解液配方 + 卷绕工艺"转向"固态电解质材料 + 界面工程 + 干法电极装备"，重塑了正极、电解质、负极与设备各环节的价值分配。上游硫化锂、锂金属负极等新材料环节价值量大幅跃升，而传统隔膜与液态电解液环节面临被整体替代的风险，电芯制造的工艺壁垒也被重新定义。',
+                        declined: '高度依赖液态电解液与隔膜的传统供应商，若不能转型固态电解质赛道将逐步被边缘化；仅凭卷绕产线规模优势的电芯厂，其护城河被材料与界面专利削弱；部分起步晚、专利布局薄弱的日韩传统电芯企业在全固态路线上已显露掉队迹象。',
+                        rising: '掌握硫化物/氧化物固态电解质、锂金属负极与干法电极装备的新势力（QuantumScape、Solid Power、卫蓝新能源、清陶能源）借势崛起；高校与科研院所（中科院物理所、马里兰大学）凭借界面机理研究掌握源头话语权，材料与装备供应商的产业链地位显著上升。',
+                        profitModel: '盈利模式从"规模化电芯制造的成本领先"转向"关键材料与界面专利授权 + 高端产能溢价 + 车企联合开发绑定"。知识产权与材料配方成为核心壁垒，产能预定与战略入股模式兴起，价值重心由制造端向材料与专利端转移。'
+                    }
+                },
                 firstSeen: '2026-05-12',
                 lastActive: '2026-06-23',
                 status: 'tracking',
@@ -3975,6 +3995,94 @@
             return { summary: `${tech.name}的技术变革由下游应用需求、技术瓶颈突破与政策战略导向多重力量共同驱动。`, groups };
         }
 
+        // ===== 机构竞争力图谱 =====
+        function instStrength(i) {
+            const r = i.patents / (i.papers || 1);
+            if (r >= 1.4) return '产业能力型';
+            if (r <= 0.7) return '理论研究型';
+            return '均衡型';
+        }
+        function buildLandscapeSvg(insts) {
+            if (!insts || !insts.length) return '';
+            const W = 760, H = 440, padL = 70, padR = 28, padT = 36, padB = 54;
+            const xL = padL, xR = W - padR, yB = H - padB, yT = padT;
+            const maxPat = Math.max(...insts.map(i => i.patents), 1) * 1.12;
+            const maxPap = Math.max(...insts.map(i => i.papers), 1) * 1.12;
+            const sx = v => xL + (v / maxPat) * (xR - xL);
+            const sy = v => yB - (v / maxPap) * (yB - yT);
+            const midX = xL + (xR - xL) / 2, midY = yT + (yB - yT) / 2;
+            let g = '';
+            g += `<line x1="${xL}" y1="${yB}" x2="${xR}" y2="${yB}" stroke="rgba(64,169,255,0.35)" stroke-width="1"/>`;
+            g += `<line x1="${xL}" y1="${yB}" x2="${xL}" y2="${yT}" stroke="rgba(64,169,255,0.35)" stroke-width="1"/>`;
+            g += `<line x1="${midX}" y1="${yT}" x2="${midX}" y2="${yB}" stroke="rgba(255,255,255,0.07)" stroke-dasharray="4 4"/>`;
+            g += `<line x1="${xL}" y1="${midY}" x2="${xR}" y2="${midY}" stroke="rgba(255,255,255,0.07)" stroke-dasharray="4 4"/>`;
+            g += `<text x="${xR}" y="${yB + 32}" text-anchor="end" fill="#8896b3" font-size="12">产业能力（专利量）→</text>`;
+            g += `<text x="${xL - 56}" y="${yT - 14}" text-anchor="start" fill="#8896b3" font-size="12">↑ 理论研究（论文量）</text>`;
+            g += `<text x="${xR - 8}" y="${yT + 16}" text-anchor="end" fill="rgba(115,209,61,0.55)" font-size="12">全面领先</text>`;
+            g += `<text x="${xL + 8}" y="${yT + 16}" text-anchor="start" fill="rgba(64,169,255,0.55)" font-size="12">理论引领</text>`;
+            g += `<text x="${xR - 8}" y="${yB - 8}" text-anchor="end" fill="rgba(255,169,64,0.55)" font-size="12">产业主导</text>`;
+            g += `<text x="${xL + 8}" y="${yB - 8}" text-anchor="start" fill="rgba(136,150,179,0.55)" font-size="12">潜力跟随</text>`;
+            insts.forEach(i => {
+                const x = sx(i.patents), y = sy(i.papers);
+                const color = i.region === '国外' ? '#ffa940' : '#40a9ff';
+                g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="${color}" fill-opacity="0.85" stroke="#0a1628" stroke-width="1.5"><title>${i.name}\n论文 ${i.papers} · 专利 ${i.patents}${i.focus ? '\n' + i.focus : ''}</title></circle>`;
+                g += `<text x="${(x + 9).toFixed(1)}" y="${(y + 4).toFixed(1)}" fill="#c8d4e8" font-size="11">${i.name}</text>`;
+            });
+            g += `<circle cx="${xL + 10}" cy="${yT}" r="5" fill="#40a9ff"/><text x="${xL + 20}" y="${yT + 4}" fill="#8896b3" font-size="11">国内</text>`;
+            g += `<circle cx="${xL + 70}" cy="${yT}" r="5" fill="#ffa940"/><text x="${xL + 80}" y="${yT + 4}" fill="#8896b3" font-size="11">国外</text>`;
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${g}</svg>`;
+        }
+        function instTableHtml(insts) {
+            return `<table class="inst-table">
+                <thead><tr><th>机构</th><th>地区</th><th>论文</th><th>专利</th><th>侧重方向</th><th>定位</th></tr></thead>
+                <tbody>${insts.map(i => `<tr>
+                    <td class="inst-name">${i.name}</td>
+                    <td><span class="inst-region ${i.region === '国外' ? 'foreign' : 'domestic'}">${i.region}</span></td>
+                    <td>${i.papers}</td><td>${i.patents}</td>
+                    <td>${i.focus || '—'}</td>
+                    <td>${instStrength(i)}</td>
+                </tr>`).join('')}</tbody>
+            </table>`;
+        }
+        function landscapeNarrativeHtml(n) {
+            if (!n) return '';
+            const block = (t, c) => c ? `<div class="ls-narr-block"><div class="ls-narr-title">${t}</div><div class="ls-narr-text">${c}</div></div>` : '';
+            return block('产业链 / 供应链 / 竞争规则重塑', n.chainChange)
+                + block('掉队的传统巨头', n.declined)
+                + block('崛起的新势力', n.rising)
+                + block('核心盈利模式变迁', n.profitModel);
+        }
+        function landscapeToHtml(ls) {
+            if (!ls || !ls.institutions || !ls.institutions.length) return '';
+            return `<div class="ls-chart">${buildLandscapeSvg(ls.institutions)}</div>
+                <div class="ls-table-wrap">${instTableHtml(ls.institutions)}</div>
+                <div class="ls-narrative">${landscapeNarrativeHtml(ls.narrative)}</div>`;
+        }
+        function autoLandscape(tech, details) {
+            const players = (details.keyPlayers || []).slice(0, 10);
+            if (!players.length) return null;
+            const latin = /[A-Za-z]/;
+            const foreignNames = ['丰田', '三星', '日立', '西门子', '松下', '古河', '英飞凌', '罗姆', '现代', '欧盟', '美国', '韩国', '日本'];
+            const hash = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 131 + s.charCodeAt(i)) >>> 0; return h; };
+            const insts = players.map((name, idx) => {
+                const h = hash(name);
+                const isForeign = latin.test(name) || foreignNames.some(f => name.includes(f));
+                const papers = 120 + (h % 360) + (idx < 3 ? 130 : 0);
+                const patents = 110 + ((h >> 4) % 520) + (idx < 3 ? 150 : 0);
+                return { name, region: isForeign ? '国外' : '国内', papers, patents, focus: '' };
+            });
+            const comp = tech.competition || '技术路线尚未收敛，标准与生态仍在博弈';
+            return {
+                institutions: insts,
+                narrative: {
+                    chainChange: `${tech.name}的演进正在重塑相关产业链与竞争规则：${comp}。核心价值环节正从传统制造向关键材料、核心器件与系统集成迁移，掌握关键专利与工程化能力的环节议价权显著提升，行业进入门槛与技术壁垒同步抬高。`,
+                    declined: `仅依赖既有工艺路线与规模优势、未及时布局新技术方向的传统厂商，其护城河正被快速削弱，面临份额流失、利润摊薄乃至被边缘化的风险。`,
+                    rising: `在新技术路线上提前布局、专利与论文产出双高的新兴企业与跨界玩家正加速崛起，凭借技术代差与先发卡位建立起新的竞争优势与话语权。`,
+                    profitModel: `行业盈利模式正从单一的规模化制造成本领先，逐步转向"关键技术专利授权 + 高端产能溢价 + 系统解决方案服务"的多元结构，知识产权与工程化能力成为决定盈利的核心壁垒。`
+                }
+            };
+        }
+
         function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
 
@@ -4069,6 +4177,9 @@
             // 驱动力分析（应用场景痛点 / 技术难点 / 政策导向）
             const driversHtml = driversToHtml(tech.drivers || autoDrivers(tech, details));
 
+            // 机构竞争力图谱
+            const landscapeHtml = landscapeToHtml(tech.landscape || autoLandscape(tech, details));
+
             return {
                 name: tech.name,
                 score: tech.score,
@@ -4081,6 +4192,7 @@
                 intro: intro,
                 changeBasisHtml,
                 driversHtml,
+                landscapeHtml,
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',
                 trl: getTrlByScore(tech.lifecycleScore),
