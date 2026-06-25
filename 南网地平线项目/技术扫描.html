@@ -3530,14 +3530,14 @@
                 const hasDetails = !!tech.lifecycle;
                 const details = techDetailsMap[tech.name] || {};
 
-                // 技术变革依据（量化动态指标：论文/专利/智库/产业）
+                // 技术变革理由（量化动态指标：论文/专利/智库/产业）
                 const trendMeta = {
                     up: '↗ 加速',
                     flat: '→ 平稳',
                     down: '↘ 降温'
                 };
                 const changeBasisHtml = tech.changeBasis && tech.changeBasis.length ? `
-                    <div class="history-section-title">技术变革依据</div>
+                    <div class="history-section-title">技术变革理由</div>
                     <div class="history-change-basis">${tech.changeBasis.map(c => `
                         <div class="history-change-item trend-${c.trend}">
                             <span class="history-change-dim">${c.dim}</span>
@@ -3566,16 +3566,7 @@
                     `).join('')}</div>
                 ` : '';
 
-                // 评估维度标签
-                const dimTagsHtml = tech.dimensions4 ? `
-                    <div class="history-section-title">评估维度</div>
-                    <div class="history-metrics">
-                        <span class="history-metric-tag" style="background:rgba(255,77,79,0.08);color:#ff4d4f;border-color:rgba(255,77,79,0.15);">新颖性 ${tech.dimensions4.novelty}</span>
-                        <span class="history-metric-tag" style="background:rgba(115,209,61,0.08);color:#73d13d;border-color:rgba(115,209,61,0.15);">价值性 ${tech.dimensions4.value}</span>
-                        <span class="history-metric-tag" style="background:rgba(64,169,255,0.08);color:#40a9ff;border-color:rgba(64,169,255,0.15);">关联性 ${tech.dimensions4.relevance}</span>
-                        <span class="history-metric-tag" style="background:rgba(255,169,64,0.08);color:#ffa940;border-color:rgba(255,169,64,0.15);">前瞻性 ${tech.dimensions4.prospect}</span>
-                    </div>
-                ` : '';
+                // 评估维度标签（已移除展示）
 
                 // 风险信号
                 const riskHtml = hasDetails && tech.riskSignals ? `
@@ -3605,7 +3596,6 @@
                             <span class="history-card-score">${tech.score}分</span>
                         </div>
                         ${lifeHtml}
-                        ${dimTagsHtml}
                         ${changeBasisHtml}
                         ${playersHtml}
                         ${metricHtml}
