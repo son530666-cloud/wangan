@@ -4059,12 +4059,35 @@
                 + block('崛起的新势力', n.rising)
                 + block('核心盈利模式变迁', n.profitModel);
         }
+        function landscapeSummary(insts) {
+            if (!insts || insts.length < 2) return '';
+            const byPap = [...insts].sort((a, b) => b.papers - a.papers);
+            const byPat = [...insts].sort((a, b) => b.patents - a.patents);
+            const byBoth = [...insts].sort((a, b) => (b.papers + b.patents) - (a.papers + a.patents));
+            const theory = byPap[0], industry = byPat[0], allRound = byBoth[0];
+            const dom = insts.filter(i => i.region === '国内').length;
+            const frn = insts.filter(i => i.region === '国外').length;
+            const theoryCnt = insts.filter(i => instStrength(i) === '理论研究型').length;
+            const indCnt = insts.filter(i => instStrength(i) === '产业能力型').length;
+            let s = '综合论文与专利两个维度研判：';
+            s += `<strong>${allRound.name}</strong>在论文（${allRound.papers}篇）与专利（${allRound.patents}件）上均居前列，呈"全面领先"之势，研发与产业化能力兼备，是当前对该技术价值贡献最大、对上下游产业链整合与带动能力最强的核心玩家。`;
+            if (theory.name !== allRound.name) {
+                s += `<strong>${theory.name}</strong>以 ${theory.papers} 篇论文位居理论研究之首，在基础机理与源头创新上掌握话语权，但专利转化（${theory.patents} 件）相对有限，更偏"理论引领"角色，是技术原始创新的重要策源地。`;
+            }
+            if (industry.name !== allRound.name && industry.name !== theory.name) {
+                s += `<strong>${industry.name}</strong>则以 ${industry.patents} 件专利领跑产业能力，工程化与量产卡位优势突出，对供应链与成本曲线的实际影响更为直接，是技术规模化落地的关键推动者。`;
+            }
+            s += `整体看，样本机构中理论研究型 ${theoryCnt} 家、产业能力型 ${indCnt} 家，国内 ${dom} 家、国外 ${frn} 家，${dom >= frn ? '国内机构在数量与产业化落地上占据相对优势' : '国外机构在前沿布局上仍具领先地位'}。理论强者负责"从0到1"的源头突破，产业强者主导"从1到100"的规模化落地，二者的协同程度将在很大程度上决定这场技术变革的演进速度与最终竞争格局。`;
+            return s;
+        }
         function landscapeToHtml(ls) {
             if (!ls || !ls.institutions || !ls.institutions.length) return '';
+            const summary = landscapeSummary(ls.institutions);
             return `<div class="ls-top">
                     <div class="ls-chart">${buildLandscapeSvg(ls.institutions)}</div>
                     <div class="ls-table-wrap">${instTableHtml(ls.institutions)}</div>
                 </div>
+                ${summary ? `<div class="ls-summary"><div class="ls-summary-title">📋 机构竞争力综合研判</div><div class="ls-summary-text">${summary}</div></div>` : ''}
                 <div class="ls-narrative">${landscapeNarrativeHtml(ls.narrative)}</div>`;
         }
         function autoLandscape(tech, details) {
