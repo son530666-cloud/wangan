@@ -2443,6 +2443,16 @@
                     { scene: '电网级储能', speed: 30, level: '慢', bottleneck: '初始成本高、循环经济性待验证，相关标准与法规缺位' },
                     { scene: '电动航空 / eVTOL', speed: 22, level: '慢', bottleneck: '适航认证严苛、硬件可靠性与量产规模尚不具备' }
                 ],
+                forecast: {
+                    summary: '根据固态电解质三条主要技术路线（聚合物、氧化物、硫化物）的成熟度，全固态电池的商业化扩散将呈现明显的"由特种到通用、由高端到普及"的阶段性特征：',
+                    phases: [
+                        { term: '短期', period: '2025 – 2027 年', title: '半固态试水与特种应用期', desc: '半固态电池（含部分液体）在高端电动车上小规模装车作为营销噱头（续航突破1000公里）。纯全固态电池率先在对成本不敏感、但对安全和重量极其敏感的无人机、航天及军工领域实现小规模商用。' },
+                        { term: '中期', period: '2028 – 2032 年', title: '全固态高端车型破局期', desc: '随着硫化物/氧化物工艺在试点线（Pilot Line）上的突破，全固态电池开始进入百万级豪华电动车、性能超跑或高端智驾车型。这一阶段车企愿意为安全和长续航支付高额溢价。' },
+                        { term: '长期', period: '2032 年以后', title: '全场景全面替代与普及期', desc: '随着全球干法电极产业链的大规模量产，全固态电池成本降至与传统液态电池接近的水平（约 $100/kWh 以内）。它将彻底终结燃油车时代，并全面普及至中低端乘用车、商用车及大型储能电站。' }
+                    ],
+                    breakthrough: '硫化物固态电解质的空气稳定性与规模化制备、固-固界面阻抗抑制、锂金属负极枝晶控制，以及干法电极与一体化封装等量产装备工艺，是决定全固态能否大规模落地的关键突破口。',
+                    fusion: '与锂金属/硅基负极、高镍/富锂正极协同提升能量密度；与 CTP/CTC 一体化底盘、800V 高压快充、电池数字孪生 BMS、AI 材料筛选等技术深度融合，加速从单体到系统的整体跃迁。'
+                },
                 landscape: {
                     institutions: [
                         { name: '丰田汽车', region: '国外', papers: 420, patents: 1320, focus: '硫化物全固态 · 车规量产', diff: '硫化物全固态 · 离子电导率 >10⁻² S/cm' },
@@ -4240,6 +4250,43 @@
             });
         }
 
+        // ===== 未来趋势预测（阶段性时间轴 + 突破口 + 技术融合） =====
+        function forecastToHtml(f) {
+            if (!f) return '';
+            const termCls = t => t === '短期' ? 'short' : t === '中期' ? 'mid' : t === '长期' ? 'long' : '';
+            let html = '';
+            if (f.summary) html += `<p class="fc-summary">${f.summary}</p>`;
+            if (f.phases && f.phases.length) {
+                html += `<div class="fc-timeline">${f.phases.map(p => `
+                    <div class="fc-item">
+                        <div class="fc-dot ${termCls(p.term)}"></div>
+                        <div class="fc-body">
+                            <div class="fc-head">${p.term ? `<span class="fc-term ${termCls(p.term)}">${p.term}</span>` : ''}<span class="fc-title">${p.title}</span>${p.period ? `<span class="fc-period">${p.period}</span>` : ''}</div>
+                            <div class="fc-desc">${p.desc}</div>
+                        </div>
+                    </div>`).join('')}</div>`;
+            }
+            const extra = (label, c) => c ? `<div class="fc-extra"><span class="fc-extra-label">${label}</span><span class="fc-extra-text">${c}</span></div>` : '';
+            html += extra('🔑 关键突破口', f.breakthrough) + extra('🔗 技术融合', f.fusion);
+            return html;
+        }
+        function autoForecast(tech, details) {
+            const scenes = (details.scenarios || []).map(s => s.title);
+            const pains = (details.painPoints || []).map(p => p.title);
+            const related = tech.relatedTechs || [];
+            const phases = [
+                { term: '短期', period: '1–3 年', title: '示范验证与高价值场景落地', desc: `${tech.name}率先在${scenes.slice(0, 2).join('、') || '示范工程与特定高价值场景'}等对性能敏感、对成本不敏感的领域小规模落地，以试点示范积累工程经验与数据。` },
+                { term: '中期', period: '3–7 年', title: '规模化突破与成本下探', desc: `随着关键工艺与产业链配套成熟，${tech.name}逐步进入主流应用，成本快速下行、渗透率显著提升，并对既有技术路线形成实质性替代，带动${tech.category}格局重塑。` },
+                { term: '长期', period: '7 年以上', title: '全场景普及与生态重构', desc: `${tech.name}有望实现全场景普及，成为${tech.category}领域的基础设施级技术，重构上下游产业生态与商业模式，对能源、交通与经济社会运行产生深远影响。` }
+            ];
+            return {
+                summary: `综合技术成熟度、产业进展与政策导向研判，${tech.name}的未来扩散将呈现"由点到面、由示范到普及"的阶段性演进特征：`,
+                phases,
+                breakthrough: pains.length ? `突破将主要来自${pains.join('、')}等核心瓶颈的攻克，以及配套工艺装备与标准体系的完善。` : '突破将主要来自核心材料、关键工艺与标准体系的协同完善。',
+                fusion: related.length ? `未来将与${related.join('、')}等技术深度融合协同，推动从单点突破走向系统级能力跃升。` : '未来将与人工智能、数字孪生、新材料等技术融合，加速系统级能力跃升。'
+            };
+        }
+
         function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
 
@@ -4346,6 +4393,9 @@
             // 技术演化路径（时间轴）
             const evolutionHtml = evolutionToHtml(tech.evolution || autoEvolution(tech));
 
+            // 未来趋势预测
+            const forecastHtml = forecastToHtml(tech.forecast || autoForecast(tech, details));
+
             return {
                 name: tech.name,
                 score: tech.score,
@@ -4362,6 +4412,7 @@
                 landscapeHtml,
                 socialHtml: industryViewsHtml,
                 evolutionHtml,
+                forecastHtml,
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',
                 trl: getTrlByScore(tech.lifecycleScore),

@@ -298,6 +298,58 @@
         .diff-bar-inner { height: 100%; border-radius: 4px; transition: width 0.4s; }
         .diff-bottleneck { font-size: 12px; line-height: 1.7; color: #9fb0cc; margin-top: 8px; }
 
+        /* 未来趋势预测 */
+        .fc-summary {
+            font-size: 13px;
+            line-height: 1.85;
+            color: #b0c0d8;
+            margin: 0 0 18px;
+            padding: 12px 14px;
+            background: rgba(64, 169, 255, 0.06);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-radius: 8px;
+        }
+        .fc-timeline { padding-left: 6px; margin-bottom: 16px; }
+        .fc-item {
+            position: relative;
+            padding-left: 22px;
+            padding-bottom: 18px;
+            border-left: 2px solid rgba(64, 169, 255, 0.18);
+        }
+        .fc-item:last-child { border-left-color: transparent; padding-bottom: 0; }
+        .fc-dot {
+            position: absolute;
+            left: -8px;
+            top: 2px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid #0a162d;
+            background: #40a9ff;
+        }
+        .fc-dot.short { background: #39ff14; }
+        .fc-dot.mid { background: #ffa940; }
+        .fc-dot.long { background: #b37feb; }
+        .fc-head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
+        .fc-term { font-size: 11px; padding: 1px 8px; border-radius: 4px; }
+        .fc-term.short { color: #39ff14; background: rgba(57,255,20,0.1); border: 1px solid rgba(57,255,20,0.2); }
+        .fc-term.mid { color: #ffa940; background: rgba(255,169,64,0.1); border: 1px solid rgba(255,169,64,0.2); }
+        .fc-term.long { color: #b37feb; background: rgba(179,127,235,0.1); border: 1px solid rgba(179,127,235,0.2); }
+        .fc-title { font-size: 15px; font-weight: 600; color: #e0e6ed; }
+        .fc-period { font-size: 12px; color: #8896b3; }
+        .fc-desc { font-size: 13px; line-height: 1.85; color: #9fb0cc; }
+        .fc-extra {
+            display: flex;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(64, 169, 255, 0.1);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-top: 10px;
+        }
+        .fc-extra-label { flex-shrink: 0; font-size: 13px; font-weight: 600; color: #40a9ff; }
+        .fc-extra-text { font-size: 13px; line-height: 1.8; color: #9fb0cc; }
+
         /* 机构竞争力图谱 */
         .ls-top {
             display: grid;
@@ -691,6 +743,12 @@
                     <div class="detail-card-title">📈 市场分析</div>
                     <div class="tech-detail-rich">${p.marketHtml || ''}</div>
                 </div>
+
+                ${p.forecastHtml ? `
+                <div class="detail-card">
+                    <div class="detail-card-title">🔮 未来趋势预测</div>
+                    <div class="forecast-wrap">${p.forecastHtml}</div>
+                </div>` : ''}
             `;
         }
 
