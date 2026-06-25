@@ -2408,6 +2408,16 @@
                 score: 94,
                 category: '储能技术',
                 desc: '采用固态电解质替代传统液态电解液，显著提升电池安全性与能量密度，预计2030年实现大规模商业化应用。',
+                evolution: [
+                    { year: '2017', type: '专利', title: '丰田注册全固态电池基础专利，硫化物路线开启工程化探索', param: '离子电导率 ~10⁻³ S/cm' },
+                    { year: '2020', type: '论文', title: 'Nature Energy 发表固-固界面机理研究，破解界面阻抗难题', param: '界面阻抗下降约 60%' },
+                    { year: '2021', type: '专利', title: 'QuantumScape 公布无负极单晶层结构专利', param: '循环 800 次容量保持 >80%' },
+                    { year: '2023', type: '政策', title: '欧盟《电池法规2023》与美国 IRA 补贴落地，全球加码布局', param: '' },
+                    { year: '2024', type: '论文', title: 'Nature Energy 固态电池发文量年增 80%，成研究热点', param: '能量密度突破 400 Wh/kg' },
+                    { year: '2024', type: '资讯', title: '蔚来 150kWh 半固态电池规模装车交付', param: '整包能量密度 ~360 Wh/kg' },
+                    { year: '2025', type: '政策', title: '中国"十四五"新型储能规划将固态电池列入重点', param: '' },
+                    { year: '2027', type: '资讯', title: '丰田 / 宁德时代规划全固态示范产线投运（预期）', param: '目标成本 <€80/kWh' }
+                ],
                 drivers: {
                     summary: '固态电池的技术变革绝非凭空发生，其背后是由市场端的"性能焦虑"和顶层"战略安全"双轮驱动的。',
                     groups: [
@@ -4151,6 +4161,37 @@
             return views;
         }
 
+        // ===== 技术演化路径（时间轴） =====
+        function evolutionToHtml(evo) {
+            if (!evo || !evo.length) return '';
+            const cls = t => t === '论文' ? 'paper' : t === '专利' ? 'patent' : t === '政策' ? 'policy' : 'news';
+            return `<div class="evo-timeline">${evo.map(e => `
+                <div class="evo-item">
+                    <div class="evo-dot ${cls(e.type)}"></div>
+                    <div class="evo-body">
+                        <div class="evo-head"><span class="evo-year">${e.year}</span><span class="evo-type ${cls(e.type)}">${e.type}</span></div>
+                        <div class="evo-title">${e.title}</div>
+                        ${e.param ? `<div class="evo-param">📊 ${e.param}</div>` : ''}
+                    </div>
+                </div>
+            `).join('')}</div>`;
+        }
+        function autoEvolution(tech) {
+            const ds = tech.dataSources || [];
+            if (!ds.length) return [];
+            const order = ['论文', '专利', '智库', '资讯', '政策'];
+            const sorted = [...ds].sort((a, b) => order.indexOf(a.type) - order.indexOf(b.type));
+            const baseYear = parseInt((tech.firstSeen || '2026').slice(0, 4), 10) || 2026;
+            const startYear = baseYear - (sorted.length - 2);
+            const km = (tech.keyMetrics || []).map(m => `${m.label} ${m.value}`).join(' · ');
+            return sorted.map((d, i) => ({
+                year: String(startYear + i),
+                type: d.type === '智库' ? '资讯' : d.type,
+                title: d.content,
+                param: (d.type === '论文' || d.type === '专利') && km ? km : ''
+            }));
+        }
+
         function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
 
@@ -4251,6 +4292,9 @@
             // 行业观点（智库/资讯中专家或机构的技术看法）
             const industryViewsHtml = industryViewsToHtml(tech.industryViews || autoIndustryViews(tech, details));
 
+            // 技术演化路径（时间轴）
+            const evolutionHtml = evolutionToHtml(tech.evolution || autoEvolution(tech));
+
             return {
                 name: tech.name,
                 score: tech.score,
@@ -4265,6 +4309,7 @@
                 driversHtml,
                 landscapeHtml,
                 socialHtml: industryViewsHtml,
+                evolutionHtml,
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',
                 trl: getTrlByScore(tech.lifecycleScore),

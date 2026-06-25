@@ -220,6 +220,38 @@
             color: #9fb0cc;
         }
 
+        /* 技术演化路径时间轴 */
+        .evo-timeline { padding-left: 6px; }
+        .evo-item {
+            position: relative;
+            padding-left: 20px;
+            padding-bottom: 16px;
+            border-left: 2px solid rgba(64, 169, 255, 0.18);
+        }
+        .evo-item:last-child { border-left-color: transparent; padding-bottom: 0; }
+        .evo-dot {
+            position: absolute;
+            left: -7px;
+            top: 3px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #0a162d;
+        }
+        .evo-dot.paper { background: #40a9ff; }
+        .evo-dot.patent { background: #73d13d; }
+        .evo-dot.news { background: #ffa940; }
+        .evo-dot.policy { background: #b37feb; }
+        .evo-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .evo-year { font-size: 13px; font-weight: 700; color: #e0e6ed; }
+        .evo-type { font-size: 11px; padding: 1px 7px; border-radius: 4px; }
+        .evo-type.paper { color: #40a9ff; background: rgba(64,169,255,0.1); border: 1px solid rgba(64,169,255,0.2); }
+        .evo-type.patent { color: #73d13d; background: rgba(115,209,61,0.1); border: 1px solid rgba(115,209,61,0.2); }
+        .evo-type.news { color: #ffa940; background: rgba(255,169,64,0.1); border: 1px solid rgba(255,169,64,0.2); }
+        .evo-type.policy { color: #b37feb; background: rgba(179,127,235,0.1); border: 1px solid rgba(179,127,235,0.2); }
+        .evo-title { font-size: 13px; line-height: 1.7; color: #b0c0d8; }
+        .evo-param { font-size: 12px; color: #39ff14; margin-top: 4px; }
+
         /* 驱动力分析 */
         .drivers-summary {
             font-size: 13px;
@@ -595,11 +627,18 @@
                     </div>
                 </div>
 
-                ${p.changeBasisHtml ? `
-                <div class="detail-card">
-                    <div class="detail-card-title">📈 技术变革理由</div>
-                    <div class="tech-change-list">${p.changeBasisHtml}</div>
-                </div>` : ''}
+                <div class="detail-body">
+                    ${p.changeBasisHtml ? `
+                    <div class="detail-card">
+                        <div class="detail-card-title">📈 技术变革理由</div>
+                        <div class="tech-change-list">${p.changeBasisHtml}</div>
+                    </div>` : ''}
+                    ${p.evolutionHtml ? `
+                    <div class="detail-card">
+                        <div class="detail-card-title">🧬 技术演化路径</div>
+                        ${p.evolutionHtml}
+                    </div>` : ''}
+                </div>
 
                 ${p.driversHtml ? `
                 <div class="detail-card">
