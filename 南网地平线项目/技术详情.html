@@ -603,6 +603,48 @@
         .detail-empty .icon { font-size: 48px; margin-bottom: 16px; }
         .detail-empty .hint { font-size: 14px; line-height: 1.8; }
 
+        /* 相关数据源 Tab */
+        .ds-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .ds-tab {
+            font-size: 13px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(64, 169, 255, 0.15);
+            color: #b0c0d8;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .ds-tab:hover { background: rgba(64, 169, 255, 0.1); }
+        .ds-tab.active { background: rgba(64, 169, 255, 0.16); border-color: rgba(64, 169, 255, 0.45); color: #40a9ff; }
+        .ds-count { font-size: 11px; padding: 0 7px; border-radius: 9px; background: rgba(64, 169, 255, 0.16); color: #40a9ff; }
+        .ds-tab.active .ds-count { background: rgba(64, 169, 255, 0.3); }
+        .ds-table-wrap { overflow-x: auto; }
+        .ds-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .ds-table th { text-align: left; font-weight: 600; color: #8896b3; padding: 9px 10px; border-bottom: 1px solid rgba(64, 169, 255, 0.18); white-space: nowrap; }
+        .ds-table td { padding: 9px 10px; color: #b0c0d8; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .ds-table tr:hover td { background: rgba(64, 169, 255, 0.04); }
+        .ds-empty { color: #8896b3; padding: 24px; text-align: center; }
+        /* 专利卡片 */
+        .pt-list { display: flex; flex-direction: column; gap: 12px; }
+        .pt-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+        .pt-title { font-size: 15px; font-weight: 600; color: #e0e6ed; margin-bottom: 8px; }
+        .pt-inventors { font-size: 13px; color: #8896b3; margin-bottom: 8px; }
+        .pt-person { color: #b0c0d8; margin-right: 4px; }
+        .pt-company { color: #8896b3; }
+        .pt-meta { display: flex; flex-wrap: wrap; gap: 8px 26px; font-size: 13px; color: #b0c0d8; }
+        .pt-meta b { color: #8896b3; font-weight: 500; }
+        .pt-meta-sub { margin-top: 6px; }
+        .pt-status { color: #ffa940; }
+
         @media (max-width: 900px) {
             .detail-banner { flex-direction: column; }
             .banner-side { width: 100%; align-items: flex-start; }
@@ -684,8 +726,48 @@
             renderDetail(payload);
             syncFilters(name);
             initWorldMap(payload.countries);
+            initDataSources(payload.dataSourcesModule);
             document.title = `${payload.name} - 技术详情`;
         }
+
+        // ===== 相关数据源 Tab =====
+        function initDataSources(mod) {
+            window.__dataSrc = mod;
+            if (!mod || !mod.types || !mod.types.length) return;
+            const di = mod.types.findIndex(t => t.key === 'patent');
+            showDataTab(di >= 0 ? di : 0);
+        }
+        function dsEscape(v) { return v == null ? '—' : String(v); }
+        function renderPatentCards(rows) {
+            return `<div class="pt-list">${rows.map(r => `
+                <div class="pt-card">
+                    <div class="pt-title">${dsEscape(r.title)}</div>
+                    <div class="pt-inventors">发明人：${(r.inventors || []).map(iv => `<span class="pt-person">👤 ${iv.name}<span class="pt-company">(${iv.company})</span></span>`).join('、') || '—'}</div>
+                    <div class="pt-meta">
+                        <span><b>申请人：</b>${dsEscape(r.applicant)}</span>
+                        <span><b>申请时间：</b>${dsEscape(r.applyDate)}</span>
+                        <span><b>专利类型：</b>${dsEscape(r.type)}</span>
+                        <span><b>专利权状态：</b><span class="pt-status">${dsEscape(r.status)}</span></span>
+                        <span><b>公开时间：</b>${dsEscape(r.pubDate)}</span>
+                    </div>
+                    <div class="pt-meta pt-meta-sub">
+                        <span><b>公开(公告)号：</b>${dsEscape(r.pubNo)}</span>
+                        <span><b>申请号：</b>${dsEscape(r.appNo)}</span>
+                    </div>
+                </div>`).join('')}</div>`;
+        }
+        function showDataTab(i) {
+            const mod = window.__dataSrc;
+            if (!mod) return;
+            const t = mod.types[i];
+            document.querySelectorAll('.ds-tab').forEach((b, idx) => b.classList.toggle('active', idx === i));
+            const wrap = document.getElementById('dsTableWrap');
+            if (!wrap) return;
+            if (!t || !t.rows || !t.rows.length) { wrap.innerHTML = '<div class="ds-empty">暂无数据</div>'; return; }
+            if (t.render === 'patent') { wrap.innerHTML = renderPatentCards(t.rows); return; }
+            wrap.innerHTML = `<table class="ds-table"><thead><tr>${t.columns.map(c => `<th>${c.label}</th>`).join('')}</tr></thead><tbody>${t.rows.map(r => `<tr>${t.columns.map(c => `<td>${dsEscape(r[c.key])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+        }
+        window.showDataTab = showDataTab;
 
         // ===== 技术全球分布：世界地图区块热力（颜色越深=扩散越快） =====
         let worldChart = null;
@@ -839,6 +921,13 @@
                 <div class="detail-card">
                     <div class="detail-card-title">🔮 未来趋势预测</div>
                     <div class="forecast-wrap">${p.forecastHtml}</div>
+                </div>` : ''}
+
+                ${p.dataSourcesModule ? `
+                <div class="detail-card">
+                    <div class="detail-card-title">🗂️ 相关数据源</div>
+                    <div class="ds-tabs">${p.dataSourcesModule.types.map((t, i) => `<button class="ds-tab" data-idx="${i}" onclick="showDataTab(${i})">${t.label}<span class="ds-count">${t.count.toLocaleString()}</span></button>`).join('')}</div>
+                    <div id="dsTableWrap" class="ds-table-wrap"></div>
                 </div>` : ''}
             `;
         }

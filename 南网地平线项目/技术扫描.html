@@ -4433,6 +4433,96 @@
             return { scenarios, fusions };
         }
 
+        // ===== 相关数据源（多类型 Tab + 列表） =====
+        function buildDataSources(tech, details) {
+            const hash = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 131 + s.charCodeAt(i)) >>> 0; return h; };
+            const h = hash(tech.name);
+            const N = tech.name;
+            const players = (details.keyPlayers && details.keyPlayers.length) ? details.keyPlayers : ['宁德时代', '丰田汽车', 'QuantumScape', '中科院'];
+            const p = i => players[i % players.length];
+            const baseY = parseInt((tech.firstSeen || '2026').slice(0, 4), 10) || 2026;
+            const y = off => baseY - off;
+            const pad = n => String(n).padStart(2, '0');
+            const d = (off, mo, da) => `${y(off)}-${pad(mo)}-${pad(da)}`;
+            const c = (base, mod) => base + ((h >> (base % 7)) % mod);
+            const isForeign = nm => /[A-Za-z]/.test(nm) || ['丰田', '三星', '松下', '日立', '西门子'].some(f => nm.includes(f));
+            const pno = seed => (seed % 900000 + 100000);
+            const statuses = ['授权', '实质审查', '公开', 'PCT国际阶段'];
+            return {
+                types: [
+                    { key: 'think', label: '智库报告', count: c(80, 300),
+                        columns: [{ key: 'title', label: '报告标题' }, { key: 'org', label: '发布机构' }, { key: 'date', label: '发布日期' }, { key: 'type', label: '类型' }],
+                        rows: [
+                            { title: `${N}产业发展与投资前景研究报告`, org: 'BloombergNEF', date: d(1, 3, 12), type: '产业研究' },
+                            { title: `全球${N}技术成熟度评估`, org: 'Gartner', date: d(1, 6, 8), type: '技术评估' },
+                            { title: `${N}对能源转型的影响白皮书`, org: 'IEA', date: d(2, 9, 20), type: '白皮书' },
+                            { title: `${tech.category}赛道投资图谱`, org: '麦肯锡', date: d(2, 11, 3), type: '投资图谱' }
+                        ] },
+                    { key: 'news', label: '资讯', count: c(2000, 9000),
+                        columns: [{ key: 'title', label: '标题' }, { key: 'src', label: '来源' }, { key: 'date', label: '日期' }],
+                        rows: [
+                            { title: `${p(0)}宣布${N}重大技术突破`, src: '财联社', date: d(0, 2, 18) },
+                            { title: `${N}迎来量产元年，多家企业加速布局`, src: '第一财经', date: d(0, 5, 9) },
+                            { title: `${p(1)}与车企达成${N}战略合作`, src: '盖世汽车', date: d(0, 7, 22) },
+                            { title: `${N}成本快速下探，平价拐点临近`, src: '高工锂电', date: d(1, 1, 15) }
+                        ] },
+                    { key: 'policy', label: '政策', count: c(60, 200),
+                        columns: [{ key: 'title', label: '政策名称' }, { key: 'org', label: '发文机构' }, { key: 'date', label: '发布日期' }, { key: 'level', label: '级别' }],
+                        rows: [
+                            { title: `关于推动${tech.category}高质量发展的指导意见`, org: '国家发改委', date: d(1, 4, 1), level: '国家级' },
+                            { title: `${N}产业发展行动计划`, org: '工业和信息化部', date: d(1, 8, 16), level: '部委级' },
+                            { title: `新型技术示范应用支持政策`, org: '国家能源局', date: d(2, 10, 11), level: '国家级' },
+                            { title: `欧盟相关法规与补贴方案`, org: 'European Commission', date: d(2, 12, 5), level: '国际' }
+                        ] },
+                    { key: 'control', label: '管控清单', count: c(8, 40),
+                        columns: [{ key: 'name', label: '条目 / 清单' }, { key: 'org', label: '管控机构' }, { key: 'cat', label: '类别' }, { key: 'status', label: '状态' }],
+                        rows: [
+                            { name: `${N}关键材料出口管制条目`, org: '商务部', cat: '出口管制', status: '生效' },
+                            { name: `关键矿产战略储备清单`, org: '自然资源部', cat: '资源管控', status: '生效' },
+                            { name: `两用物项与技术管控目录`, org: 'BIS（美国）', cat: '技术管制', status: '监测' }
+                        ] },
+                    { key: 'patent', label: '专利', count: c(3000, 12000), render: 'patent',
+                        rows: [
+                            { title: `一种${N}用核心固态材料及其制备方法`, inventors: [{ name: '王磊', company: p(0) }, { name: '刘洋', company: p(0) }], applicant: p(0), applyDate: d(1, 3, 21), type: '发明专利', status: statuses[h % 4], pubDate: d(1, 5, 17), pubNo: `CN${y(1)}1${pno(h)}A`, appNo: `CN${y(1)}106${pno(h)}.0` },
+                            { title: `${N}界面修饰结构及电化学器件`, inventors: [{ name: '李强', company: p(1) }], applicant: p(1), applyDate: d(1, 7, 5), type: '发明专利', status: '授权', pubDate: d(1, 9, 12), pubNo: `CN${y(1)}2${pno(h >> 3)}B`, appNo: `CN${y(1)}108${pno(h >> 3)}.4` },
+                            { title: `高可靠${N}封装与系统集成工艺`, inventors: [{ name: 'J. Smith', company: p(2) }, { name: 'A. Lee', company: p(2) }], applicant: p(2), applyDate: d(2, 9, 28), type: '未知', status: '在审', pubDate: d(2, 11, 20), pubNo: `US${y(2)}/${pno(h >> 5)}A1`, appNo: `US${y(2)}/${pno(h >> 5)}` },
+                            { title: `${N}规模化干法制备装备与方法`, inventors: [{ name: '张伟', company: p(3) }, { name: '陈明', company: p(3) }], applicant: p(3), applyDate: d(2, 11, 2), type: '实用新型', status: '实质审查', pubDate: d(2, 12, 28), pubNo: `CN${y(2)}3${pno(h >> 7)}A`, appNo: `CN${y(2)}112${pno(h >> 7)}.7` }
+                        ] },
+                    { key: 'project', label: '项目', count: c(40, 200),
+                        columns: [{ key: 'name', label: '项目名称' }, { key: 'org', label: '承担单位' }, { key: 'fund', label: '资助机构' }, { key: 'period', label: '起止' }, { key: 'amount', label: '经费' }],
+                        rows: [
+                            { name: `${N}关键材料与工程化研究`, org: p(0), fund: '国家重点研发计划', period: `${y(2)}–${y(-2)}`, amount: '¥8000万' },
+                            { name: `${tech.category}示范应用工程`, org: p(1), fund: '国家能源局', period: `${y(1)}–${y(-1)}`, amount: '¥1.2亿' },
+                            { name: `${N}产业化中试线建设`, org: p(2), fund: '地方产业基金', period: `${y(1)}–${y(-2)}`, amount: '¥5000万' }
+                        ] },
+                    { key: 'paper', label: '论文', count: c(1500, 8000),
+                        columns: [{ key: 'title', label: '论文标题' }, { key: 'journal', label: '期刊' }, { key: 'author', label: '作者 / 团队' }, { key: 'year', label: '年份' }, { key: 'cite', label: '被引' }],
+                        rows: [
+                            { title: `High-performance ${N} via interface engineering`, journal: 'Nature Energy', author: p(3), year: y(1), cite: c(120, 400) },
+                            { title: `${N}核心机理与材料体系研究`, journal: 'J. Power Sources', author: '清华大学团队', year: y(1), cite: c(60, 200) },
+                            { title: `Scalable manufacturing of ${N}`, journal: 'Joule', author: 'MIT Group', year: y(2), cite: c(40, 150) }
+                        ] },
+                    { key: 'award', label: '奖项', count: c(5, 30),
+                        columns: [{ key: 'name', label: '奖项名称' }, { key: 'winner', label: '获奖单位' }, { key: 'org', label: '颁奖机构' }, { key: 'year', label: '年份' }, { key: 'level', label: '等级' }],
+                        rows: [
+                            { name: `${tech.category}科学技术奖`, winner: p(0), org: '中国电力企业联合会', year: y(1), level: '一等奖' },
+                            { name: `国家技术发明奖`, winner: p(1), org: '国务院', year: y(2), level: '二等奖' },
+                            { name: `国际技术创新奖`, winner: p(2), org: 'IEEE', year: y(2), level: '年度创新' }
+                        ] },
+                    { key: 'org', label: '机构', count: c(80, 400),
+                        columns: [{ key: 'name', label: '机构名称' }, { key: 'type', label: '类型' }, { key: 'region', label: '国家/地区' }, { key: 'focus', label: '主要方向' }],
+                        rows: players.slice(0, 6).map(pl => ({ name: pl, type: isForeign(pl) ? '国外企业/机构' : '国内企业/机构', region: isForeign(pl) ? '海外' : '中国', focus: `${N}研发与产业化` })) },
+                    { key: 'talent', label: '人才', count: c(200, 1500),
+                        columns: [{ key: 'name', label: '姓名' }, { key: 'org', label: '单位' }, { key: 'title', label: '职务/头衔' }, { key: 'field', label: '研究方向' }],
+                        rows: [
+                            { name: `${N}首席科学家`, org: p(0), title: '首席科学家 / 技术总监', field: `${N}核心工艺与材料` },
+                            { name: `${tech.category}学科带头人`, org: '重点高校 / 科研院所', title: '教授 / 院士', field: `${N}基础研究` },
+                            { name: `${N}总工程师`, org: p(1), title: '总工程师', field: '工程化与规模量产' }
+                        ] }
+                ]
+            };
+        }
+
         function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
 
@@ -4572,6 +4662,7 @@
                 socialHtml: industryViewsHtml,
                 evolutionHtml,
                 forecastHtml,
+                dataSourcesModule: buildDataSources(tech, details),
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',
                 trl: getTrlByScore(tech.lifecycleScore),
