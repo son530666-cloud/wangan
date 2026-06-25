@@ -4059,7 +4059,7 @@
         }
         function instTableHtml(insts, tech) {
             return `<table class="inst-table">
-                <thead><tr><th>机构</th><th>地区</th><th>论文</th><th>专利</th><th>技术差异</th><th>定位</th></tr></thead>
+                <thead><tr><th>机构</th><th>地区</th><th>论文</th><th>专利</th><th>创新能力</th><th>定位</th></tr></thead>
                 <tbody>${insts.map((i, idx) => `<tr>
                     <td class="inst-name">${i.name}</td>
                     <td><span class="inst-region ${i.region === '国外' ? 'foreign' : 'domestic'}">${i.region}</span></td>
