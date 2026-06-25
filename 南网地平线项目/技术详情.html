@@ -294,6 +294,35 @@
         }
         .ls-narr-title { font-size: 13px; font-weight: 600; color: #40a9ff; margin-bottom: 6px; }
         .ls-narr-text { font-size: 13px; line-height: 1.8; color: #9fb0cc; }
+
+        /* 社会效应 */
+        .social-block { margin-bottom: 18px; }
+        .social-block:last-child { margin-bottom: 0; }
+        .social-title { font-size: 14px; font-weight: 600; color: #40a9ff; margin-bottom: 10px; }
+        .social-text { font-size: 13px; line-height: 1.8; color: #9fb0cc; }
+        .social-views { display: flex; flex-direction: column; gap: 10px; }
+        .social-view {
+            background: rgba(64, 169, 255, 0.05);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-left: 3px solid #40a9ff;
+            border-radius: 8px;
+            padding: 10px 14px;
+        }
+        .social-view-text { font-size: 13px; line-height: 1.75; color: #c8d4e8; font-style: italic; }
+        .social-view-src { font-size: 12px; color: #8896b3; margin-top: 6px; text-align: right; }
+        .social-jobs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .job-col {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .job-col-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+        .job-col.new .job-col-title { color: #39ff14; }
+        .job-col.gone .job-col-title { color: #ff7875; }
+        .job-col ul { margin: 0; padding-left: 18px; }
+        .job-col li { font-size: 13px; line-height: 1.75; color: #9fb0cc; margin-bottom: 4px; }
+        @media (max-width: 768px) { .social-jobs { grid-template-columns: 1fr; } }
         .driver-source { margin-top: 5px; }
         .driver-source summary {
             display: inline-flex;
@@ -578,6 +607,12 @@
                 <div class="detail-card">
                     <div class="detail-card-title">🗺️ 机构竞争力图谱</div>
                     <div class="landscape-wrap">${p.landscapeHtml}</div>
+                </div>` : ''}
+
+                ${p.socialHtml ? `
+                <div class="detail-card">
+                    <div class="detail-card-title">🌍 社会效应</div>
+                    <div class="social-wrap">${p.socialHtml}</div>
                 </div>` : ''}
 
                 <div class="detail-card">

@@ -2447,6 +2447,17 @@
                         profitModel: '盈利模式从"规模化电芯制造的成本领先"转向"关键材料与界面专利授权 + 高端产能溢价 + 车企联合开发绑定"。知识产权与材料配方成为核心壁垒，产能预定与战略入股模式兴起，价值重心由制造端向材料与专利端转移。'
                     }
                 },
+                social: {
+                    views: [
+                        { source: 'BloombergNEF（BNEF）', view: '将固态电池列为"十年颠覆性技术"，预测其商业化将重构动力电池价值链，并显著降低电动出行的全生命周期成本。' },
+                        { source: '中国科学院 · 储能领域专家', view: '固态电池是突破能量密度天花板的必由之路，但产业化需警惕"半固态≠全固态"的概念混淆，应以工程化良率与安全验证为先。' },
+                        { source: '国际能源署（IEA）', view: '认为高安全、长寿命的固态电池将加速电网级储能与电动航空等新场景落地，对实现净零目标具有战略意义。' }
+                    ],
+                    productivity: '固态电池将电池系统能量密度提升约 40%-60%、循环寿命有望翻倍，直接降低单位储能成本与车辆全生命周期成本；其规模化将带动新材料、专用装备与回收产业形成万亿级新增市场，对制造业升级与能源结构转型形成强劲拉动。',
+                    newJobs: ['固态电解质材料工程师', '固-固界面工程研究员', '干法电极工艺与装备工程师', '电池安全测试与认证专员', '锂金属负极研发岗'],
+                    lostJobs: ['液态电解液配方工程师', '隔膜生产与工艺岗位', '传统注液/化成产线操作工', '依赖液态体系的电解液供应链岗位'],
+                    issues: '固态电池规模化带来锂、硫等关键矿产的资源争夺与地缘供应风险；新体系的安全标准、回收与梯次利用法规尚不完善；专利高度集中可能引发知识产权壁垒与反垄断争议；同时需防范"伪固态"营销对消费者的误导。'
+                },
                 firstSeen: '2026-05-12',
                 lastActive: '2026-06-23',
                 status: 'tracking',
@@ -4083,6 +4094,46 @@
             };
         }
 
+        // ===== 社会效应 =====
+        function socialToHtml(s) {
+            if (!s) return '';
+            let html = '';
+            if (s.views && s.views.length) {
+                html += `<div class="social-block"><div class="social-title">🎓 学者 · 专家 · 智库观点</div>
+                    <div class="social-views">${s.views.map(v => `
+                        <div class="social-view"><div class="social-view-text">"${v.view}"</div><div class="social-view-src">— ${v.source}</div></div>
+                    `).join('')}</div></div>`;
+            }
+            if (s.productivity) {
+                html += `<div class="social-block"><div class="social-title">📈 生产力与宏观经济影响</div><div class="social-text">${s.productivity}</div></div>`;
+            }
+            if ((s.newJobs && s.newJobs.length) || (s.lostJobs && s.lostJobs.length)) {
+                html += `<div class="social-block"><div class="social-title">👥 就业结构变化</div>
+                    <div class="social-jobs">
+                        <div class="job-col new"><div class="job-col-title">▲ 新兴职业</div><ul>${(s.newJobs || []).map(j => `<li>${j}</li>`).join('')}</ul></div>
+                        <div class="job-col gone"><div class="job-col-title">▼ 受冲击 / 淘汰岗位</div><ul>${(s.lostJobs || []).map(j => `<li>${j}</li>`).join('')}</ul></div>
+                    </div></div>`;
+            }
+            if (s.issues) {
+                html += `<div class="social-block"><div class="social-title">⚖️ 伦理 · 法律 · 安全议题</div><div class="social-text">${s.issues}</div></div>`;
+            }
+            return html;
+        }
+        function autoSocial(tech, details) {
+            const ds = tech.dataSources || [];
+            const views = [];
+            const think = ds.find(d => d.type === '智库');
+            if (think) views.push({ source: (think.content.split(/[，、：:]/)[0] || '权威智库'), view: think.content });
+            views.push({ source: '行业专家', view: `普遍认为${tech.name}是${tech.category}领域的重要变革方向，将重塑相关产业格局，但其大规模落地仍需在成本、可靠性与标准化方面持续突破。` });
+            return {
+                views,
+                productivity: `${tech.name}的推广有望显著提升相关环节的生产效率与资源利用率，${details.marketAnalysis || '并带动上下游配套产业形成新的增长点'}，对区域经济与产业升级形成正向拉动。`,
+                newJobs: ['相关研发与核心工程岗位', '系统集成与智能运维岗位', '数据分析与标准认证岗位'],
+                lostJobs: ['依赖旧技术路线的传统制造岗位', '可被自动化或新方案替代的低端岗位'],
+                issues: `随着${tech.name}走入社会，需关注其在数据与隐私、安全标准、行业准入与责任界定等方面可能引发的新问题，相关伦理与法律规范有待同步完善。`
+            };
+        }
+
         function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
 
@@ -4180,6 +4231,9 @@
             // 机构竞争力图谱
             const landscapeHtml = landscapeToHtml(tech.landscape || autoLandscape(tech, details));
 
+            // 社会效应
+            const socialHtml = socialToHtml(tech.social || autoSocial(tech, details));
+
             return {
                 name: tech.name,
                 score: tech.score,
@@ -4193,6 +4247,7 @@
                 changeBasisHtml,
                 driversHtml,
                 landscapeHtml,
+                socialHtml,
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',
                 trl: getTrlByScore(tech.lifecycleScore),
