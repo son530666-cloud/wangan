@@ -2408,6 +2408,25 @@
                 score: 94,
                 category: '储能技术',
                 desc: '采用固态电解质替代传统液态电解液，显著提升电池安全性与能量密度，预计2030年实现大规模商业化应用。',
+                drivers: {
+                    summary: '固态电池的技术变革绝非凭空发生，其背后是由市场端的"性能焦虑"和顶层"战略安全"双轮驱动的。',
+                    groups: [
+                        {
+                            title: '消费端"痛点"的强力拉动',
+                            items: [
+                                { label: '续航里程焦虑', text: '传统液态锂电的能量密度（约300 Wh/kg）已逼近物理极限，难以满足电动汽车单次充电续航超过1000公里的长远需求。' },
+                                { label: '冬季续航打折', text: '液态电解液在低温下粘度增加，导致北方冬季电动车续航腰斩；固态电解质受低温影响极小。' },
+                                { label: '安全信任危机', text: '电动汽车自燃新闻时有发生，消费者对"本质安全（不爆炸、不起火）"的电池呼声极高。' }
+                            ]
+                        },
+                        {
+                            title: '产业与国家战略的博弈',
+                            items: [
+                                { text: '全球汽车大国均将固态电池视为下一代汽车工业的"制高点"。中、美、日、欧等国纷纷将其列入国家级能源战略，资本的大规模涌入加速了实验室技术走向工程化的进程。' }
+                            ]
+                        }
+                    ]
+                },
                 firstSeen: '2026-05-12',
                 lastActive: '2026-06-23',
                 status: 'tracking',
@@ -3906,6 +3925,39 @@
         }
 
         // ========== 打开技术详情页（跳转到独立「技术详情」一级导航页） ==========
+        // 驱动力分析：结构化对象 → HTML
+        function driversToHtml(d) {
+            if (!d || !(d.groups && d.groups.length)) return '';
+            let html = '';
+            if (d.summary) html += `<p class="drivers-summary">${d.summary}</p>`;
+            d.groups.forEach((g, i) => {
+                html += `<div class="drivers-group">
+                    <div class="drivers-group-title">${i + 1}. ${g.title}</div>
+                    <ul class="drivers-items">${(g.items || []).map(it =>
+                        `<li>${it.label ? `<strong>${it.label}：</strong>` : ''}${it.text}</li>`
+                    ).join('')}</ul>
+                </div>`;
+            });
+            return html;
+        }
+
+        // 无自定义驱动力时，从应用场景/技术难点/政策智库自动归纳
+        function autoDrivers(tech, details) {
+            const groups = [];
+            if (details.scenarios && details.scenarios.length) {
+                groups.push({ title: '下游应用场景的需求拉动', items: details.scenarios.slice(0, 3).map(s => ({ label: s.title, text: s.content })) });
+            }
+            if (details.painPoints && details.painPoints.length) {
+                groups.push({ title: '技术痛点与突破驱动', items: details.painPoints.slice(0, 3).map(p => ({ label: p.title, text: p.content })) });
+            }
+            const policy = (tech.dataSources || []).filter(d => d.type === '政策' || d.type === '智库');
+            if (policy.length) {
+                groups.push({ title: '政策与战略导向', items: policy.map(d => ({ label: d.type, text: d.content })) });
+            }
+            if (!groups.length) return null;
+            return { summary: `${tech.name}的技术变革由下游应用需求、技术瓶颈突破与政策战略导向多重力量共同驱动。`, groups };
+        }
+
         function buildDetailPayload(tech) {
             const details = techDetailsMap[tech.name] || {};
 
@@ -3997,6 +4049,9 @@
                 </div>
             `).join('');
 
+            // 驱动力分析（应用场景痛点 / 技术难点 / 政策导向）
+            const driversHtml = driversToHtml(tech.drivers || autoDrivers(tech, details));
+
             return {
                 name: tech.name,
                 score: tech.score,
@@ -4008,6 +4063,7 @@
                 desc: tech.desc || '',
                 intro: intro,
                 changeBasisHtml,
+                driversHtml,
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',
                 trl: getTrlByScore(tech.lifecycleScore),

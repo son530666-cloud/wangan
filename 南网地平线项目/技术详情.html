@@ -220,6 +220,34 @@
             color: #9fb0cc;
         }
 
+        /* 驱动力分析 */
+        .drivers-summary {
+            font-size: 13px;
+            line-height: 1.85;
+            color: #b0c0d8;
+            margin: 0 0 14px;
+            padding: 10px 14px;
+            background: rgba(64, 169, 255, 0.06);
+            border: 1px solid rgba(64, 169, 255, 0.12);
+            border-radius: 8px;
+        }
+        .drivers-group { margin-bottom: 16px; }
+        .drivers-group:last-child { margin-bottom: 0; }
+        .drivers-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #40a9ff;
+            margin-bottom: 8px;
+        }
+        .drivers-items { margin: 0; padding-left: 20px; }
+        .drivers-items li {
+            font-size: 13px;
+            line-height: 1.8;
+            color: #9fb0cc;
+            margin-bottom: 6px;
+        }
+        .drivers-items strong { color: #e0e6ed; }
+
         /* ===== 内容区：扁平分块，去弹窗感 ===== */
         .detail-body {
             display: grid;
@@ -468,6 +496,12 @@
                 <div class="detail-card">
                     <div class="detail-card-title">📈 技术变革理由</div>
                     <div class="tech-change-list">${p.changeBasisHtml}</div>
+                </div>` : ''}
+
+                ${p.driversHtml ? `
+                <div class="detail-card">
+                    <div class="detail-card-title">🚀 驱动力分析</div>
+                    <div class="drivers-wrap">${p.driversHtml}</div>
                 </div>` : ''}
 
                 <div class="detail-card">
