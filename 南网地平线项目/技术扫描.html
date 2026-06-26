@@ -4362,8 +4362,7 @@
         function globalDistToHtml(countries) {
             if (!countries || !countries.length) return '';
             const legend = `<div class="heat-legend">扩散速度热力（颜色越深越快）：<span class="hl-dot" style="background:#fde68a;"></span>慢<span class="hl-dot" style="background:#f97316;"></span>中<span class="hl-dot" style="background:#b91c1c;"></span>快</div>`;
-            const notes = `<div class="heat-notes">${countries.map(c => `<div class="heat-note"><span class="heat-note-name">${c.flag || ''} ${c.name} · ${c.level}</span>${c.note ? `<span class="heat-note-text">${c.note}</span>` : ''}</div>`).join('')}</div>`;
-            return `${legend}${notes}`;
+            return `${legend}`;
         }
         // 依据热力图（各国采用度）生成"领先国家与速度对比"分析（≥100字）
         function buildLeaderText(countries, techName) {
