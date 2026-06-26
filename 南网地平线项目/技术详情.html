@@ -222,6 +222,27 @@
         }
 
         /* 技术演化路径时间轴 */
+        .evo-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+        .evo-tab {
+            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #b0c0d8;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .evo-tab-count { font-size: 11px; padding: 0 6px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); }
+        .evo-tab.paper.active { background: rgba(64,169,255,0.16); border-color: #40a9ff; color: #40a9ff; }
+        .evo-tab.patent.active { background: rgba(115,209,61,0.16); border-color: #73d13d; color: #73d13d; }
+        .evo-tab.news.active { background: rgba(255,169,64,0.16); border-color: #ffa940; color: #ffa940; }
+        .evo-tab.policy.active { background: rgba(179,127,235,0.16); border-color: #b37feb; color: #b37feb; }
+        .evo-tab.active .evo-tab-count { background: rgba(255, 255, 255, 0.18); }
+        .evo-panel { display: none; }
+        .evo-panel.active { display: block; }
         .evo-timeline { padding-left: 6px; }
         .evo-item {
             position: relative;
@@ -876,6 +897,15 @@
             wrap.innerHTML = `<table class="ds-table"><thead><tr>${t.columns.map(c => `<th>${c.label}</th>`).join('')}</tr></thead><tbody>${t.rows.map(r => `<tr>${t.columns.map(c => `<td>${dsEscape(r[c.key])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
         }
         window.showDataTab = showDataTab;
+
+        // 技术演化路径：按类型 Tab 切换
+        function switchEvoTab(btn, type) {
+            const tabs = btn.parentElement;
+            tabs.querySelectorAll('.evo-tab').forEach(b => b.classList.toggle('active', b === btn));
+            const root = tabs.parentElement;
+            root.querySelectorAll('.evo-panel').forEach(p => p.classList.toggle('active', p.dataset.type === type));
+        }
+        window.switchEvoTab = switchEvoTab;
 
         // ===== 技术全球分布：世界地图区块热力（颜色越深=扩散越快） =====
         let worldChart = null;

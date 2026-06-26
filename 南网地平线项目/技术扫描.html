@@ -4223,7 +4223,7 @@
         function evolutionToHtml(evo) {
             if (!evo || !evo.length) return '';
             const cls = t => t === '论文' ? 'paper' : t === '专利' ? 'patent' : t === '政策' ? 'policy' : 'news';
-            return `<div class="evo-timeline">${evo.map(e => {
+            const renderItem = e => {
                 const citeHtml = e.cite ? `<details class="driver-source evo-src-inline"><summary>🔗 查看溯源</summary><div class="driver-source-body">${e.cite}</div></details>` : '';
                 const paramLine = e.param ? `<div class="evo-param">📊 ${e.param} ${citeHtml}</div>` : '';
                 const titleLine = e.param ? `<div class="evo-title">${e.title}</div>` : `<div class="evo-title">${e.title} ${citeHtml}</div>`;
@@ -4236,7 +4236,17 @@
                         ${paramLine}
                     </div>
                 </div>`;
-            }).join('')}</div>`;
+            };
+            const timeline = items => `<div class="evo-timeline">${[...items].sort((a, b) => String(a.year).localeCompare(String(b.year))).map(renderItem).join('')}</div>`;
+            // 按类型分组，生成 tab + 各自时间轴
+            const order = ['论文', '专利', '资讯', '政策'];
+            const groups = {};
+            evo.forEach(e => { (groups[e.type] = groups[e.type] || []).push(e); });
+            const tabs = order.filter(t => groups[t] && groups[t].length);
+            Object.keys(groups).forEach(t => { if (!tabs.includes(t)) tabs.push(t); });
+            const tabBar = `<div class="evo-tabs">${tabs.map((t, i) => `<button class="evo-tab ${cls(t)}${i === 0 ? ' active' : ''}" onclick="switchEvoTab(this,'${t}')">${t}<span class="evo-tab-count">${groups[t].length}</span></button>`).join('')}</div>`;
+            const panels = `<div class="evo-panels">${tabs.map((t, i) => `<div class="evo-panel${i === 0 ? ' active' : ''}" data-type="${t}">${timeline(groups[t])}</div>`).join('')}</div>`;
+            return tabBar + panels;
         }
         function autoEvolution(tech) {
             const ds = tech.dataSources || [];
