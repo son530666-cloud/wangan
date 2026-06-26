@@ -4184,6 +4184,8 @@
         // ===== 行业观点（智库/资讯中专家或机构的技术看法：预测/走势/风险影响） =====
         function industryViewsToHtml(views) {
             if (!views || !views.length) return '';
+            views = views.filter(v => v.tag !== '未来预测');
+            if (!views.length) return '';
             const tagClass = t => t === '风险与影响' ? 'risk' : t === '未来预测' ? 'forecast' : t === '产业影响' ? 'industry' : 'trend';
             return `<div class="iv-list">${views.map(v => `
                 <div class="iv-item">
