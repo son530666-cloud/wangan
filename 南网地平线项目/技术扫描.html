@@ -4381,7 +4381,6 @@
             const block = (label, content) => content ? `<div class="ad-block"><div class="ad-label">${label}</div><div class="ad-text">${content}</div></div>` : '';
             let html = '';
             html += block('🏁 领先国家与速度对比', a.leader);
-            html += block('📈 扩散拐点', a.inflection);
             if (a.bottlenecks && a.bottlenecks.length) {
                 html += `<div class="ad-block"><div class="ad-label">🚧 主要瓶颈</div><div class="ad-bn-list">${a.bottlenecks.map(b => {
                     const title = typeof b === 'string' ? b : b.title;
