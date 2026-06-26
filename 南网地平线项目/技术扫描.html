@@ -4691,6 +4691,14 @@
                 socialHtml: industryViewsHtml,
                 evolutionHtml,
                 forecastHtml,
+                graph: {
+                    name: tech.name,
+                    field: tech.primaryField || tech.category,
+                    secondary: tech.secondaryField || '',
+                    players: (details.keyPlayers || []).slice(0, 6),
+                    related: (tech.relatedTechs || []).slice(0, 6),
+                    scenarios: (details.scenarios || []).map(s => s.title).slice(0, 6)
+                },
                 dataSourcesModule: buildDataSources(tech, details),
                 firstSeen: tech.firstSeen || '',
                 lastActive: tech.lastActive || '',

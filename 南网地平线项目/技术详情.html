@@ -109,6 +109,38 @@
             font-weight: 700;
             color: #fff;
         }
+        .tech-graph-btn {
+            flex-shrink: 0;
+            font-size: 13px;
+            padding: 7px 14px;
+            border-radius: 8px;
+            background: rgba(64, 169, 255, 0.12);
+            border: 1px solid rgba(64, 169, 255, 0.3);
+            color: #40a9ff;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .tech-graph-btn:hover { background: rgba(64, 169, 255, 0.2); color: #fff; }
+        .tg-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px; }
+        .tg-modal.show { display: flex; }
+        .tg-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(3px); }
+        .tg-panel {
+            position: relative;
+            width: 1000px; max-width: calc(100vw - 48px);
+            height: 640px; max-height: calc(100vh - 48px);
+            background: rgba(10, 22, 45, 0.98);
+            border: 1px solid rgba(64, 169, 255, 0.25);
+            border-radius: 14px;
+            padding: 18px;
+            z-index: 1;
+            display: flex; flex-direction: column;
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+        }
+        .tg-title { font-size: 16px; font-weight: 600; color: #40a9ff; margin-bottom: 8px; }
+        .tg-close { position: absolute; top: 14px; right: 16px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #8896b3; cursor: pointer; border-radius: 50%; }
+        .tg-close:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+        #techGraphChart { flex: 1; min-height: 0; }
         .banner-score {
             display: flex;
             flex-direction: row;
@@ -731,6 +763,15 @@
         <div id="detailRoot"></div>
     </div>
 
+    <div class="tg-modal" id="techGraphModal">
+        <div class="tg-backdrop" onclick="closeTechGraph()"></div>
+        <div class="tg-panel">
+            <div class="tg-close" onclick="closeTechGraph()">×</div>
+            <div class="tg-title">🕸️ 技术图谱</div>
+            <div id="techGraphChart"></div>
+        </div>
+    </div>
+
     <script>
         let BUNDLE = null;      // { selectedName, taxonomy, payloads }
         let currentName = null;
@@ -780,7 +821,57 @@
             syncFilters(name);
             initWorldMap(payload.countries);
             initDataSources(payload.dataSourcesModule);
+            window.__curGraph = payload.graph;
             document.title = `${payload.name} - 技术详情`;
+        }
+
+        // ===== 技术图谱（知识图谱 modal） =====
+        let graphChart = null;
+        function openTechGraph() {
+            const modal = document.getElementById('techGraphModal');
+            if (!modal || !window.__curGraph) return;
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => renderTechGraph(window.__curGraph), 40);
+        }
+        function closeTechGraph() {
+            const modal = document.getElementById('techGraphModal');
+            if (modal) modal.classList.remove('show');
+            document.body.style.overflow = '';
+            if (graphChart) { graphChart.dispose(); graphChart = null; }
+        }
+        window.openTechGraph = openTechGraph;
+        window.closeTechGraph = closeTechGraph;
+        function renderTechGraph(g) {
+            const dom = document.getElementById('techGraphChart');
+            if (!dom || typeof echarts === 'undefined') { if (dom) dom.innerHTML = '<div style="color:#8896b3;padding:30px;text-align:center;">图谱组件加载失败（需联网）</div>'; return; }
+            if (graphChart) graphChart.dispose();
+            graphChart = echarts.init(dom);
+            const cats = ['核心技术', '所属领域', '主要玩家', '关联技术', '应用场景'];
+            const colors = { '核心技术': '#ff4d4f', '所属领域': '#40a9ff', '主要玩家': '#73d13d', '关联技术': '#b37feb', '应用场景': '#ffa940' };
+            const nodes = [], links = [], seen = new Set();
+            const add = (name, cat, size) => { if (!name || seen.has(name)) return; seen.add(name); nodes.push({ name, category: cats.indexOf(cat), symbolSize: size, itemStyle: { color: colors[cat] } }); };
+            add(g.name, '核心技术', 62);
+            nodes[0].label = { fontSize: 15, fontWeight: 'bold' };
+            add(g.field, '所属领域', 38); if (g.field) links.push({ source: g.name, target: g.field });
+            if (g.secondary && g.secondary !== g.field) { add(g.secondary, '所属领域', 32); links.push({ source: g.field || g.name, target: g.secondary }); }
+            (g.players || []).forEach(p => { add(p, '主要玩家', 28); links.push({ source: g.name, target: p }); });
+            (g.related || []).forEach(r => { add(r, '关联技术', 26); links.push({ source: g.name, target: r }); });
+            (g.scenarios || []).forEach(s => { add(s, '应用场景', 26); links.push({ source: g.name, target: s }); });
+            graphChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: { formatter: p => p.dataType === 'node' ? `${cats[p.data.category]} · ${p.name}` : '' },
+                legend: [{ data: cats, top: 6, icon: 'circle', textStyle: { color: '#b0c0d8', fontSize: 12 }, itemGap: 16 }],
+                series: [{
+                    type: 'graph', layout: 'force', roam: true, draggable: true, top: 40,
+                    categories: cats.map(c => ({ name: c, itemStyle: { color: colors[c] } })),
+                    force: { repulsion: 280, edgeLength: 120, gravity: 0.08 },
+                    label: { show: true, color: '#e0e6ed', fontSize: 12, position: 'right' },
+                    lineStyle: { color: 'rgba(120,160,210,0.35)', width: 1, curveness: 0.06 },
+                    emphasis: { focus: 'adjacency', lineStyle: { width: 2 }, label: { fontWeight: 'bold' } },
+                    data: nodes, links: links
+                }]
+            });
         }
 
         // ===== 相关数据源 Tab =====
@@ -951,7 +1042,7 @@
                 });
             }).catch(() => { dom.innerHTML = '<div style="color:#8896b3;padding:24px;text-align:center;">地图数据加载失败（需联网）</div>'; });
         }
-        window.addEventListener('resize', () => { if (worldChart) worldChart.resize(); if (dsRiverInst) dsRiverInst.resize(); });
+        window.addEventListener('resize', () => { if (worldChart) worldChart.resize(); if (dsRiverInst) dsRiverInst.resize(); if (graphChart) graphChart.resize(); });
 
         function bindFilters() {
             const lv1 = document.getElementById('lv1');
@@ -987,6 +1078,7 @@
                         <div class="banner-top">
                             <div class="banner-icon">${p.iconSrc ? `<img src="${p.iconSrc}" alt="${p.name}">` : ''}</div>
                             <div class="banner-title">${p.name || ''}</div>
+                            <button class="tech-graph-btn" onclick="openTechGraph()">🕸️ 技术图谱</button>
                         </div>
                         <div class="banner-meta">
                             ${p.lastActive ? `<div class="meta-cell"><span class="meta-label">最近活跃时间</span><span class="meta-value">${p.lastActive}</span></div>` : ''}
