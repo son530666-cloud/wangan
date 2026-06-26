@@ -4069,12 +4069,19 @@
             if (r <= 0.7) return '理论研究型';
             return '均衡型';
         }
-        function instCoreAdvantage(i) {
+        function instCoreAdvantage(i, tech, idx) {
             if (i.focus) return i.focus;
+            const km = (tech && tech.keyMetrics) || [];
             const s = instStrength(i);
-            if (s === '理论研究型') return '论文产出领先，基础研究与源头创新见长';
-            if (s === '产业能力型') return '专利布局密集，工程化与量产能力突出';
-            return '论文专利双强，研产协同、全链覆盖';
+            const routeMap = {
+                '理论研究型': ['新材料体系创新', '核心机理研究领先', '前沿技术路线探索'],
+                '产业能力型': ['量产工艺成熟', '规模化制造与成本控制强', '工程化集成能力突出'],
+                '均衡型': ['主流技术路线成熟', '研产一体化布局完整']
+            };
+            const routes = routeMap[s] || ['技术路线布局'];
+            const route = routes[idx % routes.length];
+            const m = km.length ? km[idx % km.length] : null;
+            return m ? `${route}，${m.label} ${m.value} 领先` : route;
         }
         function buildLandscapeSvg(insts) {
             if (!insts || !insts.length) return '';
@@ -4113,7 +4120,7 @@
                     <td class="inst-name">${i.name}</td>
                     <td><span class="inst-region ${i.region === '国外' ? 'foreign' : 'domestic'}">${i.region}</span></td>
                     <td>${i.papers}</td><td>${i.patents}</td>
-                    <td>${instCoreAdvantage(i)}</td>
+                    <td>${instCoreAdvantage(i, tech, idx)}</td>
                     <td>${instStrength(i)}</td>
                 </tr>`).join('')}</tbody>
             </table>`;
