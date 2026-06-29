@@ -617,6 +617,23 @@
         .eq-row2 .gd-wrap::-webkit-scrollbar, .eq-row2 .ad-wrap::-webkit-scrollbar { width: 6px; }
         .eq-row .drivers-wrap::-webkit-scrollbar-thumb, .eq-row .app-wrap::-webkit-scrollbar-thumb,
         .eq-row2 .gd-wrap::-webkit-scrollbar-thumb, .eq-row2 .ad-wrap::-webkit-scrollbar-thumb { background: rgba(22, 119, 255,0.25); border-radius: 3px; }
+
+        /* 技术扩散热力图（全球分布 + 扩散速度 合并模块） */
+        .heat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        .heat-map { min-width: 0; }
+        .heat-analysis {
+            min-width: 0;
+            max-height: 560px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+        .heat-analysis::-webkit-scrollbar { width: 6px; }
+        .heat-analysis::-webkit-scrollbar-thumb { background: rgba(22, 119, 255, 0.25); border-radius: 3px; }
         .detail-card-title {
             font-size: 14px;
             font-weight: 600;
@@ -774,6 +791,7 @@
         }
         @media (max-width: 768px) {
             .detail-body { grid-template-columns: 1fr; }
+            .heat-grid { grid-template-columns: 1fr; }
             .banner-meta { gap: 12px 20px; }
         }
     </style>
@@ -1128,8 +1146,7 @@
                 { on: p.evolutionHtml,      id: 'mod-evo',       label: '🧬 技术演化路径' },
                 { on: p.driversHtml,        id: 'mod-drivers',   label: '🚀 驱动力分析' },
                 { on: p.applicationHtml,    id: 'mod-app',       label: '🧩 技术应用分析' },
-                { on: p.globalDistHtml,     id: 'mod-global',    label: '🌍 技术全球分布' },
-                { on: p.adoptionHtml,       id: 'mod-adopt',     label: '📊 技术扩散速度' },
+                { on: p.globalDistHtml || p.adoptionHtml, id: 'mod-heat', label: '🌡️ 技术扩散热力图' },
                 { on: p.landscapeHtml,      id: 'mod-landscape', label: '🗺️ 机构竞争力' },
                 { on: p.socialHtml,         id: 'mod-social',    label: '💬 行业观点' },
                 { on: p.forecastHtml,       id: 'mod-forecast',  label: '🔮 未来趋势预测' },
@@ -1193,21 +1210,17 @@
                     </div>` : ''}
                 </div>
 
-                <div class="detail-body eq-row2">
-                    ${p.globalDistHtml ? `
-                    <div class="detail-card" id="mod-global">
-                        <div class="detail-card-title">🌍 技术全球分布</div>
-                        <div class="gd-wrap">
+                ${(p.globalDistHtml || p.adoptionHtml) ? `
+                <div class="detail-card" id="mod-heat">
+                    <div class="detail-card-title">🌡️ 技术扩散热力图</div>
+                    <div class="heat-grid">
+                        <div class="heat-map">
                             <div id="worldMap" class="world-map"></div>
-                            ${p.globalDistHtml}
+                            ${p.globalDistHtml || ''}
                         </div>
-                    </div>` : ''}
-                    ${p.adoptionHtml ? `
-                    <div class="detail-card" id="mod-adopt">
-                        <div class="detail-card-title">📊 技术扩散速度</div>
-                        <div class="ad-wrap">${p.adoptionHtml}</div>
-                    </div>` : ''}
-                </div>
+                        <div class="heat-analysis">${p.adoptionHtml || ''}</div>
+                    </div>
+                </div>` : ''}
 
                 ${p.landscapeHtml ? `
                 <div class="detail-card" id="mod-landscape">
