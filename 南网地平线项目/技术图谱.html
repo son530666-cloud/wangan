@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>技术图谱 - 技术变革地平线全景扫描系统</title>
+    <script src="https://lib.baomitu.com/echarts/5.4.3/echarts.min.js"></script>
+    <script>
+        // ECharts CDN 多源降级
+        (function () {
+            var cdnList = [
+                'https://lib.baomitu.com/echarts/5.4.3/echarts.min.js',
+                'https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/echarts/5.4.3/echarts.min.js',
+                'https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js'
+            ];
+            var tried = 1;
+            function tryNext() {
+                if (typeof echarts !== 'undefined') return;
+                if (tried < cdnList.length) {
+                    var s = document.createElement('script');
+                    s.src = cdnList[tried];
+                    tried++;
+                    s.onerror = tryNext;
+                    document.head.appendChild(s);
+                }
+            }
+            setTimeout(tryNext, 1500);
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #080e1a;
+            --panel: rgba(6, 20, 40, 0.85);
+            --primary: #00d4ff;
+            --text: #fff;
+            --text-secondary: rgba(255, 255, 255, 0.55);
+            --border: rgba(0, 212, 255, 0.15);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: var(--bg);
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex; align-items: center; justify-content: space-between;
+            height: 56px; padding: 0 24px;
+            background: rgba(6, 20, 40, 0.9);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        header .h-title { font-size: 18px; font-weight: 700; color: var(--primary); letter-spacing: 1px; }
+        header .h-sub { font-size: 12px; color: var(--text-secondary); margin-left: 12px; }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+            padding: 12px 24px;
+            background: rgba(6, 20, 40, 0.5);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .toolbar .tb-group { display: flex; align-items: center; gap: 6px; }
+        .toolbar label { font-size: 13px; color: var(--text-secondary); }
+        .toolbar input[type="text"], .toolbar select {
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 7px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+        }
+        .toolbar input[type="text"] { width: 220px; }
+        .toolbar input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
+        .toolbar select { cursor: pointer; min-width: 130px; }
+        .toolbar select option { background: #0a1628; }
+        .toolbar button {
+            background: rgba(0, 212, 255, 0.12);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: var(--primary);
+            padding: 7px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .toolbar button:hover { background: rgba(0, 212, 255, 0.22); }
+        .toolbar .tb-hint { font-size: 12px; color: var(--text-secondary); margin-left: auto; }
+
+        /* 图例 */
+        .legend-bar {
+            display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+            padding: 10px 24px;
+            background: rgba(6, 20, 40, 0.35);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .legend-bar .lg-label { font-size: 12px; color: var(--text-secondary); margin-right: 4px; }
+        .legend-item {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-size: 12px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            user-select: none;
+            transition: all 0.15s;
+        }
+        .legend-item .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .legend-item.off { opacity: 0.35; text-decoration: line-through; }
+        .legend-item:hover { background: rgba(255,255,255,0.06); }
+
+        /* 主区 */
+        .main { flex: 1; display: flex; position: relative; overflow: hidden; }
+        #graph { flex: 1; height: 100%; }
+
+        /* 详情面板 */
+        .detail-panel {
+            width: 0;
+            background: var(--panel);
+            border-left: 1px solid var(--border);
+            overflow: hidden;
+            transition: width 0.25s;
+            flex-shrink: 0;
+            display: flex; flex-direction: column;
+        }
+        .detail-panel.open { width: 420px; }
+        .detail-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .detail-head .dh-title { font-size: 16px; font-weight: 600; }
+        .detail-head .dh-count { font-size: 12px; color: var(--primary); margin-top: 4px; }
+        .detail-head .dh-close {
+            background: none; border: none; color: var(--text-secondary);
+            font-size: 22px; cursor: pointer; line-height: 1;
+        }
+        .detail-head .dh-close:hover { color: var(--text); }
+        .detail-body { flex: 1; overflow-y: auto; padding: 12px 18px 24px; }
+        .detail-body .dp-row {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .detail-body .dp-row-title { font-size: 13px; line-height: 1.5; margin-bottom: 6px; color: var(--text); }
+        .detail-body .dp-meta { font-size: 12px; color: var(--text-secondary); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+        .detail-body .dp-meta b { color: rgba(255,255,255,0.75); font-weight: 500; }
+        .detail-body .dp-foot { font-size: 12px; color: var(--text-secondary); margin-top: 14px; padding-top: 10px; }
+
+        .detail-body::-webkit-scrollbar { width: 6px; }
+        .detail-body::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.25); border-radius: 3px; }
+
+        .empty-tip {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            color: var(--text-secondary); font-size: 14px; text-align: center; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <span class="h-title">技术图谱</span>
+        <span class="h-sub">一级 / 二级 / 三级技术领域 · 多源情报全景关联</span>
+    </div>
+    <div class="h-sub" style="margin:0;">南方电网科学研究院</div>
+</header>
+
+<div class="toolbar">
+    <div class="tb-group">
+        <input type="text" id="searchInput" placeholder="关键词检索节点（技术 / 领域）…">
+        <button id="searchBtn">检索</button>
+        <button id="clearSearchBtn">清除</button>
+    </div>
+    <div class="tb-group">
+        <label>一级领域</label>
+        <select id="primarySelect"><option value="">全部</option></select>
+    </div>
+    <div class="tb-group">
+        <label>二级领域</label>
+        <select id="secondarySelect"><option value="">全部</option></select>
+    </div>
+    <div class="tb-group">
+        <button id="expandAllBtn">展开全部情报</button>
+        <button id="collapseAllBtn">收起全部</button>
+    </div>
+    <span class="tb-hint">点击「技术」节点可展开/收起其情报类型 · 点击情报节点查看明细</span>
+</div>
+
+<div class="legend-bar" id="legendBar">
+    <span class="lg-label">图例（点击勾选 / 取消）：</span>
+</div>
+
+<div class="main">
+    <div id="graph"></div>
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-head">
+            <div>
+                <div class="dh-title" id="dpTitle">明细</div>
+                <div class="dh-count" id="dpCount"></div>
+            </div>
+            <button class="dh-close" id="dpClose">&times;</button>
+        </div>
+        <div class="detail-body" id="dpBody"></div>
+    </div>
+</div>
+
+<script>
+/* ===================== 数据 ===================== */
+// 一级 / 二级 / 三级（技术）映射
+const fieldMap = {
+    '固态电池技术':       { primary: '储能技术',         secondary: '固态电池' },
+    '钠离子电池':         { primary: '储能技术',         secondary: '钠离子电池' },
+    '数字孪生电网':       { primary: '数字化与智能',     secondary: '数字孪生' },
+    '量子加密通信':       { primary: '数字化与智能',     secondary: '量子通信' },
+    'AI电网调度大脑':     { primary: '数字化与智能',     secondary: 'AI应用' },
+    '边缘计算终端':       { primary: '数字化与智能',     secondary: '边缘计算' },
+    '超导电缆输电':       { primary: '输配电技术',       secondary: '超导输电' },
+    '无线电能传输':       { primary: '输配电技术',       secondary: '无线输电' },
+    '分布式能源路由器':   { primary: '输配电技术',       secondary: '能源路由器' },
+    '柔性直流电网':       { primary: '输配电技术',       secondary: '柔性直流' },
+    '虚拟电厂聚合平台':   { primary: '能源交易与互联网', secondary: '虚拟电厂' },
+    '区块链电力交易':     { primary: '能源交易与互联网', secondary: '区块链交易' },
+    '第三代半导体SiC':    { primary: '电力电子技术',     secondary: '宽禁带半导体' },
+    '石墨烯电力器件':     { primary: '电力电子技术',     secondary: '石墨烯器件' },
+    '钙钛矿太阳能电池':   { primary: '发电与能源',       secondary: '钙钛矿光伏' },
+    '氢能储运一体化':     { primary: '发电与能源',       secondary: '氢能' }
+};
+
+// 主要玩家（用于机构 / 人才 / 专利等明细）
+const playersMap = {
+    '固态电池技术':     ['丰田汽车', 'QuantumScape', '宁德时代', '三星SDI', 'Solid Power', '卫蓝新能源'],
+    '钠离子电池':       ['宁德时代', '中科海钠', '华阳股份', '孚能科技', '多氟多', 'Farasis'],
+    '数字孪生电网':     ['PTC', 'AVEVA', '西门子', '南瑞信通', '国网浙江电力', '华为'],
+    '量子加密通信':     ['国盾量子', '科大国创', '中国电科', '华为', '东芝', 'ID Quantique'],
+    'AI电网调度大脑':   ['Google DeepMind', '华为', '阿里云', '南瑞集团', '国家电网', 'OpenAI'],
+    '边缘计算终端':     ['华为', '研华科技', '英伟达', '南瑞集团', '阿里云', '浪潮'],
+    '超导电缆输电':     ['古河电工', '日立', '西部超导', '上海电缆所', '美国SuperPower', '韩国LS电缆'],
+    '无线电能传输':     ['WiTricity', 'Plugless Power', '比亚迪', '华为', 'Qualcomm Halo', 'Bombardier'],
+    '分布式能源路由器': ['ABB', '西门子', '华为数字能源', '南瑞集团', '阳光电源', '特变电工'],
+    '柔性直流电网':     ['ABB', '西门子', '南瑞集团', '许继电气', '国家电网', '南方电网'],
+    '虚拟电厂聚合平台': ['特斯拉Autobidder', 'Next Kraftwerke', 'AutoGrid', '国电投', '华能', '阿里云能耗云'],
+    '区块链电力交易':   ['PowerLedger', 'Enerchain', 'IBM', '蚂蚁链', '趣链科技', '国家电网电商公司'],
+    '第三代半导体SiC':  ['英飞凌', 'Wolfspeed', '意法半导体', '三安光电', '比亚迪半导体', '华润微'],
+    '石墨烯电力器件':   ['IBM', '华为', '欧盟石墨烯旗舰', '广汽集团', 'Skeleton Technologies', '贝特瑞'],
+    '钙钛矿太阳能电池': ['Oxford PV', '协鑫光电', '纤纳光电', '隆基绿能', '宁德时代', '极电光能'],
+    '氢能储运一体化':   ['国家能源集团', '隆基氢能', '亿华通', '美锦能源', '西门子能源', '康明斯']
+};
+
+// 情报类型定义（颜色 + 计数基准）—— 与「技术扫描」buildDataSources 保持一致口径
+const intelTypes = [
+    { key: 'think',   label: '智库报告', color: '#ff7875', base: 80,   mod: 300 },
+    { key: 'news',    label: '资讯',     color: '#5cdbd3', base: 2000, mod: 9000 },
+    { key: 'policy',  label: '政策',     color: '#95de64', base: 60,   mod: 200 },
+    { key: 'patent',  label: '专利',     color: '#ffc069', base: 3000, mod: 12000 },
+    { key: 'project', label: '项目',     color: '#85a5ff', base: 40,   mod: 200 },
+    { key: 'paper',   label: '论文',     color: '#ff9c6e', base: 1500, mod: 8000 },
+    { key: 'award',   label: '奖项',     color: '#ffd666', base: 5,    mod: 30 },
+    { key: 'org',     label: '机构',     color: '#69c0ff', base: 80,   mod: 400 },
+    { key: 'talent',  label: '人才',     color: '#d3adf7', base: 200,  mod: 1500 }
+];
+
+// 层级节点颜色
+const LEVEL_COLORS = {
+    root:      '#00d4ff',
+    primary:   '#36cfc9',
+    secondary: '#b37feb',
+    tech:      '#ffd666'
+};
+
+/* ===================== 情报明细生成（移植自技术扫描 buildDataSources） ===================== */
+function hashStr(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 131 + s.charCodeAt(i)) >>> 0; return h; }
+function buildIntel(techName) {
+    const h = hashStr(techName);
+    const N = techName;
+    const cat = fieldMap[techName] ? fieldMap[techName].primary : '电网技术';
+    const players = playersMap[techName] || ['宁德时代', '丰田汽车', 'QuantumScape', '中科院'];
+    const p = i => players[i % players.length];
+    const baseY = 2026;
+    const y = off => baseY - off;
+    const pad = n => String(n).padStart(2, '0');
+    const d = (off, mo, da) => `${y(off)}-${pad(mo)}-${pad(da)}`;
+    const c = (base, mod) => base + ((h >> (base % 7)) % mod);
+    const isForeign = nm => /[A-Za-z]/.test(nm) || ['丰田', '三星', '松下', '日立', '西门子', '东芝'].some(f => nm.includes(f));
+    const pno = seed => (seed % 900000 + 100000);
+    const statuses = ['授权', '实质审查', '公开', 'PCT国际阶段'];
+
+    const data = {
+        think: {
+            count: c(80, 300),
+            rows: [
+                { title: `${N}产业发展与投资前景研究报告`, meta: { 发布机构: 'BloombergNEF', 发布日期: d(1, 3, 12), 类型: '产业研究' } },
+                { title: `全球${N}技术成熟度评估`, meta: { 发布机构: 'Gartner', 发布日期: d(1, 6, 8), 类型: '技术评估' } },
+                { title: `${N}对能源转型的影响白皮书`, meta: { 发布机构: 'IEA', 发布日期: d(2, 9, 20), 类型: '白皮书' } },
+                { title: `${cat}赛道投资图谱`, meta: { 发布机构: '麦肯锡', 发布日期: d(2, 11, 3), 类型: '投资图谱' } }
+            ]
+        },
+        news: {
+            count: c(2000, 9000),
+            rows: [
+                { title: `${p(0)}宣布${N}重大技术突破`, meta: { 来源: '财联社', 日期: d(0, 2, 18) } },
+                { title: `${N}迎来量产元年，多家企业加速布局`, meta: { 来源: '第一财经', 日期: d(0, 5, 9) } },
+                { title: `${p(1)}与车企/电网达成${N}战略合作`, meta: { 来源: '盖世汽车', 日期: d(0, 7, 22) } },
+                { title: `${N}成本快速下探，平价拐点临近`, meta: { 来源: '高工锂电', 日期: d(1, 1, 15) } }
+            ]
+        },
+        policy: {
+            count: c(60, 200),
+            rows: [
+                { title: `关于推动${cat}高质量发展的指导意见`, meta: { 发文机构: '国家发改委', 发布日期: d(1, 4, 1), 级别: '国家级' } },
+                { title: `${N}产业发展行动计划`, meta: { 发文机构: '工业和信息化部', 发布日期: d(1, 8, 16), 级别: '部委级' } },
+                { title: `新型技术示范应用支持政策`, meta: { 发文机构: '国家能源局', 发布日期: d(2, 10, 11), 级别: '国家级' } },
+                { title: `欧盟相关法规与补贴方案`, meta: { 发文机构: 'European Commission', 发布日期: d(2, 12, 5), 级别: '国际' } }
+            ]
+        },
+        patent: {
+            count: c(3000, 12000),
+            rows: [
+                { title: `一种${N}用核心材料及其制备方法`, meta: { 申请人: p(0), 申请日: d(1, 3, 21), 类型: '发明专利', 法律状态: statuses[h % 4], 公开号: `CN${y(1)}1${pno(h)}A` } },
+                { title: `${N}界面修饰结构及电化学器件`, meta: { 申请人: p(1), 申请日: d(1, 7, 5), 类型: '发明专利', 法律状态: '授权', 公开号: `CN${y(1)}2${pno(h >> 3)}B` } },
+                { title: `高可靠${N}封装与系统集成工艺`, meta: { 申请人: p(2), 申请日: d(2, 9, 28), 类型: '发明专利', 法律状态: '在审', 公开号: `US${y(2)}/${pno(h >> 5)}A1` } },
+                { title: `${N}规模化制备装备与方法`, meta: { 申请人: p(3), 申请日: d(2, 11, 2), 类型: '实用新型', 法律状态: '实质审查', 公开号: `CN${y(2)}3${pno(h >> 7)}A` } }
+            ]
+        },
+        project: {
+            count: c(40, 200),
+            rows: [
+                { title: `${N}关键材料与工程化研究`, meta: { 承担单位: p(0), 资助机构: '国家重点研发计划', 起止: `${y(2)}–${y(-2)}`, 经费: '¥8000万' } },
+                { title: `${cat}示范应用工程`, meta: { 承担单位: p(1), 资助机构: '国家能源局', 起止: `${y(1)}–${y(-1)}`, 经费: '¥1.2亿' } },
+                { title: `${N}产业化中试线建设`, meta: { 承担单位: p(2), 资助机构: '地方产业基金', 起止: `${y(1)}–${y(-2)}`, 经费: '¥5000万' } }
+            ]
+        },
+        paper: {
+            count: c(1500, 8000),
+            rows: [
+                { title: `High-performance ${N} via interface engineering`, meta: { 期刊: 'Nature Energy', 团队: p(3), 年份: y(1), 被引: c(120, 400) } },
+                { title: `${N}核心机理与材料体系研究`, meta: { 期刊: 'J. Power Sources', 团队: '清华大学团队', 年份: y(1), 被引: c(60, 200) } },
+                { title: `Scalable manufacturing of ${N}`, meta: { 期刊: 'Joule', 团队: 'MIT Group', 年份: y(2), 被引: c(40, 150) } }
+            ]
+        },
+        award: {
+            count: c(5, 30),
+            rows: [
+                { title: `${cat}科学技术奖`, meta: { 获奖单位: p(0), 颁奖机构: '中国电力企业联合会', 年份: y(1), 等级: '一等奖' } },
+                { title: `国家技术发明奖`, meta: { 获奖单位: p(1), 颁奖机构: '国务院', 年份: y(2), 等级: '二等奖' } },
+                { title: `国际技术创新奖`, meta: { 获奖单位: p(2), 颁奖机构: 'IEEE', 年份: y(2), 等级: '年度创新' } }
+            ]
+        },
+        org: {
+            count: c(80, 400),
+            rows: players.slice(0, 6).map(pl => ({
+                title: pl,
+                meta: { 类型: isForeign(pl) ? '国外企业/机构' : '国内企业/机构', 地区: isForeign(pl) ? '海外' : '中国', 方向: `${N}研发与产业化` }
+            }))
+        },
+        talent: {
+            count: c(200, 1500),
+            rows: [
+                { title: `${N}首席科学家`, meta: { 单位: p(0), 头衔: '首席科学家 / 技术总监', 方向: `${N}核心工艺与材料` } },
+                { title: `${cat}学科带头人`, meta: { 单位: '重点高校 / 科研院所', 头衔: '教授 / 院士', 方向: `${N}基础研究` } },
+                { title: `${N}总工程师`, meta: { 单位: p(1), 头衔: '总工程师', 方向: '工程化与规模量产' } }
+            ]
+        }
+    };
+    return data;
+}
+
+// 预生成每个技术的情报
+const intelCache = {};
+Object.keys(fieldMap).forEach(t => { intelCache[t] = buildIntel(t); });
+
+/* ===================== 节点类型 / 图例 ===================== */
+// 类别顺序：层级三类 + 9 情报类型
+const categories = [
+    { key: 'primary',   name: '一级领域', color: LEVEL_COLORS.primary },
+    { key: 'secondary', name: '二级领域', color: LEVEL_COLORS.secondary },
+    { key: 'tech',      name: '技术',     color: LEVEL_COLORS.tech }
+].concat(intelTypes.map(t => ({ key: t.key, name: t.label, color: t.color })));
+
+const catIndex = {};
+categories.forEach((c, i) => { catIndex[c.key] = i; });
+
+// 图例选中状态（全部默认开启）
+const legendState = {};
+categories.forEach(c => { legendState[c.name] = true; });
+
+/* ===================== 交互状态 ===================== */
+const expandedTechs = new Set();   // 已展开情报的技术
+let filterPrimary = '';
+let filterSecondary = '';
+let keyword = '';
+
+/* ===================== 构建图数据 ===================== */
+function buildGraph() {
+    const nodes = [];
+    const links = [];
+    const nodeIds = new Set();
+
+    function addNode(n) {
+        if (nodeIds.has(n.id)) return;
+        nodeIds.add(n.id);
+        nodes.push(n);
+    }
+
+    // 根节点
+    const ROOT = '__root__';
+    addNode({
+        id: ROOT, name: '电网技术图谱', value: 'root',
+        symbolSize: 64, itemStyle: { color: LEVEL_COLORS.root },
+        label: { fontSize: 16, fontWeight: 'bold' }, fixed: true
+    });
+
+    const kw = keyword.trim().toLowerCase();
+    const matchKw = txt => kw && txt.toLowerCase().indexOf(kw) >= 0;
+
+    // 收集层级
+    const primaries = {};   // primary -> { secondaries: { secondary -> [techs] } }
+    Object.keys(fieldMap).forEach(tech => {
+        const f = fieldMap[tech];
+        if (filterPrimary && f.primary !== filterPrimary) return;
+        if (filterSecondary && f.secondary !== filterSecondary) return;
+        primaries[f.primary] = primaries[f.primary] || {};
+        primaries[f.primary][f.secondary] = primaries[f.primary][f.secondary] || [];
+        primaries[f.primary][f.secondary].push(tech);
+    });
+
+    Object.keys(primaries).forEach(primary => {
+        const pid = 'P_' + primary;
+        addNode({
+            id: pid, name: primary, category: catIndex.primary, value: '一级领域',
+            symbolSize: 48, dataType: 'primary',
+            itemStyle: matchKw(primary) ? { borderColor: '#ff4d4f', borderWidth: 3 } : undefined,
+            label: { fontSize: 14, fontWeight: 'bold' }
+        });
+        links.push({ source: ROOT, target: pid });
+
+        Object.keys(primaries[primary]).forEach(secondary => {
+            const sid = 'S_' + primary + '_' + secondary;
+            addNode({
+                id: sid, name: secondary, category: catIndex.secondary, value: '二级领域',
+                symbolSize: 34, dataType: 'secondary',
+                itemStyle: matchKw(secondary) ? { borderColor: '#ff4d4f', borderWidth: 3 } : undefined,
+                label: { fontSize: 13 }
+            });
+            links.push({ source: pid, target: sid });
+
+            primaries[primary][secondary].forEach(tech => {
+                const tid = 'T_' + tech;
+                const expanded = expandedTechs.has(tech);
+                addNode({
+                    id: tid, name: tech, category: catIndex.tech, value: '技术',
+                    symbolSize: 26, dataType: 'tech', techName: tech,
+                    itemStyle: matchKw(tech)
+                        ? { borderColor: '#ff4d4f', borderWidth: 3 }
+                        : (expanded ? { borderColor: '#fff', borderWidth: 2 } : undefined),
+                    label: { fontSize: 12 }
+                });
+                links.push({ source: sid, target: tid });
+
+                if (expanded) {
+                    const intel = intelCache[tech];
+                    intelTypes.forEach(it => {
+                        const node = intel[it.key];
+                        const iid = 'I_' + tech + '_' + it.key;
+                        addNode({
+                            id: iid,
+                            name: `${it.label} ${node.count}`,
+                            category: catIndex[it.key],
+                            value: it.label,
+                            symbolSize: 16,
+                            dataType: 'intel',
+                            intelKey: it.key,
+                            techName: tech,
+                            label: { fontSize: 11, color: 'rgba(255,255,255,0.75)' }
+                        });
+                        links.push({ source: tid, target: iid, lineStyle: { color: it.color, opacity: 0.45 } });
+                    });
+                }
+            });
+        });
+    });
+
+    return { nodes, links };
+}
+
+/* ===================== 渲染 ===================== */
+let chart = null;
+
+function render() {
+    const { nodes, links } = buildGraph();
+
+    // 依据图例状态过滤显示的类别
+    const selected = {};
+    categories.forEach(c => { selected[c.name] = legendState[c.name]; });
+
+    const option = {
+        backgroundColor: 'transparent',
+        tooltip: {
+            backgroundColor: 'rgba(6,20,40,0.95)',
+            borderColor: 'rgba(0,212,255,0.3)',
+            textStyle: { color: '#fff', fontSize: 12 },
+            formatter: params => {
+                if (params.dataType === 'edge') return '';
+                const d = params.data;
+                if (d.dataType === 'intel') {
+                    return `<b>${d.techName}</b><br/>${d.name}<br/><span style="color:#8896b3">点击查看明细</span>`;
+                }
+                if (d.dataType === 'tech') {
+                    return `<b>${d.name}</b>（技术）<br/><span style="color:#8896b3">点击${expandedTechs.has(d.techName) ? '收起' : '展开'}情报类型</span>`;
+                }
+                return `<b>${d.name}</b><br/>${d.value || ''}`;
+            }
+        },
+        legend: [{ show: false, data: categories.map(c => c.name), selected }],
+        animationDuration: 600,
+        animationEasingUpdate: 'cubicOut',
+        series: [{
+            type: 'graph',
+            layout: 'force',
+            roam: true,
+            draggable: true,
+            focusNodeAdjacency: true,
+            categories: categories.map(c => ({ name: c.name, itemStyle: { color: c.color } })),
+            label: {
+                show: true,
+                position: 'right',
+                color: '#cdd6e4',
+                formatter: '{b}'
+            },
+            edgeLabel: { show: false },
+            lineStyle: { color: 'rgba(0,212,255,0.18)', width: 1, curveness: 0.05 },
+            emphasis: {
+                focus: 'adjacency',
+                lineStyle: { width: 2.5 },
+                label: { color: '#fff', fontWeight: 'bold' }
+            },
+            force: {
+                repulsion: 240,
+                gravity: 0.08,
+                edgeLength: [40, 130],
+                friction: 0.55,
+                layoutAnimation: true
+            },
+            data: nodes,
+            links: links,
+            selectedMode: false
+        }]
+    };
+    chart.setOption(option, { notMerge: true });
+}
+
+// 点击节点：技术 -> 展开/收起；情报 -> 明细面板
+function attachChartEvents() {
+    chart.on('click', params => {
+        const d = params.data;
+        if (!d || params.dataType === 'edge') return;
+        if (d.dataType === 'tech') {
+            if (expandedTechs.has(d.techName)) expandedTechs.delete(d.techName);
+            else expandedTechs.add(d.techName);
+            closeDetail();
+            render();
+        } else if (d.dataType === 'intel') {
+            openDetail(d.techName, d.intelKey);
+        }
+    });
+    window.addEventListener('resize', () => chart && chart.resize());
+}
+
+/* ===================== 图例（HTML 自定义，支持勾选/取消） ===================== */
+function buildLegend() {
+    const bar = document.getElementById('legendBar');
+    categories.forEach(c => {
+        const item = document.createElement('span');
+        item.className = 'legend-item';
+        item.dataset.name = c.name;
+        item.innerHTML = `<span class="dot" style="background:${c.color}"></span>${c.name}`;
+        item.addEventListener('click', () => {
+            legendState[c.name] = !legendState[c.name];
+            item.classList.toggle('off', !legendState[c.name]);
+            render();
+        });
+        bar.appendChild(item);
+    });
+}
+
+/* ===================== 详情面板 ===================== */
+const detailPanel = document.getElementById('detailPanel');
+function openDetail(tech, intelKey) {
+    const it = intelTypes.find(t => t.key === intelKey);
+    const node = intelCache[tech][intelKey];
+    document.getElementById('dpTitle').textContent = `${tech} · ${it.label}`;
+    document.getElementById('dpCount').textContent = `共约 ${node.count.toLocaleString()} 条 · 示例 ${node.rows.length} 条`;
+    const body = document.getElementById('dpBody');
+    body.innerHTML = node.rows.map(r => {
+        const metaHtml = Object.keys(r.meta).map(k => `<span><b>${k}：</b>${r.meta[k]}</span>`).join('');
+        return `<div class="dp-row" style="border-left:3px solid ${it.color};padding-left:10px;">
+            <div class="dp-row-title">${r.title}</div>
+            <div class="dp-meta">${metaHtml}</div>
+        </div>`;
+    }).join('') + `<div class="dp-foot">以上为代表性示例，完整 ${node.count.toLocaleString()} 条数据可在「技术扫描 / 技术详情」相关数据源中查看。</div>`;
+    detailPanel.classList.add('open');
+    setTimeout(() => chart.resize(), 280);
+}
+function closeDetail() {
+    detailPanel.classList.remove('open');
+    setTimeout(() => chart.resize(), 280);
+}
+document.getElementById('dpClose').addEventListener('click', closeDetail);
+
+/* ===================== 筛选器 ===================== */
+function buildFilters() {
+    const primarySelect = document.getElementById('primarySelect');
+    const secondarySelect = document.getElementById('secondarySelect');
+
+    const primaries = [...new Set(Object.values(fieldMap).map(f => f.primary))];
+    primarySelect.innerHTML = '<option value="">全部</option>' + primaries.map(p => `<option value="${p}">${p}</option>`).join('');
+
+    function refreshSecondary() {
+        let secs = Object.values(fieldMap);
+        if (filterPrimary) secs = secs.filter(f => f.primary === filterPrimary);
+        const list = [...new Set(secs.map(f => f.secondary))];
+        secondarySelect.innerHTML = '<option value="">全部</option>' + list.map(s => `<option value="${s}">${s}</option>`).join('');
+    }
+    refreshSecondary();
+
+    primarySelect.addEventListener('change', () => {
+        filterPrimary = primarySelect.value;
+        filterSecondary = '';
+        refreshSecondary();
+        render();
+    });
+    secondarySelect.addEventListener('change', () => {
+        filterSecondary = secondarySelect.value;
+        render();
+    });
+}
+
+/* ===================== 检索 ===================== */
+function doSearch() {
+    keyword = document.getElementById('searchInput').value || '';
+    // 关键词命中技术时自动展开其情报
+    if (keyword.trim()) {
+        const kw = keyword.trim().toLowerCase();
+        Object.keys(fieldMap).forEach(t => {
+            if (t.toLowerCase().indexOf(kw) >= 0) expandedTechs.add(t);
+        });
+    }
+    render();
+}
+document.getElementById('searchBtn').addEventListener('click', doSearch);
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });
+document.getElementById('clearSearchBtn').addEventListener('click', () => {
+    keyword = '';
+    document.getElementById('searchInput').value = '';
+    render();
+});
+
+/* ===================== 展开/收起全部 ===================== */
+document.getElementById('expandAllBtn').addEventListener('click', () => {
+    Object.keys(fieldMap).forEach(t => {
+        const f = fieldMap[t];
+        if (filterPrimary && f.primary !== filterPrimary) return;
+        if (filterSecondary && f.secondary !== filterSecondary) return;
+        expandedTechs.add(t);
+    });
+    render();
+});
+document.getElementById('collapseAllBtn').addEventListener('click', () => {
+    expandedTechs.clear();
+    closeDetail();
+    render();
+});
+
+/* ===================== 初始化 ===================== */
+function init() {
+    if (typeof echarts === 'undefined') { setTimeout(init, 300); return; }
+    chart = echarts.init(document.getElementById('graph'));
+    attachChartEvents();
+    buildLegend();
+    buildFilters();
+    render();
+}
+init();
+</script>
+
+</body>
+</html>
