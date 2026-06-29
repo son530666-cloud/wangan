@@ -4398,7 +4398,7 @@
             return s;
         }
         // 技术扩散指标 + 判读（置于"领先国家与速度对比"之上）
-        function buildDiffusionMetrics(countries, tech) {
+        function buildDiffusionMetrics(countries, tech, leaderText) {
             if (!countries || !countries.length) return '';
             const levels = countries.map(c => c.level);
             const top = [...countries].sort((a, b) => b.level - a.level)[0];
@@ -4444,7 +4444,7 @@
                 <div class="diffusion-metrics">${metricsHtml}</div>
                 <div class="dm-verdict" style="border-left-color:${vColor};">
                     <span class="dm-verdict-tag" style="color:${vColor};background:${vColor}1f;">📌 ${verdict}</span>
-                    <div class="dm-verdict-desc">${vDesc}</div>
+                    <div class="dm-verdict-desc">${vDesc}${leaderText ? ' ' + leaderText : ''}</div>
                 </div>
             </div>`;
         }
@@ -4464,8 +4464,7 @@
             if (!a) return '';
             const block = (label, content) => content ? `<div class="ad-block"><div class="ad-label">${label}</div><div class="ad-text">${content}</div></div>` : '';
             let html = '';
-            if (countries && tech) html += buildDiffusionMetrics(countries, tech);
-            html += block('🏁 领先国家与速度对比', a.leader);
+            if (countries && tech) html += buildDiffusionMetrics(countries, tech, a.leader);
             const posDrivers = buildPositiveDrivers(countries, tech);
             const negDrivers = (a.bottlenecks || []).map(b => ({
                 title: typeof b === 'string' ? b : b.title,
