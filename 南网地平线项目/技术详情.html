@@ -565,6 +565,42 @@
             margin-bottom: 20px;
         }
         .detail-body .detail-card { margin-bottom: 0; }
+        /* 让锚点跳转留出顶部空间 */
+        .detail-card { scroll-margin-top: 72px; }
+
+        /* 模块目录导航（一字排开，可点击跳转） */
+        .module-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(22, 119, 255, 0.16);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 22px;
+            box-shadow: 0 2px 12px rgba(40, 70, 120, 0.07);
+        }
+        .module-nav .mod-link {
+            font-size: 13px;
+            color: #4a5a72;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            border: 1px solid transparent;
+            transition: all 0.15s;
+        }
+        .module-nav .mod-link:hover { background: rgba(22, 119, 255, 0.08); color: #1677ff; }
+        .module-nav .mod-link.active {
+            background: rgba(22, 119, 255, 0.12);
+            color: #1677ff;
+            border-color: rgba(22, 119, 255, 0.3);
+        }
 
         /* 成对模块等高 + 内部滚动 */
         .detail-body.eq-row, .detail-body.eq-row2 { align-items: stretch; }
@@ -826,6 +862,20 @@
             document.title = `${payload.name} - 技术详情`;
         }
 
+        // ===== 模块目录导航：点击跳转到对应模块 =====
+        function jumpModule(id, el) {
+            const target = document.getElementById(id);
+            if (!target) return;
+            const nav = document.getElementById('moduleNav');
+            const navH = nav ? nav.offsetHeight : 0;
+            const top = target.getBoundingClientRect().top + window.pageYOffset - navH - 16;
+            window.scrollTo({ top: top < 0 ? 0 : top, behavior: 'smooth' });
+            if (el) {
+                document.querySelectorAll('.module-nav .mod-link').forEach(a => a.classList.remove('active'));
+                el.classList.add('active');
+            }
+        }
+
         // ===== 技术图谱（知识图谱 modal） =====
         let graphChart = null;
         function openTechGraph() {
@@ -1073,6 +1123,21 @@
         function renderDetail(p) {
             document.getElementById('detailFilters').style.display = 'flex';
             const introHtml = p.intro ? `<p>${p.intro}</p>` : '';
+            const MODS = [
+                { on: p.changeBasisHtml,    id: 'mod-change',    label: '📈 技术变革理由' },
+                { on: p.evolutionHtml,      id: 'mod-evo',       label: '🧬 技术演化路径' },
+                { on: p.driversHtml,        id: 'mod-drivers',   label: '🚀 驱动力分析' },
+                { on: p.applicationHtml,    id: 'mod-app',       label: '🧩 技术应用分析' },
+                { on: p.globalDistHtml,     id: 'mod-global',    label: '🌍 技术全球分布' },
+                { on: p.adoptionHtml,       id: 'mod-adopt',     label: '📊 技术扩散速度' },
+                { on: p.landscapeHtml,      id: 'mod-landscape', label: '🗺️ 机构竞争力' },
+                { on: p.socialHtml,         id: 'mod-social',    label: '💬 行业观点' },
+                { on: p.forecastHtml,       id: 'mod-forecast',  label: '🔮 未来趋势预测' },
+                { on: p.dataSourcesModule,  id: 'mod-data',      label: '🗂️ 相关数据源' }
+            ].filter(m => m.on);
+            const navHtml = MODS.length ? `<nav class="module-nav" id="moduleNav">${
+                MODS.map(m => `<a class="mod-link" onclick="jumpModule('${m.id}', this)">${m.label}</a>`).join('')
+            }</nav>` : '';
             document.getElementById('detailRoot').innerHTML = `
                 <div class="detail-banner">
                     <div class="banner-main">
@@ -1100,14 +1165,16 @@
                     </div>
                 </div>
 
+                ${navHtml}
+
                 <div class="detail-body">
                     ${p.changeBasisHtml ? `
-                    <div class="detail-card">
+                    <div class="detail-card" id="mod-change">
                         <div class="detail-card-title">📈 技术变革理由</div>
                         <div class="tech-change-list">${p.changeBasisHtml}</div>
                     </div>` : ''}
                     ${p.evolutionHtml ? `
-                    <div class="detail-card">
+                    <div class="detail-card" id="mod-evo">
                         <div class="detail-card-title">🧬 技术演化路径</div>
                         ${p.evolutionHtml}
                     </div>` : ''}
@@ -1115,12 +1182,12 @@
 
                 <div class="detail-body eq-row">
                     ${p.driversHtml ? `
-                    <div class="detail-card">
+                    <div class="detail-card" id="mod-drivers">
                         <div class="detail-card-title">🚀 驱动力分析</div>
                         <div class="drivers-wrap">${p.driversHtml}</div>
                     </div>` : ''}
                     ${p.applicationHtml ? `
-                    <div class="detail-card">
+                    <div class="detail-card" id="mod-app">
                         <div class="detail-card-title">🧩 技术应用分析</div>
                         <div class="app-wrap">${p.applicationHtml}</div>
                     </div>` : ''}
@@ -1128,7 +1195,7 @@
 
                 <div class="detail-body eq-row2">
                     ${p.globalDistHtml ? `
-                    <div class="detail-card">
+                    <div class="detail-card" id="mod-global">
                         <div class="detail-card-title">🌍 技术全球分布</div>
                         <div class="gd-wrap">
                             <div id="worldMap" class="world-map"></div>
@@ -1136,32 +1203,32 @@
                         </div>
                     </div>` : ''}
                     ${p.adoptionHtml ? `
-                    <div class="detail-card">
+                    <div class="detail-card" id="mod-adopt">
                         <div class="detail-card-title">📊 技术扩散速度</div>
                         <div class="ad-wrap">${p.adoptionHtml}</div>
                     </div>` : ''}
                 </div>
 
                 ${p.landscapeHtml ? `
-                <div class="detail-card">
+                <div class="detail-card" id="mod-landscape">
                     <div class="detail-card-title">🗺️ 机构竞争力</div>
                     <div class="landscape-wrap">${p.landscapeHtml}</div>
                 </div>` : ''}
 
                 ${p.socialHtml ? `
-                <div class="detail-card">
+                <div class="detail-card" id="mod-social">
                     <div class="detail-card-title">💬 行业观点</div>
                     <div class="social-wrap">${p.socialHtml}</div>
                 </div>` : ''}
 
                 ${p.forecastHtml ? `
-                <div class="detail-card">
+                <div class="detail-card" id="mod-forecast">
                     <div class="detail-card-title">🔮 未来趋势预测</div>
                     <div class="forecast-wrap">${p.forecastHtml}</div>
                 </div>` : ''}
 
                 ${p.dataSourcesModule ? `
-                <div class="detail-card">
+                <div class="detail-card" id="mod-data">
                     <div class="ds-header">
                         <div class="detail-card-title" style="margin-bottom:0;">🗂️ 相关数据源</div>
                         <div class="ds-view-toggle">
