@@ -4397,10 +4397,62 @@
             s += `总体而言，${top.name}凭借完整的产业链配套、庞大的本土市场需求与积极的政策、资本支持，能够快速将${techName}从研发与示范推向规模化量产与应用，形成"需求牵引—制造放量—快速迭代"的正向循环，因而在普及速度上明显领先于其他国家与地区。`;
             return s;
         }
-        function adoptionToHtml(a) {
+        // 技术扩散指标 + 判读（置于"领先国家与速度对比"之上）
+        function buildDiffusionMetrics(countries, tech) {
+            if (!countries || !countries.length) return '';
+            const levels = countries.map(c => c.level);
+            const top = [...countries].sort((a, b) => b.level - a.level)[0];
+            const avg = Math.round(levels.reduce((a, b) => a + b, 0) / levels.length);
+            // 提取"技术扩散指数"（部分技术在变革依据中已给出）
+            let diffIndex = null, diffDelta = null, diffTrend = 'up';
+            const cb = (tech.changeBasis || []).find(x => /扩散指数/.test(x.value));
+            if (cb) {
+                const m1 = cb.value.match(/增至\s*(\d+)%/);
+                const m2 = cb.value.match(/上升\s*([\d.]+)%/);
+                if (m1) diffIndex = +m1[1];
+                if (m2) diffDelta = +m2[1];
+                diffTrend = cb.trend || 'up';
+            }
+            if (diffIndex == null) diffIndex = Math.round(avg * 0.5); // 历史技术：由平均采用度估算
+            // 阶段判读
+            let verdict, vColor, vDesc;
+            if (diffIndex >= 35 || avg >= 75) {
+                verdict = '技术正在被市场加速采纳'; vColor = '#52c41a';
+                vDesc = '扩散指数处于高位且持续上行，已从示范应用快速迈向规模化普及，渗透率进入加速爬坡通道，建议重点跟踪并提前布局。';
+            } else if (diffIndex >= 22 || avg >= 60) {
+                verdict = '技术采纳稳步提速'; vColor = '#1677ff';
+                vDesc = '扩散指数稳步提升，正处于示范应用向规模化过渡的关键阶段，市场接受度持续走高，拐点临近。';
+            } else {
+                verdict = '技术处于早期导入期'; vColor = '#fa8c16';
+                vDesc = '扩散指数偏低，市场仍以试点示范为主，规模化采纳尚需培育，建议持续观察成本与政策拐点信号。';
+            }
+            const arrow = diffTrend === 'down' ? '↓' : (diffTrend === 'flat' ? '→' : '↑');
+            const arrowColor = diffTrend === 'down' ? '#52c41a' : (diffTrend === 'flat' ? '#8c8c8c' : '#ff4d4f');
+            const items = [
+                { val: diffIndex + '%', name: '技术扩散指数', sub: diffDelta != null ? `<span style="color:${arrowColor}">环比 ${arrow}${diffDelta}%</span>` : '综合扩散水平' },
+                { val: top.level, name: '领先国家采用度', sub: top.name },
+                { val: avg, name: '全球平均采用度', sub: `${countries.length} 国/地区` }
+            ];
+            const metricsHtml = items.map(i => `
+                <div class="dm-item">
+                    <div class="dm-val">${i.val}</div>
+                    <div class="dm-name">${i.name}</div>
+                    <div class="dm-sub">${i.sub}</div>
+                </div>`).join('');
+            return `<div class="ad-block">
+                <div class="ad-label">📈 技术扩散指标</div>
+                <div class="diffusion-metrics">${metricsHtml}</div>
+                <div class="dm-verdict" style="border-left-color:${vColor};">
+                    <span class="dm-verdict-tag" style="color:${vColor};background:${vColor}1f;">📌 ${verdict}</span>
+                    <div class="dm-verdict-desc">${vDesc}</div>
+                </div>
+            </div>`;
+        }
+        function adoptionToHtml(a, countries, tech) {
             if (!a) return '';
             const block = (label, content) => content ? `<div class="ad-block"><div class="ad-label">${label}</div><div class="ad-text">${content}</div></div>` : '';
             let html = '';
+            if (countries && tech) html += buildDiffusionMetrics(countries, tech);
             html += block('🏁 领先国家与速度对比', a.leader);
             if (a.bottlenecks && a.bottlenecks.length) {
                 html += `<div class="ad-block"><div class="ad-label">🚧 主要瓶颈</div><div class="ad-bn-list">${a.bottlenecks.map(b => {
@@ -4656,7 +4708,7 @@
             const gd = tech.globalDist || autoGlobalDist(tech);
             if (gd.adoption) gd.adoption.leader = buildLeaderText(gd.countries, tech.name);
             const globalDistHtml = globalDistToHtml(gd.countries);
-            const adoptionHtml = adoptionToHtml(gd.adoption);
+            const adoptionHtml = adoptionToHtml(gd.adoption, gd.countries, tech);
 
             // 机构竞争力图谱
             const landscapeHtml = landscapeToHtml(tech.landscape || autoLandscape(tech, details), tech);
