@@ -8,9 +8,9 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #080e1a;
+            background: #eef2f7;
             font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-            color: #e0e6ed;
+            color: #2b3a4f;
             min-height: 100vh;
         }
 
@@ -26,8 +26,8 @@
             flex-wrap: wrap;
             gap: 18px;
             align-items: flex-end;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(64, 169, 255, 0.10);
+            background: rgba(40, 70, 120, 0.04);
+            border: 1px solid rgba(22, 119, 255, 0.10);
             border-radius: 12px;
             padding: 14px 18px;
             margin-bottom: 22px;
@@ -39,31 +39,31 @@
         }
         .filter-group label {
             font-size: 12px;
-            color: #8896b3;
+            color: #6e7d95;
             letter-spacing: 0.5px;
         }
         .filter-select {
             min-width: 180px;
             font-size: 14px;
-            color: #e0e6ed;
-            background: rgba(10, 22, 45, 0.9);
-            border: 1px solid rgba(64, 169, 255, 0.25);
+            color: #2b3a4f;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(22, 119, 255, 0.25);
             border-radius: 8px;
             padding: 8px 12px;
             cursor: pointer;
             outline: none;
         }
-        .filter-select:focus { border-color: rgba(64, 169, 255, 0.55); }
-        .filter-select option { background: #0a162d; color: #e0e6ed; }
-        .filter-sep { color: #46506a; align-self: center; padding-bottom: 8px; font-size: 13px; }
+        .filter-select:focus { border-color: rgba(22, 119, 255, 0.55); }
+        .filter-select option { background: #eef2f7; color: #2b3a4f; }
+        .filter-sep { color: #9aa7ba; align-self: center; padding-bottom: 8px; font-size: 13px; }
 
         /* ===== 头部横幅（融合评分/识别时间/成熟度/主要玩家/简介） ===== */
         .detail-banner {
             display: flex;
             gap: 24px;
             align-items: flex-start;
-            background: linear-gradient(135deg, rgba(64, 169, 255, 0.10), rgba(8, 14, 26, 0));
-            border: 1px solid rgba(64, 169, 255, 0.14);
+            background: linear-gradient(135deg, rgba(22, 119, 255, 0.10), rgba(8, 14, 26, 0));
+            border: 1px solid rgba(22, 119, 255, 0.14);
             border-radius: 14px;
             padding: 22px 26px;
             margin-bottom: 24px;
@@ -93,8 +93,8 @@
             width: 60px;
             height: 60px;
             border-radius: 14px;
-            background: rgba(64, 169, 255, 0.12);
-            border: 1px solid rgba(64, 169, 255, 0.25);
+            background: rgba(22, 119, 255, 0.12);
+            border: 1px solid rgba(22, 119, 255, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -107,21 +107,21 @@
             min-width: 0;
             font-size: 26px;
             font-weight: 700;
-            color: #fff;
+            color: #1f2d3d;
         }
         .tech-graph-btn {
             flex-shrink: 0;
             font-size: 13px;
             padding: 7px 14px;
             border-radius: 8px;
-            background: rgba(64, 169, 255, 0.12);
-            border: 1px solid rgba(64, 169, 255, 0.3);
-            color: #40a9ff;
+            background: rgba(22, 119, 255, 0.12);
+            border: 1px solid rgba(22, 119, 255, 0.3);
+            color: #1677ff;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
         }
-        .tech-graph-btn:hover { background: rgba(64, 169, 255, 0.2); color: #fff; }
+        .tech-graph-btn:hover { background: rgba(22, 119, 255, 0.2); color: #1f2d3d; }
         .tg-modal { position: fixed; inset: 0; z-index: 1000; display: none; align-items: center; justify-content: center; padding: 24px; }
         .tg-modal.show { display: flex; }
         .tg-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(3px); }
@@ -129,17 +129,17 @@
             position: relative;
             width: 1000px; max-width: calc(100vw - 48px);
             height: 640px; max-height: calc(100vh - 48px);
-            background: rgba(10, 22, 45, 0.98);
-            border: 1px solid rgba(64, 169, 255, 0.25);
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(22, 119, 255, 0.25);
             border-radius: 14px;
             padding: 18px;
             z-index: 1;
             display: flex; flex-direction: column;
             box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
         }
-        .tg-title { font-size: 16px; font-weight: 600; color: #40a9ff; margin-bottom: 8px; }
-        .tg-close { position: absolute; top: 14px; right: 16px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #8896b3; cursor: pointer; border-radius: 50%; }
-        .tg-close:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
+        .tg-title { font-size: 16px; font-weight: 600; color: #1677ff; margin-bottom: 8px; }
+        .tg-close { position: absolute; top: 14px; right: 16px; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #6e7d95; cursor: pointer; border-radius: 50%; }
+        .tg-close:hover { background: rgba(40, 70, 120, 0.10); color: #1f2d3d; }
         #techGraphChart { flex: 1; min-height: 0; }
         .banner-score {
             display: flex;
@@ -151,7 +151,7 @@
         }
         .banner-score-label {
             font-size: 13px;
-            color: #8896b3;
+            color: #6e7d95;
             display: inline-flex;
             align-items: center;
             gap: 5px;
@@ -177,7 +177,7 @@
             gap: 14px 36px;
             margin-top: 18px;
             padding-top: 16px;
-            border-top: 1px solid rgba(64, 169, 255, 0.12);
+            border-top: 1px solid rgba(22, 119, 255, 0.12);
         }
         .meta-cell {
             display: flex;
@@ -189,16 +189,16 @@
         .meta-cell.metrics { align-items: center; }
         .meta-metrics { display: inline-flex; flex-wrap: wrap; gap: 8px; }
         .meta-cell.intro-cell { flex-direction: column; align-items: flex-start; gap: 6px; }
-        .banner-intro { font-size: 13px; line-height: 1.85; color: #b0c0d8; }
+        .banner-intro { font-size: 13px; line-height: 1.85; color: #5a6a82; }
         .banner-intro p { margin: 0; }
         .meta-label {
-            color: #8896b3;
+            color: #6e7d95;
             display: inline-flex;
             align-items: center;
             gap: 4px;
             white-space: nowrap;
         }
-        .meta-value { color: #e0e6ed; font-weight: 500; }
+        .meta-value { color: #2b3a4f; font-weight: 500; }
         .meta-value.score { color: #ff7875; font-weight: 700; }
         .info-mark {
             display: inline-flex;
@@ -207,8 +207,8 @@
             width: 14px;
             height: 14px;
             border-radius: 50%;
-            border: 1px solid #8896b3;
-            color: #8896b3;
+            border: 1px solid #6e7d95;
+            color: #6e7d95;
             font-size: 10px;
             font-style: normal;
             cursor: help;
@@ -218,8 +218,8 @@
             margin-top: 16px;
             font-size: 13px;
             line-height: 1.85;
-            color: #b0c0d8;
-            background: rgba(255, 255, 255, 0.03);
+            color: #5a6a82;
+            background: rgba(40, 70, 120, 0.05);
             border-radius: 10px;
             padding: 14px 16px;
         }
@@ -227,16 +227,16 @@
         .tech-detail-intro {
             font-size: 14px;
             line-height: 1.9;
-            color: #b0c0d8;
+            color: #5a6a82;
         }
-        .tech-detail-intro strong { color: #e0e6ed; font-weight: 600; }
+        .tech-detail-intro strong { color: #2b3a4f; font-weight: 600; }
 
         /* 技术变革理由 */
         .tech-change-list { display: flex; flex-direction: column; gap: 12px; }
         .tech-change-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(64, 169, 255, 0.10);
-            border-left: 3px solid #39ff14;
+            background: rgba(40, 70, 120, 0.04);
+            border: 1px solid rgba(22, 119, 255, 0.10);
+            border-left: 3px solid #52c41a;
             border-radius: 8px;
             padding: 12px 16px;
         }
@@ -244,13 +244,13 @@
         .tech-change-head {
             font-size: 14px;
             font-weight: 600;
-            color: #e0e6ed;
+            color: #2b3a4f;
             margin-bottom: 6px;
         }
         .tech-change-detail {
             font-size: 13px;
             line-height: 1.75;
-            color: #9fb0cc;
+            color: #5a6a82;
         }
 
         /* 技术演化路径时间轴 */
@@ -259,20 +259,20 @@
             font-size: 13px;
             padding: 5px 12px;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #b0c0d8;
+            background: rgba(40, 70, 120, 0.05);
+            border: 1px solid rgba(40, 70, 120, 0.12);
+            color: #5a6a82;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 6px;
         }
-        .evo-tab-count { font-size: 11px; padding: 0 6px; border-radius: 8px; background: rgba(255, 255, 255, 0.08); }
-        .evo-tab.paper.active { background: rgba(64,169,255,0.16); border-color: #40a9ff; color: #40a9ff; }
+        .evo-tab-count { font-size: 11px; padding: 0 6px; border-radius: 8px; background: rgba(40, 70, 120, 0.10); }
+        .evo-tab.paper.active { background: rgba(22, 119, 255,0.16); border-color: #1677ff; color: #1677ff; }
         .evo-tab.patent.active { background: rgba(115,209,61,0.16); border-color: #73d13d; color: #73d13d; }
         .evo-tab.news.active { background: rgba(255,169,64,0.16); border-color: #ffa940; color: #ffa940; }
         .evo-tab.policy.active { background: rgba(179,127,235,0.16); border-color: #b37feb; color: #b37feb; }
-        .evo-tab.active .evo-tab-count { background: rgba(255, 255, 255, 0.18); }
+        .evo-tab.active .evo-tab-count { background: rgba(40, 70, 120, 0.11); }
         .evo-panel { display: none; }
         .evo-panel.active { display: block; }
         .evo-timeline { padding-left: 6px; }
@@ -280,7 +280,7 @@
             position: relative;
             padding-left: 20px;
             padding-bottom: 16px;
-            border-left: 2px solid rgba(64, 169, 255, 0.18);
+            border-left: 2px solid rgba(22, 119, 255, 0.18);
         }
         .evo-item:last-child { border-left-color: transparent; padding-bottom: 0; }
         .evo-dot {
@@ -290,33 +290,33 @@
             width: 12px;
             height: 12px;
             border-radius: 50%;
-            border: 2px solid #0a162d;
+            border: 2px solid #eef2f7;
         }
-        .evo-dot.paper { background: #40a9ff; }
+        .evo-dot.paper { background: #1677ff; }
         .evo-dot.patent { background: #73d13d; }
         .evo-dot.news { background: #ffa940; }
         .evo-dot.policy { background: #b37feb; }
         .evo-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
         .evo-src-inline { display: inline-block; vertical-align: middle; margin-left: 8px; }
         .evo-src-inline .driver-source-body { width: 240px; }
-        .evo-year { font-size: 13px; font-weight: 700; color: #e0e6ed; }
+        .evo-year { font-size: 13px; font-weight: 700; color: #2b3a4f; }
         .evo-type { font-size: 11px; padding: 1px 7px; border-radius: 4px; }
-        .evo-type.paper { color: #40a9ff; background: rgba(64,169,255,0.1); border: 1px solid rgba(64,169,255,0.2); }
+        .evo-type.paper { color: #1677ff; background: rgba(22, 119, 255,0.1); border: 1px solid rgba(22, 119, 255,0.2); }
         .evo-type.patent { color: #73d13d; background: rgba(115,209,61,0.1); border: 1px solid rgba(115,209,61,0.2); }
         .evo-type.news { color: #ffa940; background: rgba(255,169,64,0.1); border: 1px solid rgba(255,169,64,0.2); }
         .evo-type.policy { color: #b37feb; background: rgba(179,127,235,0.1); border: 1px solid rgba(179,127,235,0.2); }
-        .evo-title { font-size: 13px; line-height: 1.7; color: #b0c0d8; }
-        .evo-param { font-size: 12px; color: #39ff14; margin-top: 4px; }
+        .evo-title { font-size: 13px; line-height: 1.7; color: #5a6a82; }
+        .evo-param { font-size: 12px; color: #52c41a; margin-top: 4px; }
 
         /* 驱动力分析 */
         .drivers-summary {
             font-size: 13px;
             line-height: 1.85;
-            color: #b0c0d8;
+            color: #5a6a82;
             margin: 0 0 14px;
             padding: 10px 14px;
-            background: rgba(64, 169, 255, 0.06);
-            border: 1px solid rgba(64, 169, 255, 0.12);
+            background: rgba(22, 119, 255, 0.06);
+            border: 1px solid rgba(22, 119, 255, 0.12);
             border-radius: 8px;
         }
         .drivers-group { margin-bottom: 16px; }
@@ -324,57 +324,57 @@
         .drivers-group-title {
             font-size: 14px;
             font-weight: 600;
-            color: #40a9ff;
+            color: #1677ff;
             margin-bottom: 8px;
         }
         .drivers-items { margin: 0; padding-left: 20px; }
         .drivers-items li {
             font-size: 13px;
             line-height: 1.8;
-            color: #9fb0cc;
+            color: #5a6a82;
             margin-bottom: 12px;
         }
-        .drivers-items strong { color: #e0e6ed; }
-        .driver-text { color: #9fb0cc; }
+        .drivers-items strong { color: #2b3a4f; }
+        .driver-text { color: #5a6a82; }
 
         /* 技术应用分析 */
         .app-sub { margin-bottom: 16px; }
         .app-sub:last-child { margin-bottom: 0; }
-        .app-sub-title { font-size: 13px; font-weight: 600; color: #40a9ff; margin-bottom: 8px; }
+        .app-sub-title { font-size: 13px; font-weight: 600; color: #1677ff; margin-bottom: 8px; }
         .app-list { margin: 0; padding-left: 18px; }
-        .app-list li { font-size: 13px; line-height: 1.8; color: #9fb0cc; margin-bottom: 6px; }
-        .app-list strong { color: #e0e6ed; }
+        .app-list li { font-size: 13px; line-height: 1.8; color: #5a6a82; margin-bottom: 6px; }
+        .app-list strong { color: #2b3a4f; }
 
         /* 技术扩散速度 */
         .diff-list { display: flex; flex-direction: column; gap: 16px; }
         .diff-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(64, 169, 255, 0.1);
+            background: rgba(40, 70, 120, 0.04);
+            border: 1px solid rgba(22, 119, 255, 0.1);
             border-radius: 8px;
             padding: 12px 14px;
         }
         .diff-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .diff-scene { font-size: 14px; font-weight: 600; color: #e0e6ed; }
+        .diff-scene { font-size: 14px; font-weight: 600; color: #2b3a4f; }
         .diff-level { font-size: 13px; font-weight: 700; }
-        .diff-bar { height: 8px; background: rgba(255, 255, 255, 0.06); border-radius: 4px; overflow: hidden; }
+        .diff-bar { height: 8px; background: rgba(40, 70, 120, 0.08); border-radius: 4px; overflow: hidden; }
         .diff-bar-inner { height: 100%; border-radius: 4px; transition: width 0.4s; }
-        .diff-bottleneck { font-size: 12px; line-height: 1.7; color: #9fb0cc; margin-top: 8px; }
+        .diff-bottleneck { font-size: 12px; line-height: 1.7; color: #5a6a82; margin-top: 8px; }
 
         /* 技术全球分布（世界地图区块热力） */
         .world-map { width: 100%; height: 500px; background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
-        .heat-legend { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12px; color: #8896b3; margin-top: 12px; }
+        .heat-legend { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; font-size: 12px; color: #6e7d95; margin-top: 12px; }
         .hl-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin: 0 3px 0 10px; }
         .heat-notes { display: grid; grid-template-columns: 1fr; gap: 8px; margin-top: 14px; }
         .heat-note { font-size: 12px; line-height: 1.6; }
-        .heat-note-name { color: #e0e6ed; font-weight: 600; margin-right: 6px; }
-        .heat-note-text { color: #8896b3; }
+        .heat-note-name { color: #2b3a4f; font-weight: 600; margin-right: 6px; }
+        .heat-note-text { color: #6e7d95; }
         @media (max-width: 768px) { .heat-notes { grid-template-columns: 1fr; } }
 
         /* 扩散速度与采用率 */
         .ad-block { margin-bottom: 14px; }
         .ad-block:last-child { margin-bottom: 0; }
-        .ad-label { font-size: 13px; font-weight: 600; color: #40a9ff; margin-bottom: 6px; }
-        .ad-text { font-size: 13px; line-height: 1.8; color: #9fb0cc; }
+        .ad-label { font-size: 13px; font-weight: 600; color: #1677ff; margin-bottom: 6px; }
+        .ad-text { font-size: 13px; line-height: 1.8; color: #5a6a82; }
         .ad-tags { display: flex; flex-wrap: wrap; gap: 8px; }
         .ad-tag {
             font-size: 12px;
@@ -393,17 +393,17 @@
             padding: 10px 14px;
         }
         .ad-bn-title { font-size: 13px; font-weight: 600; color: #ff9c96; margin-bottom: 5px; }
-        .ad-bn-reason { font-size: 13px; line-height: 1.8; color: #9fb0cc; }
+        .ad-bn-reason { font-size: 13px; line-height: 1.8; color: #5a6a82; }
 
         /* 未来趋势预测 */
         .fc-summary {
             font-size: 13px;
             line-height: 1.85;
-            color: #b0c0d8;
+            color: #5a6a82;
             margin: 0 0 18px;
             padding: 12px 14px;
-            background: rgba(64, 169, 255, 0.06);
-            border: 1px solid rgba(64, 169, 255, 0.12);
+            background: rgba(22, 119, 255, 0.06);
+            border: 1px solid rgba(22, 119, 255, 0.12);
             border-radius: 8px;
         }
         .fc-timeline { padding-left: 6px; margin-bottom: 16px; }
@@ -411,7 +411,7 @@
             position: relative;
             padding-left: 22px;
             padding-bottom: 18px;
-            border-left: 2px solid rgba(64, 169, 255, 0.18);
+            border-left: 2px solid rgba(22, 119, 255, 0.18);
         }
         .fc-item:last-child { border-left-color: transparent; padding-bottom: 0; }
         .fc-dot {
@@ -421,31 +421,31 @@
             width: 14px;
             height: 14px;
             border-radius: 50%;
-            border: 2px solid #0a162d;
-            background: #40a9ff;
+            border: 2px solid #eef2f7;
+            background: #1677ff;
         }
-        .fc-dot.short { background: #39ff14; }
+        .fc-dot.short { background: #52c41a; }
         .fc-dot.mid { background: #ffa940; }
         .fc-dot.long { background: #b37feb; }
         .fc-head { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
         .fc-term { font-size: 11px; padding: 1px 8px; border-radius: 4px; }
-        .fc-term.short { color: #39ff14; background: rgba(57,255,20,0.1); border: 1px solid rgba(57,255,20,0.2); }
+        .fc-term.short { color: #52c41a; background: rgba(82, 196, 26,0.1); border: 1px solid rgba(82, 196, 26,0.2); }
         .fc-term.mid { color: #ffa940; background: rgba(255,169,64,0.1); border: 1px solid rgba(255,169,64,0.2); }
         .fc-term.long { color: #b37feb; background: rgba(179,127,235,0.1); border: 1px solid rgba(179,127,235,0.2); }
-        .fc-title { font-size: 15px; font-weight: 600; color: #e0e6ed; }
-        .fc-period { font-size: 12px; color: #8896b3; }
-        .fc-desc { font-size: 13px; line-height: 1.85; color: #9fb0cc; }
+        .fc-title { font-size: 15px; font-weight: 600; color: #2b3a4f; }
+        .fc-period { font-size: 12px; color: #6e7d95; }
+        .fc-desc { font-size: 13px; line-height: 1.85; color: #5a6a82; }
         .fc-extra {
             display: flex;
             gap: 10px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(64, 169, 255, 0.1);
+            background: rgba(40, 70, 120, 0.04);
+            border: 1px solid rgba(22, 119, 255, 0.1);
             border-radius: 8px;
             padding: 12px 14px;
             margin-top: 10px;
         }
-        .fc-extra-label { flex-shrink: 0; font-size: 13px; font-weight: 600; color: #40a9ff; }
-        .fc-extra-text { font-size: 13px; line-height: 1.8; color: #9fb0cc; }
+        .fc-extra-label { flex-shrink: 0; font-size: 13px; font-weight: 600; color: #1677ff; }
+        .fc-extra-text { font-size: 13px; line-height: 1.8; color: #5a6a82; }
 
         /* 机构竞争力图谱 */
         .ls-top {
@@ -468,69 +468,69 @@
         .inst-table th {
             text-align: left;
             font-weight: 600;
-            color: #8896b3;
+            color: #6e7d95;
             padding: 8px 10px;
-            border-bottom: 1px solid rgba(64, 169, 255, 0.18);
+            border-bottom: 1px solid rgba(22, 119, 255, 0.18);
             white-space: nowrap;
         }
         .inst-table td {
             padding: 8px 10px;
-            color: #b0c0d8;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: #5a6a82;
+            border-bottom: 1px solid rgba(40, 70, 120, 0.07);
         }
-        .inst-table tr:hover td { background: rgba(64, 169, 255, 0.04); }
-        .inst-name { color: #e0e6ed; font-weight: 600; }
+        .inst-table tr:hover td { background: rgba(22, 119, 255, 0.04); }
+        .inst-name { color: #2b3a4f; font-weight: 600; }
         .inst-region {
             font-size: 11px;
             padding: 1px 8px;
             border-radius: 4px;
         }
-        .inst-region.domestic { color: #40a9ff; background: rgba(64, 169, 255, 0.1); border: 1px solid rgba(64, 169, 255, 0.2); }
+        .inst-region.domestic { color: #1677ff; background: rgba(22, 119, 255, 0.1); border: 1px solid rgba(22, 119, 255, 0.2); }
         .inst-region.foreign { color: #ffa940; background: rgba(255, 169, 64, 0.1); border: 1px solid rgba(255, 169, 64, 0.2); }
         .ls-narrative { display: flex; flex-direction: column; gap: 12px; }
         .ls-summary {
-            background: linear-gradient(135deg, rgba(64, 169, 255, 0.1), rgba(64, 169, 255, 0.02));
-            border: 1px solid rgba(64, 169, 255, 0.2);
+            background: linear-gradient(135deg, rgba(22, 119, 255, 0.1), rgba(22, 119, 255, 0.02));
+            border: 1px solid rgba(22, 119, 255, 0.2);
             border-radius: 10px;
             padding: 14px 16px;
             margin-bottom: 18px;
         }
-        .ls-summary-title { font-size: 14px; font-weight: 600; color: #40a9ff; margin-bottom: 8px; }
+        .ls-summary-title { font-size: 14px; font-weight: 600; color: #1677ff; margin-bottom: 8px; }
         .ls-summary-text { font-size: 13px; line-height: 1.95; color: #c0cee0; }
-        .ls-summary-text strong { color: #fff; font-weight: 600; }
+        .ls-summary-text strong { color: #1f2d3d; font-weight: 600; }
         .ls-narr-block {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(64, 169, 255, 0.1);
-            border-left: 3px solid #40a9ff;
+            background: rgba(40, 70, 120, 0.04);
+            border: 1px solid rgba(22, 119, 255, 0.1);
+            border-left: 3px solid #1677ff;
             border-radius: 8px;
             padding: 12px 14px;
         }
-        .ls-narr-title { font-size: 13px; font-weight: 600; color: #40a9ff; margin-bottom: 6px; }
-        .ls-narr-text { font-size: 13px; line-height: 1.8; color: #9fb0cc; }
+        .ls-narr-title { font-size: 13px; font-weight: 600; color: #1677ff; margin-bottom: 6px; }
+        .ls-narr-text { font-size: 13px; line-height: 1.8; color: #5a6a82; }
 
         /* 行业观点 */
         .iv-list { display: flex; flex-direction: column; gap: 12px; }
         .iv-item {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(64, 169, 255, 0.1);
+            background: rgba(40, 70, 120, 0.04);
+            border: 1px solid rgba(22, 119, 255, 0.1);
             border-radius: 8px;
             padding: 12px 14px;
         }
         .iv-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
         .iv-tag { font-size: 11px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
-        .iv-tag.forecast { color: #40a9ff; background: rgba(64, 169, 255, 0.1); border: 1px solid rgba(64, 169, 255, 0.2); }
-        .iv-tag.trend { color: #39ff14; background: rgba(57, 255, 20, 0.08); border: 1px solid rgba(57, 255, 20, 0.18); }
+        .iv-tag.forecast { color: #1677ff; background: rgba(22, 119, 255, 0.1); border: 1px solid rgba(22, 119, 255, 0.2); }
+        .iv-tag.trend { color: #52c41a; background: rgba(82, 196, 26, 0.08); border: 1px solid rgba(82, 196, 26, 0.18); }
         .iv-tag.risk { color: #ff7875; background: rgba(255, 77, 79, 0.08); border: 1px solid rgba(255, 77, 79, 0.18); }
         .iv-tag.industry { color: #b37feb; background: rgba(179, 127, 235, 0.1); border: 1px solid rgba(179, 127, 235, 0.2); }
-        .iv-src { font-size: 13px; font-weight: 600; color: #c8d4e8; }
-        .iv-text { font-size: 13px; line-height: 1.8; color: #9fb0cc; }
+        .iv-src { font-size: 13px; font-weight: 600; color: #5a6a82; }
+        .iv-text { font-size: 13px; line-height: 1.8; color: #5a6a82; }
         .driver-source { margin-top: 5px; }
         .driver-source summary {
             display: inline-flex;
             align-items: center;
             gap: 4px;
             cursor: pointer;
-            color: #40a9ff;
+            color: #1677ff;
             font-size: 12px;
             list-style: none;
             user-select: none;
@@ -540,10 +540,10 @@
         .driver-source-body {
             margin-top: 6px;
             font-size: 12px;
-            color: #8896b3;
+            color: #6e7d95;
             line-height: 1.7;
-            background: rgba(64, 169, 255, 0.06);
-            border: 1px solid rgba(64, 169, 255, 0.12);
+            background: rgba(22, 119, 255, 0.06);
+            border: 1px solid rgba(22, 119, 255, 0.12);
             border-radius: 6px;
             padding: 8px 10px;
         }
@@ -557,8 +557,8 @@
             margin-bottom: 20px;
         }
         .detail-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(64, 169, 255, 0.10);
+            background: rgba(40, 70, 120, 0.04);
+            border: 1px solid rgba(22, 119, 255, 0.10);
             border-radius: 12px;
             padding: 18px 20px;
             margin-bottom: 20px;
@@ -579,14 +579,14 @@
         .eq-row .drivers-wrap::-webkit-scrollbar, .eq-row .app-wrap::-webkit-scrollbar,
         .eq-row2 .gd-wrap::-webkit-scrollbar, .eq-row2 .ad-wrap::-webkit-scrollbar { width: 6px; }
         .eq-row .drivers-wrap::-webkit-scrollbar-thumb, .eq-row .app-wrap::-webkit-scrollbar-thumb,
-        .eq-row2 .gd-wrap::-webkit-scrollbar-thumb, .eq-row2 .ad-wrap::-webkit-scrollbar-thumb { background: rgba(64,169,255,0.25); border-radius: 3px; }
+        .eq-row2 .gd-wrap::-webkit-scrollbar-thumb, .eq-row2 .ad-wrap::-webkit-scrollbar-thumb { background: rgba(22, 119, 255,0.25); border-radius: 3px; }
         .detail-card-title {
             font-size: 14px;
             font-weight: 600;
-            color: #40a9ff;
+            color: #1677ff;
             margin-bottom: 14px;
             padding-left: 10px;
-            border-left: 3px solid #40a9ff;
+            border-left: 3px solid #1677ff;
             display: flex;
             align-items: center;
             gap: 6px;
@@ -597,27 +597,27 @@
             font-size: 12px;
             padding: 6px 12px;
             border-radius: 6px;
-            background: rgba(64, 169, 255, 0.08);
-            color: #40a9ff;
-            border: 1px solid rgba(64, 169, 255, 0.15);
+            background: rgba(22, 119, 255, 0.08);
+            color: #1677ff;
+            border: 1px solid rgba(22, 119, 255, 0.15);
         }
 
         .tech-detail-advice {
-            background: rgba(57, 255, 20, 0.05);
-            border: 1px solid rgba(57, 255, 20, 0.12);
+            background: rgba(82, 196, 26, 0.05);
+            border: 1px solid rgba(82, 196, 26, 0.12);
             border-radius: 8px;
             padding: 14px;
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.7;
         }
-        .tech-detail-advice strong { color: #39ff14; }
+        .tech-detail-advice strong { color: #52c41a; }
         .tech-detail-advice ul { margin: 0; padding-left: 18px; }
 
         .tech-detail-players ul { margin: 0; padding-left: 4px; list-style: none; }
         .tech-detail-players li {
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.9;
             position: relative;
             padding-left: 16px;
@@ -630,13 +630,13 @@
             width: 5px;
             height: 5px;
             border-radius: 50%;
-            background: #40a9ff;
+            background: #1677ff;
         }
 
         .tech-detail-risks-impact { display: flex; flex-direction: column; gap: 12px; }
         .tech-detail-rich { display: flex; flex-direction: column; gap: 12px; }
         .tech-detail-rich-block {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(40, 70, 120, 0.04);
             border: 1px solid rgba(0, 212, 255, 0.08);
             border-radius: 8px;
             padding: 12px 14px;
@@ -644,12 +644,12 @@
         .tech-detail-rich-title {
             font-size: 13px;
             font-weight: 600;
-            color: #40a9ff;
+            color: #1677ff;
             margin-bottom: 6px;
         }
-        .tech-detail-rich-content { font-size: 13px; color: #b0c0d8; line-height: 1.7; }
+        .tech-detail-rich-content { font-size: 13px; color: #5a6a82; line-height: 1.7; }
         .tech-detail-rich-list { margin: 0; padding-left: 18px; }
-        .tech-detail-rich-list li { font-size: 13px; color: #b0c0d8; line-height: 1.7; margin-bottom: 4px; }
+        .tech-detail-rich-list li { font-size: 13px; color: #5a6a82; line-height: 1.7; margin-bottom: 4px; }
 
         .tech-detail-radar {
             width: 100%;
@@ -669,7 +669,7 @@
         }
         .tech-detail-risk-item::before { content: '⚠'; margin-right: 6px; }
 
-        .detail-empty { text-align: center; padding: 80px 20px; color: #8896b3; }
+        .detail-empty { text-align: center; padding: 80px 20px; color: #6e7d95; }
         .detail-empty .icon { font-size: 48px; margin-bottom: 16px; }
         .detail-empty .hint { font-size: 14px; line-height: 1.8; }
 
@@ -680,53 +680,53 @@
             font-size: 13px;
             padding: 5px 12px;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(64, 169, 255, 0.15);
-            color: #b0c0d8;
+            background: rgba(40, 70, 120, 0.05);
+            border: 1px solid rgba(22, 119, 255, 0.15);
+            color: #5a6a82;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .ds-view-btn:hover { background: rgba(64, 169, 255, 0.1); }
-        .ds-view-btn.active { background: rgba(64, 169, 255, 0.16); border-color: rgba(64, 169, 255, 0.45); color: #40a9ff; }
+        .ds-view-btn:hover { background: rgba(22, 119, 255, 0.1); }
+        .ds-view-btn.active { background: rgba(22, 119, 255, 0.16); border-color: rgba(22, 119, 255, 0.45); color: #1677ff; }
         .ds-river { width: 100%; height: 430px; }
         .ds-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
         .ds-tab {
             font-size: 13px;
             padding: 6px 12px;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(64, 169, 255, 0.15);
-            color: #b0c0d8;
+            background: rgba(40, 70, 120, 0.05);
+            border: 1px solid rgba(22, 119, 255, 0.15);
+            color: #5a6a82;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             transition: all 0.2s;
         }
-        .ds-tab:hover { background: rgba(64, 169, 255, 0.1); }
-        .ds-tab.active { background: rgba(64, 169, 255, 0.16); border-color: rgba(64, 169, 255, 0.45); color: #40a9ff; }
-        .ds-count { font-size: 11px; padding: 0 7px; border-radius: 9px; background: rgba(64, 169, 255, 0.16); color: #40a9ff; }
-        .ds-tab.active .ds-count { background: rgba(64, 169, 255, 0.3); }
+        .ds-tab:hover { background: rgba(22, 119, 255, 0.1); }
+        .ds-tab.active { background: rgba(22, 119, 255, 0.16); border-color: rgba(22, 119, 255, 0.45); color: #1677ff; }
+        .ds-count { font-size: 11px; padding: 0 7px; border-radius: 9px; background: rgba(22, 119, 255, 0.16); color: #1677ff; }
+        .ds-tab.active .ds-count { background: rgba(22, 119, 255, 0.3); }
         .ds-table-wrap { overflow-x: auto; }
         .ds-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .ds-table th { text-align: left; font-weight: 600; color: #8896b3; padding: 9px 10px; border-bottom: 1px solid rgba(64, 169, 255, 0.18); white-space: nowrap; }
-        .ds-table td { padding: 9px 10px; color: #b0c0d8; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
-        .ds-table tr:hover td { background: rgba(64, 169, 255, 0.04); }
-        .ds-empty { color: #8896b3; padding: 24px; text-align: center; }
+        .ds-table th { text-align: left; font-weight: 600; color: #6e7d95; padding: 9px 10px; border-bottom: 1px solid rgba(22, 119, 255, 0.18); white-space: nowrap; }
+        .ds-table td { padding: 9px 10px; color: #5a6a82; border-bottom: 1px solid rgba(40, 70, 120, 0.07); }
+        .ds-table tr:hover td { background: rgba(22, 119, 255, 0.04); }
+        .ds-empty { color: #6e7d95; padding: 24px; text-align: center; }
         /* 专利卡片 */
         .pt-list { display: flex; flex-direction: column; gap: 12px; }
         .pt-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(64, 169, 255, 0.12);
+            background: rgba(40, 70, 120, 0.04);
+            border: 1px solid rgba(22, 119, 255, 0.12);
             border-radius: 10px;
             padding: 14px 16px;
         }
-        .pt-title { font-size: 15px; font-weight: 600; color: #e0e6ed; margin-bottom: 8px; }
-        .pt-inventors { font-size: 13px; color: #8896b3; margin-bottom: 8px; }
-        .pt-person { color: #b0c0d8; margin-right: 4px; }
-        .pt-company { color: #8896b3; }
-        .pt-meta { display: flex; flex-wrap: wrap; gap: 8px 26px; font-size: 13px; color: #b0c0d8; }
-        .pt-meta b { color: #8896b3; font-weight: 500; }
+        .pt-title { font-size: 15px; font-weight: 600; color: #2b3a4f; margin-bottom: 8px; }
+        .pt-inventors { font-size: 13px; color: #6e7d95; margin-bottom: 8px; }
+        .pt-person { color: #5a6a82; margin-right: 4px; }
+        .pt-company { color: #6e7d95; }
+        .pt-meta { display: flex; flex-wrap: wrap; gap: 8px 26px; font-size: 13px; color: #5a6a82; }
+        .pt-meta b { color: #6e7d95; font-weight: 500; }
         .pt-meta-sub { margin-top: 6px; }
         .pt-status { color: #ffa940; }
 
@@ -844,11 +844,11 @@
         window.closeTechGraph = closeTechGraph;
         function renderTechGraph(g) {
             const dom = document.getElementById('techGraphChart');
-            if (!dom || typeof echarts === 'undefined') { if (dom) dom.innerHTML = '<div style="color:#8896b3;padding:30px;text-align:center;">图谱组件加载失败（需联网）</div>'; return; }
+            if (!dom || typeof echarts === 'undefined') { if (dom) dom.innerHTML = '<div style="color:#6e7d95;padding:30px;text-align:center;">图谱组件加载失败（需联网）</div>'; return; }
             if (graphChart) graphChart.dispose();
             graphChart = echarts.init(dom);
             const cats = ['核心技术', '所属领域', '主要玩家', '关联技术', '应用场景'];
-            const colors = { '核心技术': '#ff4d4f', '所属领域': '#40a9ff', '主要玩家': '#73d13d', '关联技术': '#b37feb', '应用场景': '#ffa940' };
+            const colors = { '核心技术': '#ff4d4f', '所属领域': '#1677ff', '主要玩家': '#73d13d', '关联技术': '#b37feb', '应用场景': '#ffa940' };
             const nodes = [], links = [], seen = new Set();
             const add = (name, cat, size) => { if (!name || seen.has(name)) return; seen.add(name); nodes.push({ name, category: cats.indexOf(cat), symbolSize: size, itemStyle: { color: colors[cat] } }); };
             add(g.name, '核心技术', 62);
@@ -861,12 +861,12 @@
             graphChart.setOption({
                 backgroundColor: 'transparent',
                 tooltip: { formatter: p => p.dataType === 'node' ? `${cats[p.data.category]} · ${p.name}` : '' },
-                legend: [{ data: cats, top: 6, icon: 'circle', textStyle: { color: '#b0c0d8', fontSize: 12 }, itemGap: 16 }],
+                legend: [{ data: cats, top: 6, icon: 'circle', textStyle: { color: '#5a6a82', fontSize: 12 }, itemGap: 16 }],
                 series: [{
                     type: 'graph', layout: 'force', roam: true, draggable: true, top: 40,
                     categories: cats.map(c => ({ name: c, itemStyle: { color: colors[c] } })),
                     force: { repulsion: 280, edgeLength: 120, gravity: 0.08 },
-                    label: { show: true, color: '#e0e6ed', fontSize: 12, position: 'right' },
+                    label: { show: true, color: '#2b3a4f', fontSize: 12, position: 'right' },
                     lineStyle: { color: 'rgba(120,160,210,0.35)', width: 1, curveness: 0.06 },
                     emphasis: { focus: 'adjacency', lineStyle: { width: 2 }, label: { fontWeight: 'bold' } },
                     data: nodes, links: links
@@ -937,23 +937,23 @@
             series[0].markLine = { silent: true, symbol: 'none', lineStyle: { color: 'rgba(255,159,67,0.4)', type: 'dashed', width: 1 }, label: { show: true, position: 'end', formatter: '预测起点', color: '#ff9f43', fontSize: 10, distance: [0, -18] }, data: [{ xAxis: '2025' }] };
             dsRiverInst.setOption({
                 backgroundColor: 'transparent',
-                title: { text: '技术发展趋势预测', subtext: '基于多源数据融合分析 | 2026-2029 为趋势预测', left: 0, top: 0, textStyle: { color: '#40a9ff', fontSize: 15, fontWeight: 600 }, subtextStyle: { color: 'rgba(255,255,255,0.45)', fontSize: 11 } },
+                title: { text: '技术发展趋势预测', subtext: '基于多源数据融合分析 | 2026-2029 为趋势预测', left: 0, top: 0, textStyle: { color: '#1677ff', fontSize: 15, fontWeight: 600 }, subtextStyle: { color: 'rgba(40, 70, 120, 0.27)', fontSize: 11 } },
                 tooltip: {
-                    trigger: 'axis', axisPointer: { type: 'cross', crossStyle: { color: 'rgba(255,255,255,0.15)' } },
-                    backgroundColor: 'rgba(6,26,61,0.95)', borderColor: 'rgba(0,212,255,0.25)', borderWidth: 1, textStyle: { color: '#fff', fontSize: 12 },
+                    trigger: 'axis', axisPointer: { type: 'cross', crossStyle: { color: 'rgba(40, 70, 120, 0.09)' } },
+                    backgroundColor: 'rgba(255,255,255,0.97)', borderColor: 'rgba(22,119,255,0.3)', borderWidth: 1, textStyle: { color: '#2b3a4f', fontSize: 12 },
                     formatter: params => {
                         const year = params[0].axisValue;
                         const isP = ['2026', '2027', '2028', '2029'].includes(year);
                         let total = 0; params.forEach(p => { if (p.value != null) total += Number(p.value); });
-                        let html = `<div style="font-weight:600;margin-bottom:6px;color:#00d4ff;">${year}年 ${isP ? '<span style="color:#ff9f43;font-size:12px;">(预测)</span>' : ''}</div><div style="margin-bottom:6px;color:rgba(255,255,255,0.5);font-size:11px;">数据总量: ${total.toLocaleString()}</div><table style="width:100%;border-collapse:collapse;">`;
+                        let html = `<div style="font-weight:600;margin-bottom:6px;color:#1677ff;">${year}年 ${isP ? '<span style="color:#ff9f43;font-size:12px;">(预测)</span>' : ''}</div><div style="margin-bottom:6px;color:rgba(40, 70, 120, 0.30);font-size:11px;">数据总量: ${total.toLocaleString()}</div><table style="width:100%;border-collapse:collapse;">`;
                         params.forEach(p => { html += `<tr><td style="padding:2px 0;"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${p.color};margin-right:6px;"></span>${p.seriesName}</td><td style="padding:2px 0 2px 16px;text-align:right;">${Number(p.value).toLocaleString()}</td></tr>`; });
                         return html + '</table>';
                     }
                 },
-                legend: { data: RIVER_CATS.map(c => c.name), top: 0, right: 0, icon: 'roundRect', itemWidth: 12, itemHeight: 8, itemGap: 10, textStyle: { color: 'rgba(255,255,255,0.7)', fontSize: 11 }, pageIconColor: '#00d4ff', pageTextStyle: { color: 'rgba(255,255,255,0.5)' } },
+                legend: { data: RIVER_CATS.map(c => c.name), top: 0, right: 0, icon: 'roundRect', itemWidth: 12, itemHeight: 8, itemGap: 10, textStyle: { color: 'rgba(40, 70, 120, 0.42)', fontSize: 11 }, pageIconColor: '#1677ff', pageTextStyle: { color: 'rgba(40, 70, 120, 0.30)' } },
                 grid: { left: '2%', right: '3%', bottom: '6%', top: '20%', containLabel: true },
-                xAxis: { type: 'category', boundaryGap: false, data: RIVER_YEARS, axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }, axisTick: { show: false }, axisLabel: { color: v => ['2026', '2027', '2028', '2029'].includes(v) ? '#ff9f43' : 'rgba(255,255,255,0.6)', fontSize: 11, margin: 12 }, splitLine: { show: false } },
-                yAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: 'rgba(255,255,255,0.5)', fontSize: 11, formatter: v => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.06)', type: 'dashed' } } },
+                xAxis: { type: 'category', boundaryGap: false, data: RIVER_YEARS, axisLine: { lineStyle: { color: 'rgba(40, 70, 120, 0.12)' } }, axisTick: { show: false }, axisLabel: { color: v => ['2026', '2027', '2028', '2029'].includes(v) ? '#ff9f43' : 'rgba(40, 70, 120, 0.36)', fontSize: 11, margin: 12 }, splitLine: { show: false } },
+                yAxis: { type: 'value', axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: 'rgba(40, 70, 120, 0.30)', fontSize: 11, formatter: v => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v }, splitLine: { lineStyle: { color: 'rgba(40, 70, 120, 0.08)', type: 'dashed' } } },
                 series, animationDuration: 1500, animationEasing: 'cubicOut'
             });
         }
@@ -1011,7 +1011,7 @@
         function initWorldMap(countries) {
             const dom = document.getElementById('worldMap');
             if (!dom || !countries || !countries.length) return;
-            if (typeof echarts === 'undefined') { dom.innerHTML = '<div style="color:#8896b3;padding:24px;text-align:center;">地图组件加载失败（需联网）</div>'; return; }
+            if (typeof echarts === 'undefined') { dom.innerHTML = '<div style="color:#6e7d95;padding:24px;text-align:center;">地图组件加载失败（需联网）</div>'; return; }
             loadWorld().then(() => {
                 if (worldChart) { worldChart.dispose(); worldChart = null; }
                 worldChart = echarts.init(dom);
@@ -1029,7 +1029,7 @@
                     visualMap: {
                         min: Math.min(...vals, 40), max: Math.max(...vals, 100),
                         text: ['快', '慢'], calculable: true, left: 12, bottom: 12,
-                        textStyle: { color: '#8896b3' },
+                        textStyle: { color: '#6e7d95' },
                         inRange: { color: ['#fde68a', '#fbbf24', '#f97316', '#ef4444', '#b91c1c'] }
                     },
                     series: [{
@@ -1040,7 +1040,7 @@
                         data
                     }]
                 });
-            }).catch(() => { dom.innerHTML = '<div style="color:#8896b3;padding:24px;text-align:center;">地图数据加载失败（需联网）</div>'; });
+            }).catch(() => { dom.innerHTML = '<div style="color:#6e7d95;padding:24px;text-align:center;">地图数据加载失败（需联网）</div>'; });
         }
         window.addEventListener('resize', () => { if (worldChart) worldChart.resize(); if (dsRiverInst) dsRiverInst.resize(); if (graphChart) graphChart.resize(); });
 

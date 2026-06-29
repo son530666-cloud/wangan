@@ -37,8 +37,8 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-            background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 50%, #0a1628 100%);
-            color: #e0e6ed;
+            background: linear-gradient(135deg, #eef2f7 0%, #e6ecf4 50%, #eef2f7 100%);
+            color: #2b3a4f;
             min-height: 100vh;
             padding: 20px;
         }
@@ -55,13 +55,13 @@
             justify-content: space-between;
             margin-bottom: 24px;
             padding: 16px 0;
-            border-bottom: 1px solid rgba(64, 169, 255, 0.2);
+            border-bottom: 1px solid rgba(22, 119, 255, 0.2);
         }
 
         .page-header h1 {
             font-size: 18px;
             font-weight: 700;
-            color: #40a9ff;
+            color: #1677ff;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -71,21 +71,21 @@
             content: '';
             width: 4px;
             height: 18px;
-            background: linear-gradient(180deg, #40a9ff, #0099ff);
+            background: linear-gradient(180deg, #1677ff, #0099ff);
             border-radius: 2px;
         }
 
         .page-header .subtitle {
             font-size: 13px;
-            color: #8896b3;
+            color: #6e7d95;
             margin-top: 4px;
             margin-left: 14px;
         }
 
         /* 通用卡片样式 */
         .section-card {
-            background: rgba(16, 30, 60, 0.6);
-            border: 1px solid rgba(64, 169, 255, 0.15);
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(22, 119, 255, 0.15);
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
@@ -95,17 +95,17 @@
         }
 
         .section-card:hover {
-            border-color: rgba(64, 169, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(64, 169, 255, 0.1);
+            border-color: rgba(22, 119, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(22, 119, 255, 0.1);
         }
 
         .section-title {
             font-size: 20px;
             font-weight: 600;
-            color: #40a9ff;
+            color: #1677ff;
             margin-bottom: 18px;
             padding-left: 12px;
-            border-left: 4px solid #40a9ff;
+            border-left: 4px solid #1677ff;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -115,14 +115,14 @@
             font-size: 13px;
             padding: 3px 12px;
             border-radius: 12px;
-            background: rgba(64, 169, 255, 0.15);
-            color: #40a9ff;
-            border: 1px solid rgba(64, 169, 255, 0.3);
+            background: rgba(22, 119, 255, 0.15);
+            color: #1677ff;
+            border: 1px solid rgba(22, 119, 255, 0.3);
         }
 
         /* ========== 第一部分：技术预警模块 ========== */
         .warning-section {
-            background: linear-gradient(135deg, rgba(255, 77, 79, 0.08) 0%, rgba(16, 30, 60, 0.6) 100%);
+            background: linear-gradient(135deg, rgba(255, 77, 79, 0.08) 0%, rgba(255, 255, 255, 0.92) 100%);
             border-color: rgba(255, 77, 79, 0.3);
         }
 
@@ -150,7 +150,7 @@
         }
 
         .warning-card {
-            background: linear-gradient(135deg, rgba(255, 77, 79, 0.1) 0%, rgba(16, 30, 60, 0.4) 100%);
+            background: linear-gradient(135deg, rgba(255, 77, 79, 0.1) 0%, rgba(255, 255, 255, 0.92) 100%);
             border: 1px solid rgba(255, 77, 79, 0.25);
             border-radius: 10px;
             padding: 16px;
@@ -228,7 +228,7 @@
 
         .warning-date {
             font-size: 12px;
-            color: #8896b3;
+            color: #6e7d95;
             margin-top: 6px;
         }
 
@@ -300,7 +300,7 @@
             transform: translate(-50%, -50%);
             pointer-events: none;
             border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.4);
+            box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.4);
             opacity: 0;
         }
 
@@ -309,9 +309,9 @@
         }
 
         @keyframes radarPulse {
-            0% { width: 0; height: 0; opacity: 0.8; box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.5); }
+            0% { width: 0; height: 0; opacity: 0.8; box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.5); }
             50% { opacity: 0.4; }
-            100% { width: 480px; height: 480px; opacity: 0; box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
+            100% { width: 480px; height: 480px; opacity: 0; box-shadow: 0 0 0 0 rgba(82, 196, 26, 0); }
         }
 
         @keyframes radarRotate {
@@ -335,7 +335,7 @@
 
         .last-scan-time {
             font-size: 13px;
-            color: #8896b3;
+            color: #6e7d95;
             display: flex;
             align-items: center;
             gap: 4px;
@@ -346,10 +346,10 @@
             align-items: center;
             gap: 6px;
             padding: 8px 16px;
-            background: linear-gradient(135deg, rgba(57, 255, 20, 0.15), rgba(57, 255, 20, 0.05));
-            border: 1px solid rgba(57, 255, 20, 0.3);
+            background: linear-gradient(135deg, rgba(82, 196, 26, 0.15), rgba(82, 196, 26, 0.05));
+            border: 1px solid rgba(82, 196, 26, 0.3);
             border-radius: 6px;
-            color: #39ff14;
+            color: #52c41a;
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -357,9 +357,9 @@
         }
 
         .scan-btn:hover {
-            background: linear-gradient(135deg, rgba(57, 255, 20, 0.25), rgba(57, 255, 20, 0.1));
-            border-color: #39ff14;
-            box-shadow: 0 0 12px rgba(57, 255, 20, 0.2);
+            background: linear-gradient(135deg, rgba(82, 196, 26, 0.25), rgba(82, 196, 26, 0.1));
+            border-color: #52c41a;
+            box-shadow: 0 0 12px rgba(82, 196, 26, 0.2);
         }
 
         .scan-btn.scanning {
@@ -369,8 +369,8 @@
         }
 
         @keyframes btnPulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.3); }
-            50% { box-shadow: 0 0 12px 4px rgba(57, 255, 20, 0.1); }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.3); }
+            50% { box-shadow: 0 0 12px 4px rgba(82, 196, 26, 0.1); }
         }
 
         .scan-btn-icon {
@@ -438,11 +438,11 @@
             position: absolute;
             font-size: 18px;
             font-weight: 600;
-            color: #39ff14;
+            color: #52c41a;
             transform: translate(-50%, -50%);
             pointer-events: none;
             z-index: 5;
-            text-shadow: 0 0 10px rgba(57,255,20,0.5);
+            text-shadow: 0 0 10px rgba(82, 196, 26,0.5);
             animation: dimBlink 3s ease-in-out infinite;
             white-space: nowrap;
         }
@@ -451,8 +451,8 @@
         .radar-dim-label:nth-of-type(3) { animation-delay: 1.5s; }
         .radar-dim-label:nth-of-type(4) { animation-delay: 2.25s; }
         @keyframes dimBlink {
-            0%, 100% { opacity: 1; text-shadow: 0 0 14px rgba(57,255,20,0.8); color: #39ff14; }
-            50% { opacity: 0.5; text-shadow: 0 0 4px rgba(57,255,20,0.2); color: #6aff47; }
+            0%, 100% { opacity: 1; text-shadow: 0 0 14px rgba(82, 196, 26,0.8); color: #52c41a; }
+            50% { opacity: 0.5; text-shadow: 0 0 4px rgba(82, 196, 26,0.2); color: #6aff47; }
         }
 
         .radar-scan-sector {
@@ -467,11 +467,11 @@
         .radar-tooltip-el {
             position: absolute;
             display: none;
-            background: rgba(16,30,60,0.95);
-            border: 1px solid rgba(57,255,20,0.35);
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(82, 196, 26,0.35);
             border-radius: 6px;
             padding: 8px 14px;
-            color: #e0e6ed;
+            color: #2b3a4f;
             font-size: 14px;
             pointer-events: none;
             z-index: 100;
@@ -491,7 +491,7 @@
             align-items: center;
             gap: 8px;
             font-size: 14px;
-            color: #a0aec0;
+            color: #7a8aa0;
         }
 
         .legend-dot {
@@ -501,8 +501,8 @@
         }
 
         .legend-dot.new-tech {
-            background: #40a9ff;
-            box-shadow: 0 0 8px rgba(64, 169, 255, 0.6);
+            background: #1677ff;
+            box-shadow: 0 0 8px rgba(22, 119, 255, 0.6);
         }
 
         .legend-dot.old-tech {
@@ -546,10 +546,10 @@
             transform: translateY(-50%);
             width: 32px;
             height: 32px;
-            background: rgba(16, 30, 60, 0.9);
-            border: 1px solid rgba(64, 169, 255, 0.3);
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(22, 119, 255, 0.3);
             border-radius: 50%;
-            color: #40a9ff;
+            color: #1677ff;
             font-size: 18px;
             display: flex;
             align-items: center;
@@ -561,8 +561,8 @@
         }
 
         .slider-arrow:hover {
-            background: rgba(64, 169, 255, 0.2);
-            border-color: #40a9ff;
+            background: rgba(22, 119, 255, 0.2);
+            border-color: #1677ff;
         }
 
         .slider-arrow.prev { left: 4px; }
@@ -584,13 +584,13 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: rgba(64, 169, 255, 0.2);
+            background: rgba(22, 119, 255, 0.2);
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .slider-dot.active {
-            background: #40a9ff;
+            background: #1677ff;
             width: 18px;
             border-radius: 3px;
         }
@@ -599,8 +599,8 @@
         .newtech-summary {
             margin-top: 10px;
             padding: 8px 12px;
-            background: rgba(57, 255, 20, 0.04);
-            border: 1px solid rgba(57, 255, 20, 0.12);
+            background: rgba(82, 196, 26, 0.04);
+            border: 1px solid rgba(82, 196, 26, 0.12);
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
@@ -615,32 +615,32 @@
         }
 
         .summary-item:not(:last-child) {
-            border-right: 1px solid rgba(57, 255, 20, 0.1);
+            border-right: 1px solid rgba(82, 196, 26, 0.1);
         }
 
         .summary-label {
             font-size: 13px;
-            color: #8896b3;
+            color: #6e7d95;
             margin-bottom: 4px;
         }
 
         .summary-value {
             font-size: 17px;
             font-weight: 700;
-            color: #39ff14;
+            color: #52c41a;
         }
 
         .summary-sub {
             font-size: 12px;
-            color: #8896b3;
+            color: #6e7d95;
             margin-top: 2px;
         }
 
         /* ========== 新技术卡片（滑动版） ========== */
         .tech-card {
             flex: 0 0 100%;
-            background: rgba(64, 169, 255, 0.05);
-            border: 1px solid rgba(64, 169, 255, 0.12);
+            background: rgba(22, 119, 255, 0.05);
+            border: 1px solid rgba(22, 119, 255, 0.12);
             border-radius: 10px;
             padding: 14px;
             cursor: pointer;
@@ -654,7 +654,7 @@
             width: 6px;
         }
         .tech-card::-webkit-scrollbar-thumb {
-            background: rgba(64, 169, 255, 0.25);
+            background: rgba(22, 119, 255, 0.25);
             border-radius: 3px;
         }
 
@@ -673,12 +673,12 @@
         }
 
         .tech-card:hover {
-            background: rgba(64, 169, 255, 0.08);
-            border-color: rgba(64, 169, 255, 0.3);
+            background: rgba(22, 119, 255, 0.08);
+            border-color: rgba(22, 119, 255, 0.3);
         }
 
         .tech-card.new-highlight {
-            border-left: 3px solid #40a9ff;
+            border-left: 3px solid #1677ff;
         }
 
         .tech-card-header {
@@ -691,7 +691,7 @@
         .tech-card-name {
             font-size: 17px;
             font-weight: 600;
-            color: #e0e6ed;
+            color: #2b3a4f;
         }
 
         .tech-card-score-wrap {
@@ -709,9 +709,9 @@
         }
 
         .tech-meta-cat {
-            color: #40a9ff;
-            background: rgba(64, 169, 255, 0.1);
-            border: 1px solid rgba(64, 169, 255, 0.2);
+            color: #1677ff;
+            background: rgba(22, 119, 255, 0.1);
+            border: 1px solid rgba(22, 119, 255, 0.2);
             padding: 3px 10px;
             border-radius: 4px;
             font-size: 13px;
@@ -719,15 +719,15 @@
         }
 
         .tech-meta-time {
-            color: #8896b3;
+            color: #6e7d95;
             font-size: 13px;
         }
 
         .tech-card-score {
             font-size: 18px;
             font-weight: 700;
-            color: #40a9ff;
-            background: rgba(64, 169, 255, 0.1);
+            color: #1677ff;
+            background: rgba(22, 119, 255, 0.1);
             padding: 2px 8px;
             border-radius: 4px;
         }
@@ -785,7 +785,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 14px;
-            color: #8896b3;
+            color: #6e7d95;
         }
 
         .tech-card-time {
@@ -798,9 +798,9 @@
             font-size: 12px;
             padding: 2px 8px;
             border-radius: 4px;
-            background: rgba(64, 169, 255, 0.15);
-            color: #40a9ff;
-            border: 1px solid rgba(64, 169, 255, 0.25);
+            background: rgba(22, 119, 255, 0.15);
+            color: #1677ff;
+            border: 1px solid rgba(22, 119, 255, 0.25);
         }
 
         /* ========== 第三部分：历史技术清单 ========== */
@@ -811,8 +811,8 @@
         }
 
         .history-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(40, 70, 120, 0.05);
+            border: 1px solid rgba(40, 70, 120, 0.10);
             border-radius: 10px;
             padding: 16px;
             transition: all 0.3s ease;
@@ -820,8 +820,8 @@
         }
 
         .history-card:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: rgba(64, 169, 255, 0.25);
+            background: rgba(40, 70, 120, 0.08);
+            border-color: rgba(22, 119, 255, 0.25);
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
         }
@@ -836,7 +836,7 @@
         .history-card-name {
             font-size: 15px;
             font-weight: 600;
-            color: #e0e6ed;
+            color: #2b3a4f;
         }
 
         .history-card-score {
@@ -858,7 +858,7 @@
 
         .history-card-desc {
             font-size: 13px;
-            color: #8896b3;
+            color: #6e7d95;
             line-height: 1.6;
             margin-bottom: 12px;
             display: -webkit-box;
@@ -872,14 +872,14 @@
             justify-content: space-between;
             align-items: center;
             padding-top: 10px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(40, 70, 120, 0.07);
         }
 
         .history-card-meta {
             display: flex;
             gap: 12px;
             font-size: 12px;
-            color: #8896b3;
+            color: #6e7d95;
         }
 
         .history-status {
@@ -889,9 +889,9 @@
         }
 
         .history-status.tracking {
-            background: rgba(64, 169, 255, 0.1);
-            color: #40a9ff;
-            border: 1px solid rgba(64, 169, 255, 0.2);
+            background: rgba(22, 119, 255, 0.1);
+            color: #1677ff;
+            border: 1px solid rgba(22, 119, 255, 0.2);
         }
 
         .history-status.mature {
@@ -914,15 +914,15 @@
         }
 
         .history-card {
-            background: rgba(16, 30, 60, 0.5);
-            border: 1px solid rgba(64, 169, 255, 0.12);
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(22, 119, 255, 0.12);
             border-radius: 12px;
             padding: 20px;
             transition: all 0.3s ease;
         }
 
         .history-card:hover {
-            border-color: rgba(64, 169, 255, 0.25);
+            border-color: rgba(22, 119, 255, 0.25);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         }
 
@@ -936,7 +936,7 @@
         .history-card-name {
             font-size: 18px;
             font-weight: 700;
-            color: #e0e6ed;
+            color: #2b3a4f;
         }
 
         .history-card-score {
@@ -956,25 +956,25 @@
             justify-content: space-between;
             align-items: center;
             font-size: 12px;
-            color: #8896b3;
+            color: #6e7d95;
             margin-bottom: 6px;
         }
 
         .history-lifecycle-label .stage {
-            color: #40a9ff;
+            color: #1677ff;
             font-weight: 600;
         }
 
         .history-lifecycle-bar {
             height: 6px;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(40, 70, 120, 0.08);
             border-radius: 3px;
             overflow: hidden;
         }
 
         .history-lifecycle-bar-inner {
             height: 100%;
-            background: linear-gradient(90deg, #40a9ff, #73d13d);
+            background: linear-gradient(90deg, #1677ff, #73d13d);
             border-radius: 3px;
             transition: width 0.8s ease;
         }
@@ -983,7 +983,7 @@
         .history-section-title {
             font-size: 12px;
             font-weight: 600;
-            color: #8896b3;
+            color: #6e7d95;
             margin: 14px 0 8px 0;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -1028,14 +1028,14 @@
             font-size: 11px;
             padding: 1px 6px;
             border-radius: 3px;
-            background: rgba(64, 169, 255, 0.1);
-            color: #40a9ff;
-            border: 1px solid rgba(64, 169, 255, 0.2);
+            background: rgba(22, 119, 255, 0.1);
+            color: #1677ff;
+            border: 1px solid rgba(22, 119, 255, 0.2);
             font-weight: 600;
         }
 
         .history-datasource-text {
-            color: #b0c0d8;
+            color: #5a6a82;
         }
 
         /* 影响域 */
@@ -1064,12 +1064,12 @@
 
         /* 竞争格局 */
         .history-competition {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(40, 70, 120, 0.05);
+            border: 1px solid rgba(40, 70, 120, 0.08);
             border-radius: 8px;
             padding: 10px 12px;
             font-size: 12px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.6;
             margin-top: 4px;
             position: relative;
@@ -1096,9 +1096,9 @@
             font-size: 11px;
             padding: 3px 10px;
             border-radius: 4px;
-            background: rgba(64, 169, 255, 0.08);
-            color: #40a9ff;
-            border: 1px solid rgba(64, 169, 255, 0.15);
+            background: rgba(22, 119, 255, 0.08);
+            color: #1677ff;
+            border: 1px solid rgba(22, 119, 255, 0.15);
         }
 
         /* 关键指标 */
@@ -1132,14 +1132,14 @@
             gap: 10px;
             padding: 7px 10px;
             border-radius: 6px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-left: 3px solid #8896b3;
+            background: rgba(40, 70, 120, 0.05);
+            border: 1px solid rgba(40, 70, 120, 0.08);
+            border-left: 3px solid #6e7d95;
             font-size: 12px;
         }
 
-        .history-change-item.trend-up { border-left-color: #39ff14; }
-        .history-change-item.trend-flat { border-left-color: #39ff14; }
+        .history-change-item.trend-up { border-left-color: #52c41a; }
+        .history-change-item.trend-flat { border-left-color: #52c41a; }
         .history-change-item.trend-down { border-left-color: #ff4d4f; }
 
         .history-change-dim {
@@ -1150,9 +1150,9 @@
             font-weight: 600;
             padding: 2px 0;
             border-radius: 3px;
-            background: rgba(64, 169, 255, 0.1);
-            color: #40a9ff;
-            border: 1px solid rgba(64, 169, 255, 0.2);
+            background: rgba(22, 119, 255, 0.1);
+            color: #1677ff;
+            border: 1px solid rgba(22, 119, 255, 0.2);
         }
 
         .history-change-body {
@@ -1165,12 +1165,12 @@
 
         .history-change-label {
             font-size: 10px;
-            color: #8896b3;
+            color: #6e7d95;
             letter-spacing: 0.5px;
         }
 
         .history-change-value {
-            color: #c8d4e8;
+            color: #5a6a82;
             font-weight: 500;
             line-height: 1.4;
         }
@@ -1182,7 +1182,7 @@
             white-space: nowrap;
         }
 
-        .trend-up .history-change-trend { color: #39ff14; }
+        .trend-up .history-change-trend { color: #52c41a; }
         .trend-flat .history-change-trend { color: #ffa940; }
         .trend-down .history-change-trend { color: #ff4d4f; }
 
@@ -1233,8 +1233,8 @@
             gap: 16px;
             margin-bottom: 20px;
             padding: 14px 16px;
-            background: rgba(16, 30, 60, 0.4);
-            border: 1px solid rgba(64, 169, 255, 0.12);
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(22, 119, 255, 0.12);
             border-radius: 8px;
             flex-wrap: wrap;
         }
@@ -1247,17 +1247,17 @@
 
         .filter-label {
             font-size: 12px;
-            color: #8896b3;
+            color: #6e7d95;
             font-weight: 500;
         }
 
         .filter-select {
             min-width: 160px;
             padding: 6px 10px;
-            background: rgba(10, 22, 40, 0.6);
-            border: 1px solid rgba(64, 169, 255, 0.2);
+            background: #ffffff;
+            border: 1px solid rgba(22, 119, 255, 0.2);
             border-radius: 6px;
-            color: #e0e6ed;
+            color: #2b3a4f;
             font-size: 13px;
             font-family: inherit;
             cursor: pointer;
@@ -1266,21 +1266,21 @@
         }
 
         .filter-select:hover, .filter-select:focus {
-            border-color: rgba(64, 169, 255, 0.4);
-            background: rgba(10, 22, 40, 0.8);
+            border-color: rgba(22, 119, 255, 0.4);
+            background: #eef4fc;
         }
 
         .filter-select option {
-            background: #0d1f3c;
-            color: #e0e6ed;
+            background: #e6ecf4;
+            color: #2b3a4f;
         }
 
         .filter-reset {
             padding: 6px 16px;
-            background: rgba(64, 169, 255, 0.1);
-            border: 1px solid rgba(64, 169, 255, 0.25);
+            background: rgba(22, 119, 255, 0.1);
+            border: 1px solid rgba(22, 119, 255, 0.25);
             border-radius: 6px;
-            color: #40a9ff;
+            color: #1677ff;
             font-size: 13px;
             font-family: inherit;
             cursor: pointer;
@@ -1289,15 +1289,15 @@
         }
 
         .filter-reset:hover {
-            background: rgba(64, 169, 255, 0.2);
-            border-color: #40a9ff;
+            background: rgba(22, 119, 255, 0.2);
+            border-color: #1677ff;
         }
 
         /* 空状态 */
         .empty-state {
             text-align: center;
             padding: 40px;
-            color: #8896b3;
+            color: #6e7d95;
         }
 
         .empty-state-icon {
@@ -1322,8 +1322,8 @@
             display: none;
             width: 340px;
             max-height: calc(100vh - 40px);
-            background: rgba(16, 30, 60, 0.98);
-            border: 1px solid rgba(64, 169, 255, 0.25);
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(22, 119, 255, 0.25);
             border-radius: 12px;
             padding: 16px;
             z-index: 200;
@@ -1335,7 +1335,7 @@
         .tech-dim-popup.show { display: block; }
         .tech-dim-popup::-webkit-scrollbar { width: 5px; }
         .tech-dim-popup::-webkit-scrollbar-track { background: transparent; }
-        .tech-dim-popup::-webkit-scrollbar-thumb { background: rgba(64, 169, 255, 0.3); border-radius: 3px; }
+        .tech-dim-popup::-webkit-scrollbar-thumb { background: rgba(22, 119, 255, 0.3); border-radius: 3px; }
 
         .popup-header {
             display: flex;
@@ -1347,8 +1347,8 @@
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: rgba(64, 169, 255, 0.12);
-            border: 1px solid rgba(64, 169, 255, 0.25);
+            background: rgba(22, 119, 255, 0.12);
+            border: 1px solid rgba(22, 119, 255, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1360,7 +1360,7 @@
         .popup-name {
             font-size: 16px;
             font-weight: 700;
-            color: #e0e6ed;
+            color: #2b3a4f;
             margin-bottom: 4px;
         }
         .popup-score {
@@ -1368,20 +1368,20 @@
             font-size: 13px;
             font-weight: 600;
             color: #fff;
-            background: linear-gradient(90deg, #40a9ff, #0099ff);
+            background: linear-gradient(90deg, #1677ff, #0099ff);
             padding: 2px 10px;
             border-radius: 4px;
         }
 
         .popup-divider {
             height: 1px;
-            background: rgba(64, 169, 255, 0.12);
+            background: rgba(22, 119, 255, 0.12);
             margin: 10px 0;
         }
         .popup-section-title {
             font-size: 14px;
             font-weight: 600;
-            color: #40a9ff;
+            color: #1677ff;
             margin-bottom: 10px;
         }
 
@@ -1392,7 +1392,7 @@
             border: 1px solid transparent;
             transition: border-color 0.2s;
         }
-        .popup-dim:hover { border-color: rgba(64, 169, 255, 0.15); }
+        .popup-dim:hover { border-color: rgba(22, 119, 255, 0.15); }
         .popup-dim-main {
             display: flex;
             align-items: center;
@@ -1402,7 +1402,7 @@
             border-radius: 8px;
             transition: background 0.2s;
         }
-        .popup-dim-main:hover { background: rgba(64, 169, 255, 0.06); }
+        .popup-dim-main:hover { background: rgba(22, 119, 255, 0.06); }
         .popup-dim-icon {
             width: 22px;
             height: 22px;
@@ -1415,14 +1415,14 @@
         }
         .popup-dim-name {
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             width: 48px;
             flex-shrink: 0;
         }
         .popup-dim-bar {
             flex: 1;
             height: 5px;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(40, 70, 120, 0.08);
             border-radius: 3px;
             overflow: hidden;
             margin: 0 4px;
@@ -1435,14 +1435,14 @@
         .popup-dim-score {
             font-size: 13px;
             font-weight: 700;
-            color: #e0e6ed;
+            color: #2b3a4f;
             width: 36px;
             text-align: right;
             flex-shrink: 0;
         }
         .popup-dim-toggle {
             font-size: 11px;
-            color: #8896b3;
+            color: #6e7d95;
             transition: transform 0.2s;
             flex-shrink: 0;
         }
@@ -1452,14 +1452,14 @@
             display: none;
             padding: 0 6px 10px 40px;
             font-size: 12px;
-            color: #8896b3;
+            color: #6e7d95;
             line-height: 1.6;
         }
         .popup-dim.expanded .popup-evidence { display: block; }
 
         .popup-evidence-summary {
             margin-bottom: 8px;
-            color: rgba(255, 255, 255, 0.75);
+            color: rgba(40, 70, 120, 0.45);
             font-size: 12px;
             line-height: 1.7;
         }
@@ -1473,10 +1473,10 @@
             align-items: center;
             gap: 4px;
             padding: 3px 8px;
-            background: rgba(64, 169, 255, 0.1);
-            border: 1px solid rgba(64, 169, 255, 0.2);
+            background: rgba(22, 119, 255, 0.1);
+            border: 1px solid rgba(22, 119, 255, 0.2);
             border-radius: 4px;
-            color: #40a9ff;
+            color: #1677ff;
             font-size: 11px;
         }
 
@@ -1487,7 +1487,7 @@
             gap: 6px;
             margin-top: 8px;
             padding-top: 8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-top: 1px solid rgba(40, 70, 120, 0.08);
         }
         .popup-sub-indicator {
             display: flex;
@@ -1496,7 +1496,7 @@
         }
         .popup-sub-name {
             font-size: 11px;
-            color: #a0aec0;
+            color: #7a8aa0;
             width: 110px;
             flex-shrink: 0;
             white-space: nowrap;
@@ -1506,7 +1506,7 @@
         .popup-sub-bar {
             flex: 1;
             height: 4px;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(40, 70, 120, 0.08);
             border-radius: 2px;
             overflow: hidden;
         }
@@ -1518,7 +1518,7 @@
         .popup-sub-score {
             font-size: 11px;
             font-weight: 600;
-            color: #e0e6ed;
+            color: #2b3a4f;
             width: 28px;
             text-align: right;
             flex-shrink: 0;
@@ -1546,8 +1546,8 @@
             width: 960px;
             max-width: calc(100vw - 40px);
             max-height: calc(100vh - 40px);
-            background: rgba(10, 22, 45, 0.98);
-            border: 1px solid rgba(64, 169, 255, 0.2);
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(22, 119, 255, 0.2);
             border-radius: 16px;
             padding: 28px;
             overflow-y: auto;
@@ -1556,7 +1556,7 @@
         }
         .tech-detail-panel::-webkit-scrollbar { width: 6px; }
         .tech-detail-panel::-webkit-scrollbar-track { background: transparent; }
-        .tech-detail-panel::-webkit-scrollbar-thumb { background: rgba(64, 169, 255, 0.3); border-radius: 3px; }
+        .tech-detail-panel::-webkit-scrollbar-thumb { background: rgba(22, 119, 255, 0.3); border-radius: 3px; }
 
         .tech-detail-close {
             position: absolute;
@@ -1568,12 +1568,12 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            color: #8896b3;
+            color: #6e7d95;
             cursor: pointer;
             border-radius: 50%;
             transition: all 0.2s;
         }
-        .tech-detail-close:hover { color: #fff; background: rgba(255, 255, 255, 0.08); }
+        .tech-detail-close:hover { color: #1f2d3d; background: rgba(40, 70, 120, 0.10); }
 
         .tech-detail-header {
             display: flex;
@@ -1581,14 +1581,14 @@
             gap: 16px;
             margin-bottom: 24px;
             padding-bottom: 20px;
-            border-bottom: 1px solid rgba(64, 169, 255, 0.12);
+            border-bottom: 1px solid rgba(22, 119, 255, 0.12);
         }
         .tech-detail-icon {
             width: 64px;
             height: 64px;
             border-radius: 14px;
-            background: rgba(64, 169, 255, 0.12);
-            border: 1px solid rgba(64, 169, 255, 0.25);
+            background: rgba(22, 119, 255, 0.12);
+            border: 1px solid rgba(22, 119, 255, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1600,12 +1600,12 @@
         .tech-detail-name {
             font-size: 24px;
             font-weight: 700;
-            color: #fff;
+            color: #1f2d3d;
             margin-bottom: 6px;
         }
         .tech-detail-meta {
             font-size: 13px;
-            color: #8896b3;
+            color: #6e7d95;
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
@@ -1636,30 +1636,30 @@
         .tech-detail-section-title {
             font-size: 14px;
             font-weight: 600;
-            color: #40a9ff;
+            color: #1677ff;
             margin-bottom: 12px;
             padding-left: 10px;
-            border-left: 3px solid #40a9ff;
+            border-left: 3px solid #1677ff;
             display: flex;
             align-items: center;
             gap: 6px;
         }
         .tech-detail-summary {
-            background: linear-gradient(135deg, rgba(64, 169, 255, 0.1), rgba(64, 169, 255, 0.04));
-            border: 1px solid rgba(64, 169, 255, 0.15);
+            background: linear-gradient(135deg, rgba(22, 119, 255, 0.1), rgba(22, 119, 255, 0.04));
+            border: 1px solid rgba(22, 119, 255, 0.15);
             border-radius: 10px;
             padding: 16px 18px;
             margin-bottom: 24px;
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.8;
         }
-        .tech-detail-summary strong { color: #fff; }
+        .tech-detail-summary strong { color: #1f2d3d; }
         .tech-detail-desc {
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.8;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(40, 70, 120, 0.05);
             border-radius: 8px;
             padding: 14px;
         }
@@ -1672,9 +1672,9 @@
             font-size: 12px;
             padding: 6px 12px;
             border-radius: 6px;
-            background: rgba(64, 169, 255, 0.08);
-            color: #40a9ff;
-            border: 1px solid rgba(64, 169, 255, 0.15);
+            background: rgba(22, 119, 255, 0.08);
+            color: #1677ff;
+            border: 1px solid rgba(22, 119, 255, 0.15);
         }
 
         .tech-detail-datasources {
@@ -1688,8 +1688,8 @@
             gap: 8px;
             font-size: 12px;
             line-height: 1.6;
-            color: #b0c0d8;
-            background: rgba(255, 255, 255, 0.02);
+            color: #5a6a82;
+            background: rgba(40, 70, 120, 0.04);
             border-radius: 6px;
             padding: 8px 10px;
         }
@@ -1698,9 +1698,9 @@
             font-size: 11px;
             padding: 2px 8px;
             border-radius: 4px;
-            background: rgba(64, 169, 255, 0.1);
-            color: #40a9ff;
-            border: 1px solid rgba(64, 169, 255, 0.2);
+            background: rgba(22, 119, 255, 0.1);
+            color: #1677ff;
+            border: 1px solid rgba(22, 119, 255, 0.2);
             font-weight: 600;
         }
 
@@ -1726,9 +1726,9 @@
 
         .tech-detail-competition {
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.7;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(40, 70, 120, 0.05);
             border-radius: 8px;
             padding: 14px;
             border-left: 3px solid #ffa940;
@@ -1749,19 +1749,19 @@
         }
 
         .tech-detail-advice {
-            background: rgba(57, 255, 20, 0.05);
-            border: 1px solid rgba(57, 255, 20, 0.12);
+            background: rgba(82, 196, 26, 0.05);
+            border: 1px solid rgba(82, 196, 26, 0.12);
             border-radius: 8px;
             padding: 14px;
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.7;
         }
-        .tech-detail-advice strong { color: #39ff14; }
+        .tech-detail-advice strong { color: #52c41a; }
 
         .tech-detail-players {
-            background: rgba(64, 169, 255, 0.05);
-            border: 1px solid rgba(64, 169, 255, 0.12);
+            background: rgba(22, 119, 255, 0.05);
+            border: 1px solid rgba(22, 119, 255, 0.12);
             border-radius: 8px;
             padding: 14px;
         }
@@ -1772,7 +1772,7 @@
         }
         .tech-detail-players li {
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.8;
             position: relative;
             padding-left: 14px;
@@ -1785,7 +1785,7 @@
             width: 5px;
             height: 5px;
             border-radius: 50%;
-            background: #40a9ff;
+            background: #1677ff;
         }
 
         .tech-detail-risks-impact {
@@ -1800,7 +1800,7 @@
             gap: 12px;
         }
         .tech-detail-rich-block {
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(40, 70, 120, 0.04);
             border: 1px solid rgba(0, 212, 255, 0.08);
             border-radius: 8px;
             padding: 12px 14px;
@@ -1808,12 +1808,12 @@
         .tech-detail-rich-title {
             font-size: 13px;
             font-weight: 600;
-            color: #40a9ff;
+            color: #1677ff;
             margin-bottom: 6px;
         }
         .tech-detail-rich-content {
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.7;
         }
         .tech-detail-rich-list {
@@ -1822,7 +1822,7 @@
         }
         .tech-detail-rich-list li {
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             line-height: 1.7;
             margin-bottom: 4px;
         }
@@ -1835,7 +1835,7 @@
             padding: 10px;
         }
         .tech-detail-trl {
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(40, 70, 120, 0.05);
             border-radius: 8px;
             padding: 14px;
         }
@@ -1844,19 +1844,19 @@
             justify-content: space-between;
             align-items: center;
             font-size: 13px;
-            color: #b0c0d8;
+            color: #5a6a82;
             margin-bottom: 8px;
         }
-        .tech-detail-trl-label .stage { color: #40a9ff; font-weight: 600; }
+        .tech-detail-trl-label .stage { color: #1677ff; font-weight: 600; }
         .tech-detail-trl-bar {
             height: 8px;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(40, 70, 120, 0.08);
             border-radius: 4px;
             overflow: hidden;
         }
         .tech-detail-trl-bar-inner {
             height: 100%;
-            background: linear-gradient(90deg, #40a9ff, #73d13d);
+            background: linear-gradient(90deg, #1677ff, #73d13d);
             border-radius: 4px;
         }
         .tech-detail-risks {
@@ -2045,7 +2045,7 @@
                     return `${cx + r * ratio * Math.cos(angle)},${cy + r * ratio * Math.sin(angle)}`;
                 }).join(' ');
                 const opacity = 0.05 + idx * 0.03;
-                gridPolys += `<polygon points="${gPoints}" fill="rgba(57,255,20,${opacity})" stroke="rgba(57,255,20,0.15)" stroke-width="0.5"/>`;
+                gridPolys += `<polygon points="${gPoints}" fill="rgba(82, 196, 26,${opacity})" stroke="rgba(82, 196, 26,0.15)" stroke-width="0.5"/>`;
             });
 
             // 轴线
@@ -2054,7 +2054,7 @@
                 const angle = startAngle + i * angleStep;
                 const x2 = cx + r * Math.cos(angle);
                 const y2 = cy + r * Math.sin(angle);
-                axes += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="rgba(57,255,20,0.2)" stroke-width="0.5"/>`;
+                axes += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="rgba(82, 196, 26,0.2)" stroke-width="0.5"/>`;
             });
 
             // 标签位置（稍远一点）
@@ -2064,16 +2064,16 @@
                 const x = cx + labelDist * Math.cos(angle);
                 const y = cy + labelDist * Math.sin(angle);
                 const anchor = i === 0 ? 'middle' : i === 1 ? 'start' : i === 2 ? 'middle' : 'end';
-                return `<text x="${x}" y="${y + 4}" text-anchor="${anchor}" fill="#8896b3" font-size="10" font-family="system-ui, sans-serif">${text}</text>`;
+                return `<text x="${x}" y="${y + 4}" text-anchor="${anchor}" fill="#6e7d95" font-size="10" font-family="system-ui, sans-serif">${text}</text>`;
             }).join('');
 
             // 数据点圆点
             const dots = points.map((p, i) => {
-                const color = ['#39ff14', '#73d13d', '#ffa940', '#ff4d4f'][i];
-                return `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#0a1628" stroke-width="1.5"/>`;
+                const color = ['#52c41a', '#73d13d', '#ffa940', '#ff4d4f'][i];
+                return `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${color}" stroke="#eef2f7" stroke-width="1.5"/>`;
             }).join('');
 
-            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" style="width:100%;height:auto;max-height:160px;">${gridPolys}${axes}<polygon points="${polyPoints}" fill="rgba(57,255,20,0.15)" stroke="#39ff14" stroke-width="1.5" stroke-linejoin="round"/>${dots}${labelPoints}</svg>`;
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" style="width:100%;height:auto;max-height:160px;">${gridPolys}${axes}<polygon points="${polyPoints}" fill="rgba(82, 196, 26,0.15)" stroke="#52c41a" stroke-width="1.5" stroke-linejoin="round"/>${dots}${labelPoints}</svg>`;
         }
 
         // ========== 模拟数据 ==========
@@ -2357,8 +2357,8 @@
             },
             relevance: {
                 label: '关联性',
-                color: '#40a9ff',
-                barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)',
+                color: '#1677ff',
+                barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)',
                 subs: [
                     { key: 'scienceRelevance', label: '科学关联性' },
                     { key: 'crossRate', label: '学科熵/领域交叉率' },
@@ -3181,28 +3181,28 @@
             [0.25,0.5,0.75,1].forEach((ratio,idx)=>{
                 const op=0.03+idx*0.02;
                 const fillOp = 0.04 + idx * 0.03;
-                grid+=`<circle cx="${CX}" cy="${CY}" r="${(R*ratio).toFixed(1)}" fill="rgba(57,255,20,${fillOp})" stroke="rgba(57,255,20,0.20)" stroke-width="0.5"/>`;
+                grid+=`<circle cx="${CX}" cy="${CY}" r="${(R*ratio).toFixed(1)}" fill="rgba(82, 196, 26,${fillOp})" stroke="rgba(82, 196, 26,0.20)" stroke-width="0.5"/>`;
             });
             // 中心填充区域（最内层半透明圆）
-            grid+=`<circle cx="${CX}" cy="${CY}" r="${(R*0.25).toFixed(1)}" fill="rgba(57,255,20,0.03)" stroke="none"/>`;
+            grid+=`<circle cx="${CX}" cy="${CY}" r="${(R*0.25).toFixed(1)}" fill="rgba(82, 196, 26,0.03)" stroke="none"/>`;
             // 轴线
             let axes='';
             angles.forEach(a=>{
                 const x=CX+R*Math.cos(a), y=CY+R*Math.sin(a);
-                axes+=`<line x1="${CX}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(57,255,20,0.15)" stroke-width="0.5"/>`;
+                axes+=`<line x1="${CX}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(82, 196, 26,0.15)" stroke-width="0.5"/>`;
             });
             // 维度标签（带闪烁）
             let labels='';
             const labelDist=R+30;
             angles.forEach((a,i)=>{
                 const x=CX+labelDist*Math.cos(a), y=CY+labelDist*Math.sin(a);
-                labels+=`<text x="${x.toFixed(1)}" y="${(y+5).toFixed(1)}" text-anchor="middle" fill="#39ff14" font-size="12" font-weight="600" font-family="system-ui,sans-serif" style="animation:dimBlink 3s ease-in-out infinite;animation-delay:${i*0.75}s;text-shadow:0 0 10px rgba(57,255,20,0.5);">${dims[i]}</text>`;
+                labels+=`<text x="${x.toFixed(1)}" y="${(y+5).toFixed(1)}" text-anchor="middle" fill="#52c41a" font-size="12" font-weight="600" font-family="system-ui,sans-serif" style="animation:dimBlink 3s ease-in-out infinite;animation-delay:${i*0.75}s;text-shadow:0 0 10px rgba(82, 196, 26,0.5);">${dims[i]}</text>`;
             });
             // 技术点（SMIL 半径/透明度动画，避免 CSS transform 位移 bug）
             let dots='';
             weeklyTechs.forEach((tech,idx)=>{
                 const pos=calcPos(tech.dimensions4);
-                const isNew=tech.isNew, color=isNew?'#40a9ff':'#ffa940';
+                const isNew=tech.isNew, color=isNew?'#1677ff':'#ffa940';
                 const newIdx=newTechList.findIndex(t=>t.id===tech.id);
                 const dly=(idx*0.2).toFixed(1);
                 dots+=`<g transform="translate(${pos.x.toFixed(1)},${pos.y.toFixed(1)})" style="cursor:pointer;"
@@ -3213,7 +3213,7 @@
                         <animate attributeName="r" values="10;16;10" dur="2.2s" repeatCount="indefinite" begin="${dly}s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1"/>
                         <animate attributeName="opacity" values="0.5;0.85;0.5" dur="2.2s" repeatCount="indefinite" begin="${dly}s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1"/>
                     </circle>
-                    <circle fill="${color}" stroke="#0a1628" stroke-width="1.5">
+                    <circle fill="${color}" stroke="#eef2f7" stroke-width="1.5">
                         <animate attributeName="r" values="4;5.5;4" dur="2.2s" repeatCount="indefinite" begin="${dly}s" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1"/>
                     </circle>
                 </g>`;
@@ -3222,8 +3222,8 @@
             container.innerHTML=`
                 <svg id="fallbackRadarSvg" viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;display:block;">
                     <defs>
-                        <linearGradient id="scanGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(57,255,20,0)"/><stop offset="100%" stop-color="rgba(57,255,20,0.50)"/></linearGradient>
-                        <radialGradient id="dotGlowN"><stop offset="0%" stop-color="rgba(64,169,255,0.6)"/><stop offset="100%" stop-color="rgba(64,169,255,0)"/></radialGradient>
+                        <linearGradient id="scanGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(82, 196, 26,0)"/><stop offset="100%" stop-color="rgba(82, 196, 26,0.50)"/></linearGradient>
+                        <radialGradient id="dotGlowN"><stop offset="0%" stop-color="rgba(22, 119, 255,0.6)"/><stop offset="100%" stop-color="rgba(22, 119, 255,0)"/></radialGradient>
                         <radialGradient id="dotGlowO"><stop offset="0%" stop-color="rgba(255,169,64,0.6)"/><stop offset="100%" stop-color="rgba(255,169,64,0)"/></radialGradient>
                     </defs>
                     ${grid}${axes}${labels}${dots}
@@ -3256,7 +3256,7 @@
             const dimRows = [
                 { key: 'novelty',   label: '新颖性', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
                 { key: 'prospect',  label: '前瞻性', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
-                { key: 'relevance', label: '关联性', color: '#40a9ff', barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)' },
+                { key: 'relevance', label: '关联性', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
                 { key: 'value',     label: '价值性', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
             ].map(dim => {
                 const score = ev[dim.key]?.score || d4[dim.key] || 0;
@@ -3265,12 +3265,12 @@
             ttip.innerHTML=`
                 <div style="font-weight:600;margin-bottom:6px;font-size:15px;">${el.dataset.name}</div>
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                    <span style="color:#8896b3;">${el.dataset.cat}</span>
-                    <span style="color:#40a9ff;font-weight:700;">${el.dataset.score}分</span>
-                    <span style="color:#8896b3;font-size:12px;">${el.dataset.isnew==='true'?'本周新识别':'持续追踪'}</span>
+                    <span style="color:#6e7d95;">${el.dataset.cat}</span>
+                    <span style="color:#1677ff;font-weight:700;">${el.dataset.score}分</span>
+                    <span style="color:#6e7d95;font-size:12px;">${el.dataset.isnew==='true'?'本周新识别':'持续追踪'}</span>
                 </div>
                 ${dimRows}
-                <div style="margin-top:6px;font-size:11px;color:#8896b3;">点击查看详细评分依据</div>`;
+                <div style="margin-top:6px;font-size:11px;color:#6e7d95;">点击查看详细评分依据</div>`;
             ttip.style.display='block';
             ttip.style.width='260px';
             ttip.style.whiteSpace='normal';
@@ -3347,7 +3347,7 @@
             const defs = document.createElementNS(svgNS, 'defs');
             const grad = document.createElementNS(svgNS, 'linearGradient');
             grad.setAttribute('id', 'domScanGrad');
-            grad.innerHTML = '<stop offset="0%" stop-color="rgba(57,255,20,0)"/><stop offset="100%" stop-color="rgba(57,255,20,0.45)"/>';
+            grad.innerHTML = '<stop offset="0%" stop-color="rgba(82, 196, 26,0)"/><stop offset="100%" stop-color="rgba(82, 196, 26,0.45)"/>';
             defs.appendChild(grad);
             svg.appendChild(defs);
             const scanG = document.createElementNS(svgNS, 'g');
@@ -3370,7 +3370,7 @@
             // 技术点（呼吸闪烁）
             weeklyTechs.forEach((tech, idx) => {
                 const pos = calcPos(tech.dimensions4);
-                const isNew = tech.isNew, color = isNew ? '#40a9ff' : '#ffa940';
+                const isNew = tech.isNew, color = isNew ? '#1677ff' : '#ffa940';
                 const newIdx = newTechList.findIndex(t => t.id === tech.id);
                 const dot = document.createElement('div');
                 dot.className = `radar-tech-dot ${isNew ? 'new-tech-dot' : 'old-tech-dot'} radar-overlay-el`;
@@ -3386,7 +3386,7 @@
                     const dimRows = [
                         { key: 'novelty',   label: '新颖性', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
                         { key: 'prospect',  label: '前瞻性', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
-                        { key: 'relevance', label: '关联性', color: '#40a9ff', barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)' },
+                        { key: 'relevance', label: '关联性', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
                         { key: 'value',     label: '价值性', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
                     ].map(dim => {
                         const score = ev[dim.key]?.score || d4[dim.key] || 0;
@@ -3395,12 +3395,12 @@
                     tooltip.innerHTML = `
                         <div style="font-weight:600;margin-bottom:6px;font-size:15px;">${tech.name}</div>
                         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                            <span style="color:#8896b3;">${tech.category}</span>
-                            <span style="color:#40a9ff;font-weight:700;">${tech.score}分</span>
-                            <span style="color:#8896b3;font-size:12px;">${isNew ? '本周新识别' : '持续追踪'}</span>
+                            <span style="color:#6e7d95;">${tech.category}</span>
+                            <span style="color:#1677ff;font-weight:700;">${tech.score}分</span>
+                            <span style="color:#6e7d95;font-size:12px;">${isNew ? '本周新识别' : '持续追踪'}</span>
                         </div>
                         ${dimRows}
-                        <div style="margin-top:6px;font-size:11px;color:#8896b3;">点击查看详细评分依据</div>
+                        <div style="margin-top:6px;font-size:11px;color:#6e7d95;">点击查看详细评分依据</div>
                     `;
                     tooltip.style.display = 'block';
                     tooltip.style.width = '260px';
@@ -3466,11 +3466,11 @@
                     axisName: { show: false },
                     splitArea: {
                         areaStyle: {
-                            color: ['rgba(57,255,20,0.06)', 'rgba(57,255,20,0.10)', 'rgba(57,255,20,0.06)', 'rgba(57,255,20,0.10)']
+                            color: ['rgba(82, 196, 26,0.06)', 'rgba(82, 196, 26,0.10)', 'rgba(82, 196, 26,0.06)', 'rgba(82, 196, 26,0.10)']
                         }
                     },
-                    axisLine: { lineStyle: { color: 'rgba(57,255,20,0.15)' } },
-                    splitLine: { lineStyle: { color: 'rgba(57,255,20,0.15)' } }
+                    axisLine: { lineStyle: { color: 'rgba(82, 196, 26,0.15)' } },
+                    splitLine: { lineStyle: { color: 'rgba(82, 196, 26,0.15)' } }
                 },
                 series: []
             });
@@ -3766,7 +3766,7 @@
                         <div class="history-card-header">
                             <div>
                                 <span class="history-card-name">${tech.name}</span>
-                                <div style="font-size:11px;color:#8896b3;margin-top:4px;">📅 识别时间：${tech.firstSeen}</div>
+                                <div style="font-size:11px;color:#6e7d95;margin-top:4px;">📅 识别时间：${tech.firstSeen}</div>
                             </div>
                             <span class="history-card-score">${tech.score}分</span>
                         </div>
@@ -3852,7 +3852,7 @@
         const dimConfig = [
             { key: 'novelty',   label: '新颖性', icon: '💡', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
             { key: 'prospect',  label: '前瞻性', icon: '🔭', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
-            { key: 'relevance', label: '关联性', icon: '🔗', color: '#40a9ff', barColor: 'linear-gradient(90deg,#40a9ff,#69c0ff)' },
+            { key: 'relevance', label: '关联性', icon: '🔗', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
             { key: 'value',     label: '价值性', icon: '💎', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
         ];
 
@@ -3885,8 +3885,8 @@
             const subs = getSubIndicators(dimKey, techName, score);
             const subHtml = subs.map(sub => `
                 <div style="display:flex;align-items:center;gap:4px;font-size:11px;margin-left:12px;margin-top:2px;">
-                    <span style="width:90px;color:#8896b3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${sub.label}">${sub.label}</span>
-                    <div style="flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;"><div style="width:${sub.score}%;height:100%;background:${barColor};border-radius:2px;"></div></div>
+                    <span style="width:90px;color:#6e7d95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${sub.label}">${sub.label}</span>
+                    <div style="flex:1;height:3px;background:rgba(40, 70, 120, 0.08);border-radius:2px;"><div style="width:${sub.score}%;height:100%;background:${barColor};border-radius:2px;"></div></div>
                     <span style="width:26px;text-align:right;color:${color};font-weight:600;">${sub.score}</span>
                 </div>
             `).join('');
@@ -3894,7 +3894,7 @@
                 <div style="margin-bottom:6px;">
                     <div style="display:flex;align-items:center;gap:6px;font-size:12px;">
                         <span style="width:40px;color:${color};">${label}</span>
-                        <div style="flex:1;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;"><div style="width:${score}%;height:100%;background:${barColor};border-radius:2px;"></div></div>
+                        <div style="flex:1;height:4px;background:rgba(40, 70, 120, 0.10);border-radius:2px;"><div style="width:${score}%;height:100%;background:${barColor};border-radius:2px;"></div></div>
                         <span style="width:32px;text-align:right;color:${color};font-weight:600;">${score}</span>
                     </div>
                     ${subHtml}
@@ -3992,7 +3992,7 @@
 
         // 渲染富文本详情块
         function renderRichSection(data) {
-            if (!data) return '<span style="color:#8896b3;font-size:12px;">暂无数据</span>';
+            if (!data) return '<span style="color:#6e7d95;font-size:12px;">暂无数据</span>';
             if (Array.isArray(data)) {
                 return `
                     <ul class="tech-detail-rich-list">
@@ -4000,7 +4000,7 @@
                             if (typeof item === 'string') return `<li>${item}</li>`;
                             return `
                                 <li>
-                                    <strong style="color:#e0e6ed;">${item.title || ''}</strong>：
+                                    <strong style="color:#2b3a4f;">${item.title || ''}</strong>：
                                     ${item.content || ''}
                                 </li>
                             `;
@@ -4093,24 +4093,24 @@
             const sy = v => yB - (v / maxPap) * (yB - yT);
             const midX = xL + (xR - xL) / 2, midY = yT + (yB - yT) / 2;
             let g = '';
-            g += `<line x1="${xL}" y1="${yB}" x2="${xR}" y2="${yB}" stroke="rgba(64,169,255,0.35)" stroke-width="1"/>`;
-            g += `<line x1="${xL}" y1="${yB}" x2="${xL}" y2="${yT}" stroke="rgba(64,169,255,0.35)" stroke-width="1"/>`;
-            g += `<line x1="${midX}" y1="${yT}" x2="${midX}" y2="${yB}" stroke="rgba(255,255,255,0.07)" stroke-dasharray="4 4"/>`;
-            g += `<line x1="${xL}" y1="${midY}" x2="${xR}" y2="${midY}" stroke="rgba(255,255,255,0.07)" stroke-dasharray="4 4"/>`;
-            g += `<text x="${xR}" y="${yB + 32}" text-anchor="end" fill="#8896b3" font-size="12">产业能力（专利量）→</text>`;
-            g += `<text x="${xL - 56}" y="${yT - 14}" text-anchor="start" fill="#8896b3" font-size="12">↑ 理论研究（论文量）</text>`;
+            g += `<line x1="${xL}" y1="${yB}" x2="${xR}" y2="${yB}" stroke="rgba(22, 119, 255,0.35)" stroke-width="1"/>`;
+            g += `<line x1="${xL}" y1="${yB}" x2="${xL}" y2="${yT}" stroke="rgba(22, 119, 255,0.35)" stroke-width="1"/>`;
+            g += `<line x1="${midX}" y1="${yT}" x2="${midX}" y2="${yB}" stroke="rgba(40, 70, 120, 0.09)" stroke-dasharray="4 4"/>`;
+            g += `<line x1="${xL}" y1="${midY}" x2="${xR}" y2="${midY}" stroke="rgba(40, 70, 120, 0.09)" stroke-dasharray="4 4"/>`;
+            g += `<text x="${xR}" y="${yB + 32}" text-anchor="end" fill="#6e7d95" font-size="12">产业能力（专利量）→</text>`;
+            g += `<text x="${xL - 56}" y="${yT - 14}" text-anchor="start" fill="#6e7d95" font-size="12">↑ 理论研究（论文量）</text>`;
             g += `<text x="${xR - 8}" y="${yT + 16}" text-anchor="end" fill="rgba(115,209,61,0.55)" font-size="12">全面领先</text>`;
-            g += `<text x="${xL + 8}" y="${yT + 16}" text-anchor="start" fill="rgba(64,169,255,0.55)" font-size="12">理论引领</text>`;
+            g += `<text x="${xL + 8}" y="${yT + 16}" text-anchor="start" fill="rgba(22, 119, 255,0.55)" font-size="12">理论引领</text>`;
             g += `<text x="${xR - 8}" y="${yB - 8}" text-anchor="end" fill="rgba(255,169,64,0.55)" font-size="12">产业主导</text>`;
             g += `<text x="${xL + 8}" y="${yB - 8}" text-anchor="start" fill="rgba(136,150,179,0.55)" font-size="12">潜力跟随</text>`;
             insts.forEach(i => {
                 const x = sx(i.patents), y = sy(i.papers);
-                const color = i.region === '国外' ? '#ffa940' : '#40a9ff';
-                g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="${color}" fill-opacity="0.85" stroke="#0a1628" stroke-width="1.5"><title>${i.name}\n论文 ${i.papers} · 专利 ${i.patents}${i.focus ? '\n' + i.focus : ''}</title></circle>`;
-                g += `<text x="${(x + 9).toFixed(1)}" y="${(y + 4).toFixed(1)}" fill="#c8d4e8" font-size="11">${i.name}</text>`;
+                const color = i.region === '国外' ? '#ffa940' : '#1677ff';
+                g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="${color}" fill-opacity="0.85" stroke="#eef2f7" stroke-width="1.5"><title>${i.name}\n论文 ${i.papers} · 专利 ${i.patents}${i.focus ? '\n' + i.focus : ''}</title></circle>`;
+                g += `<text x="${(x + 9).toFixed(1)}" y="${(y + 4).toFixed(1)}" fill="#5a6a82" font-size="11">${i.name}</text>`;
             });
-            g += `<circle cx="${xL + 10}" cy="${yT}" r="5" fill="#40a9ff"/><text x="${xL + 20}" y="${yT + 4}" fill="#8896b3" font-size="11">国内</text>`;
-            g += `<circle cx="${xL + 70}" cy="${yT}" r="5" fill="#ffa940"/><text x="${xL + 80}" y="${yT + 4}" fill="#8896b3" font-size="11">国外</text>`;
+            g += `<circle cx="${xL + 10}" cy="${yT}" r="5" fill="#1677ff"/><text x="${xL + 20}" y="${yT + 4}" fill="#6e7d95" font-size="11">国内</text>`;
+            g += `<circle cx="${xL + 70}" cy="${yT}" r="5" fill="#ffa940"/><text x="${xL + 80}" y="${yT + 4}" fill="#6e7d95" font-size="11">国外</text>`;
             return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${g}</svg>`;
         }
         function instTableHtml(insts, tech) {
@@ -4290,7 +4290,7 @@
         // ===== 技术扩散速度（各应用场景的扩散速度与主要瓶颈） =====
         function diffusionToHtml(items) {
             if (!items || !items.length) return '';
-            const color = s => s >= 70 ? '#39ff14' : s >= 45 ? '#ffa940' : '#ff4d4f';
+            const color = s => s >= 70 ? '#52c41a' : s >= 45 ? '#ffa940' : '#ff4d4f';
             return `<div class="diff-list">${items.map(d => `
                 <div class="diff-item">
                     <div class="diff-head"><span class="diff-scene">${d.scene}</span><span class="diff-level" style="color:${color(d.speed)};">${d.level || ''} ${d.speed}%</span></div>
@@ -4358,14 +4358,14 @@
             '中国': [789, 150], '美国': [232, 150], '欧洲': [525, 115], '日本': [885, 150], '韩国': [858, 170],
             '印度': [700, 205], '英国': [488, 105], '德国': [527, 110], '法国': [510, 120], '俄罗斯': [700, 92], '加拿大': [232, 95]
         };
-        function heatColor(l) { return l >= 85 ? '#ff4d4f' : l >= 70 ? '#ffa940' : l >= 55 ? '#73d13d' : '#40a9ff'; }
+        function heatColor(l) { return l >= 85 ? '#ff4d4f' : l >= 70 ? '#ffa940' : l >= 55 ? '#73d13d' : '#1677ff'; }
         function buildWorldHeatSvg(countries) {
             if (!countries || !countries.length) return '';
             const W = 1000, H = 500;
-            let bg = `<rect x="0" y="0" width="${W}" height="${H}" fill="#0a1a2f"/>`;
+            let bg = `<rect x="0" y="0" width="${W}" height="${H}" fill="#eef2f7"/>`;
             let grat = '';
-            for (let x = 100; x < W; x += 100) grat += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="rgba(255,255,255,0.04)"/>`;
-            for (let y = 100; y < H; y += 100) grat += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="rgba(255,255,255,0.04)"/>`;
+            for (let x = 100; x < W; x += 100) grat += `<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="rgba(40, 70, 120, 0.06)"/>`;
+            for (let y = 100; y < H; y += 100) grat += `<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="rgba(40, 70, 120, 0.06)"/>`;
             const conts = [[232, 160, 80, 60], [300, 330, 52, 90], [525, 135, 52, 52], [545, 280, 68, 95], [760, 165, 145, 82], [885, 365, 52, 38]];
             const land = conts.map(c => `<ellipse cx="${c[0]}" cy="${c[1]}" rx="${c[2]}" ry="${c[3]}" fill="rgba(120,160,210,0.07)"/>`).join('');
             let dots = '';
@@ -4375,8 +4375,8 @@
                 const glowR = Math.round(16 + c.level / 100 * 30);
                 const coreR = Math.round(6 + c.level / 100 * 6);
                 dots += `<circle cx="${pos[0]}" cy="${pos[1]}" r="${glowR}" fill="${color}" opacity="0.32" filter="url(#wblur)"/>`;
-                dots += `<circle cx="${pos[0]}" cy="${pos[1]}" r="${coreR}" fill="${color}" stroke="#0a1628" stroke-width="1.5"><title>${c.name} ${c.level}${c.note ? '\n' + c.note : ''}</title></circle>`;
-                dots += `<text x="${pos[0]}" y="${pos[1] - glowR - 4}" text-anchor="middle" fill="#e0e6ed" font-size="13" font-weight="600">${c.name} ${c.level}</text>`;
+                dots += `<circle cx="${pos[0]}" cy="${pos[1]}" r="${coreR}" fill="${color}" stroke="#eef2f7" stroke-width="1.5"><title>${c.name} ${c.level}${c.note ? '\n' + c.note : ''}</title></circle>`;
+                dots += `<text x="${pos[0]}" y="${pos[1] - glowR - 4}" text-anchor="middle" fill="#2b3a4f" font-size="13" font-weight="600">${c.name} ${c.level}</text>`;
             });
             return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;"><defs><filter id="wblur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="11"/></filter></defs>${bg}${land}${grat}${dots}</svg>`;
         }
@@ -4559,11 +4559,11 @@
 
             const playersHtml = (details.keyPlayers && details.keyPlayers.length)
                 ? `<ul>${details.keyPlayers.map(p => `<li>${p}</li>`).join('')}</ul>`
-                : '<span style="color:#8896b3;font-size:12px;">暂无主要玩家数据</span>';
+                : '<span style="color:#6e7d95;font-size:12px;">暂无主要玩家数据</span>';
 
             const metricsHtml = (tech.keyMetrics && tech.keyMetrics.length)
                 ? tech.keyMetrics.map(m => `<span class="tech-detail-metric">${m.label} ${m.value}</span>`).join('')
-                : '<span style="color:#8896b3;font-size:12px;">暂无关键指标</span>';
+                : '<span style="color:#6e7d95;font-size:12px;">暂无关键指标</span>';
 
             let risksImpactHtml = '';
             if (tech.riskSignals && tech.riskSignals.length) {
@@ -4580,7 +4580,7 @@
                         ${renderRichSection(details.potentialImpact)}
                     </div>`;
             }
-            if (!risksImpactHtml) risksImpactHtml = '<span style="color:#8896b3;font-size:12px;">暂无风险与影响数据</span>';
+            if (!risksImpactHtml) risksImpactHtml = '<span style="color:#6e7d95;font-size:12px;">暂无风险与影响数据</span>';
 
             const painPointsHtml = `
                 <div class="tech-detail-rich-block">
@@ -4746,7 +4746,7 @@
             const indicators = [
                 { name: '新颖性', key: 'novelty', color: '#ff4d4f' },
                 { name: '价值性', key: 'value', color: '#73d13d' },
-                { name: '关联性', key: 'relevance', color: '#40a9ff' },
+                { name: '关联性', key: 'relevance', color: '#1677ff' },
                 { name: '前瞻性', key: 'prospect', color: '#ffa940' }
             ];
 
@@ -4767,7 +4767,7 @@
                     return `${CX + R * ratio * Math.cos(angle)},${CY + R * ratio * Math.sin(angle)}`;
                 }).join(' ');
                 const opacity = 0.04 + idx * 0.03;
-                grid += `<polygon points="${gPoints}" fill="rgba(57,255,20,${opacity})" stroke="rgba(57,255,20,0.12)" stroke-width="0.5"/>`;
+                grid += `<polygon points="${gPoints}" fill="rgba(82, 196, 26,${opacity})" stroke="rgba(82, 196, 26,0.12)" stroke-width="0.5"/>`;
             });
 
             let axes = '';
@@ -4775,7 +4775,7 @@
                 const angle = startAngle + i * angleStep;
                 const x2 = CX + R * Math.cos(angle);
                 const y2 = CY + R * Math.sin(angle);
-                axes += `<line x1="${CX}" y1="${CY}" x2="${x2}" y2="${y2}" stroke="rgba(57,255,20,0.15)" stroke-width="0.5"/>`;
+                axes += `<line x1="${CX}" y1="${CY}" x2="${x2}" y2="${y2}" stroke="rgba(82, 196, 26,0.15)" stroke-width="0.5"/>`;
             });
 
             const points = indicators.map((ind, i) => ({ ...getPoint(d4[ind.key], i), score: d4[ind.key], ...ind }));
@@ -4799,13 +4799,13 @@
             });
 
             const dots = points.map(p => `
-                <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${p.color}" stroke="#0a1628" stroke-width="1.5"/>
+                <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${p.color}" stroke="#eef2f7" stroke-width="1.5"/>
             `).join('');
 
             return `
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;">
                     ${grid}${axes}
-                    <polygon points="${polyPoints}" fill="rgba(57,255,20,0.15)" stroke="#39ff14" stroke-width="2" stroke-linejoin="round"/>
+                    <polygon points="${polyPoints}" fill="rgba(82, 196, 26,0.15)" stroke="#52c41a" stroke-width="2" stroke-linejoin="round"/>
                     ${dots}${labels}
                 </svg>
             `;
