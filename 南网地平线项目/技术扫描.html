@@ -4523,7 +4523,7 @@
             const arrowColor = diffTrend === 'down' ? '#52c41a' : (diffTrend === 'flat' ? '#8c8c8c' : '#ff4d4f');
             const items = [
                 { val: diffIndex + '%', name: '技术扩散指数', sub: diffDelta != null ? `<span style="color:${arrowColor}">环比去年 ${arrow}${diffDelta}%</span>` : '综合扩散水平' },
-                { val: top.level, name: '领先国家采用度', sub: top.name }
+                { val: 25, name: '涉及扩散核心机构', sub: '核心引领 5 家 · 共 5 层' }
             ];
             const metricsHtml = items.map(i => `
                 <div class="dm-item">
