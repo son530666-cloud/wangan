@@ -3696,7 +3696,7 @@
 
             // 更新总数显示
             const badge = document.getElementById('historyBadge');
-            if (badge) badge.textContent = `累计识别（${filtered.length}/${historyTechs.length}项）`;
+            if (badge) badge.textContent = `累计识别（${historyTechs.length}项）`;
 
             if (filtered.length === 0) {
                 container.innerHTML = `
