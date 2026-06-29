@@ -4397,6 +4397,62 @@
             s += `总体而言，${top.name}凭借完整的产业链配套、庞大的本土市场需求与积极的政策、资本支持，能够快速将${techName}从研发与示范推向规模化量产与应用，形成"需求牵引—制造放量—快速迭代"的正向循环，因而在普及速度上明显领先于其他国家与地区。`;
             return s;
         }
+        // ===== 技术扩散同心圆（按技术与机构扩散程度分 5 层，每层 5 个机构）=====
+        function buildDiffusionRings(tech, details) {
+            let pool = [];
+            if (tech.landscape && tech.landscape.institutions) pool = tech.landscape.institutions.map(i => i.name);
+            else if (details && details.keyPlayers) pool = details.keyPlayers.slice();
+            const cat = tech.category || '电网技术';
+            const fillers = [
+                '清华大学', '中科院', '上海交通大学', '浙江大学', '哈尔滨工业大学',
+                '华为', '国家电网', '南方电网', '南瑞集团', '西安交通大学',
+                '西门子', 'ABB', '通用电气GE', '东芝', '三菱电机',
+                '麻省理工MIT', '斯坦福大学', '弗劳恩霍夫', '美国国家实验室', '剑桥大学',
+                `${cat}产业联盟`, '中国电科', '华中科技大学', '天津大学', '重庆大学'
+            ];
+            const seen = new Set(), list = [];
+            [...pool, ...fillers].forEach(n => { if (n && !seen.has(n)) { seen.add(n); list.push(n); } });
+            while (list.length < 25) list.push(`${cat}机构${list.length + 1}`);
+            const names = list.slice(0, 25);
+            const tiers = [
+                { name: '核心引领', color: '#b91c1c' },
+                { name: '快速跟进', color: '#ef4444' },
+                { name: '规模推进', color: '#f97316' },
+                { name: '培育布局', color: '#fbbf24' },
+                { name: '观察跟踪', color: '#facc15' }
+            ];
+            return tiers.map((t, i) => Object.assign({}, t, { members: names.slice(i * 5, i * 5 + 5) }));
+        }
+        function diffusionRingsToSvg(rings) {
+            const W = 720, H = 660, cx = 360, cy = 330;
+            const radii = [72, 132, 194, 256, 318];
+            let g = '';
+            for (let i = rings.length - 1; i >= 0; i--) {
+                g += `<circle cx="${cx}" cy="${cy}" r="${radii[i]}" fill="${rings[i].color}" fill-opacity="0.06" stroke="${rings[i].color}" stroke-opacity="0.55" stroke-width="1.5"/>`;
+            }
+            g += `<circle cx="${cx}" cy="${cy}" r="30" fill="#b91c1c"/>`;
+            g += `<text x="${cx}" y="${cy - 2}" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">扩散</text>`;
+            g += `<text x="${cx}" y="${cy + 13}" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">核心</text>`;
+            rings.forEach((ring, i) => {
+                const r = radii[i];
+                const offset = -Math.PI / 2 + i * Math.PI / 5;
+                ring.members.forEach((m, j) => {
+                    const ang = offset + j * (2 * Math.PI / 5);
+                    const x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang);
+                    const disp = m.length > 6 ? m.slice(0, 6) + '…' : m;
+                    g += `<g><title>${m}（${ring.name}）</title>`;
+                    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${ring.color}" stroke="#fff" stroke-width="1.5"/>`;
+                    g += `<text x="${x.toFixed(1)}" y="${(y - 9).toFixed(1)}" text-anchor="middle" fill="#33405a" font-size="11" font-weight="500" style="paint-order:stroke;stroke:#eef2f7;stroke-width:3px;">${disp}</text>`;
+                    g += `</g>`;
+                });
+            });
+            return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${g}</svg>`;
+        }
+        function buildDiffusionRingsHtml(tech, details) {
+            const rings = buildDiffusionRings(tech, details);
+            const legend = `<div class="rings-legend">${rings.map(r => `<span class="rl-item"><span class="rl-dot" style="background:${r.color}"></span>${r.name}</span>`).join('')}<span class="rl-note">由内到外：技术与机构扩散程度递减（越靠内扩散越快）</span></div>`;
+            return `<div class="rings-wrap">${diffusionRingsToSvg(rings)}</div>${legend}`;
+        }
         // 技术扩散指标 + 判读（置于"领先国家与速度对比"之上）
         function buildDiffusionMetrics(countries, tech, leaderText) {
             if (!countries || !countries.length) return '';
@@ -4438,14 +4494,54 @@
                     <div class="dm-name">${i.name}</div>
                     <div class="dm-sub">${i.sub}</div>
                 </div>`).join('');
+            const trendHtml = diffusionTrendToSvg(buildDiffusionTrend(tech, diffIndex));
             return `<div class="ad-block">
                 <div class="ad-label">📈 技术扩散指标</div>
                 <div class="diffusion-metrics">${metricsHtml}</div>
+                <div class="diffusion-trend">
+                    <div class="dt-title">历年技术扩散指数与相对变化</div>
+                    ${trendHtml}
+                </div>
                 <div class="dm-verdict" style="border-left-color:${vColor};">
                     <span class="dm-verdict-tag" style="color:${vColor};background:${vColor}1f;">📌 ${verdict}</span>
                     <div class="dm-verdict-desc">${vDesc}${leaderText ? ' ' + leaderText : ''}</div>
                 </div>
             </div>`;
+        }
+        // 历年技术扩散指数（反推近 5 年，体现逐年相对变化）
+        function buildDiffusionTrend(tech, diffIndex) {
+            const baseYear = 2026;
+            const fr = [0.55, 0.68, 0.80, 0.90, 1.0];
+            let seed = 0; const nm = tech.name || '';
+            for (let i = 0; i < nm.length; i++) seed = (seed * 131 + nm.charCodeAt(i)) >>> 0;
+            return fr.map((f, i) => {
+                const jitter = i < 4 ? (((seed >> (i * 2)) % 5) - 2) : 0; // -2..2
+                const val = Math.max(1, Math.round(diffIndex * f) + jitter);
+                return { year: baseYear - 4 + i, value: val };
+            });
+        }
+        function diffusionTrendToSvg(trend) {
+            const W = 340, H = 150, padL = 8, padR = 8, padT = 22, padB = 34;
+            const max = Math.max(...trend.map(t => t.value), 1);
+            const n = trend.length;
+            const bw = (W - padL - padR) / n;
+            let bars = '', labels = '', deltas = '';
+            trend.forEach((t, i) => {
+                const bh = (t.value / max) * (H - padT - padB);
+                const x = padL + i * bw + bw * 0.2;
+                const w = bw * 0.6;
+                const y = H - padB - bh;
+                bars += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${bh.toFixed(1)}" rx="3" fill="#1677ff" fill-opacity="${(0.42 + 0.12 * i).toFixed(2)}"/>`;
+                labels += `<text x="${(x + w / 2).toFixed(1)}" y="${(y - 5).toFixed(1)}" text-anchor="middle" fill="#1677ff" font-size="11" font-weight="700">${t.value}%</text>`;
+                labels += `<text x="${(x + w / 2).toFixed(1)}" y="${H - padB + 14}" text-anchor="middle" fill="#6e7d95" font-size="10">${t.year}</text>`;
+                if (i > 0) {
+                    const prev = trend[i - 1].value;
+                    const d = (t.value - prev) / prev * 100;
+                    const up = d >= 0;
+                    deltas += `<text x="${(x + w / 2).toFixed(1)}" y="${H - padB + 27}" text-anchor="middle" fill="${up ? '#ff4d4f' : '#52c41a'}" font-size="9.5" font-weight="600">${up ? '▲' : '▼'}${Math.abs(d).toFixed(1)}%</text>`;
+                }
+            });
+            return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${bars}${labels}${deltas}</svg>`;
         }
         // 正面驱动因素（与"负面阻碍"即原瓶颈对应）
         function buildPositiveDrivers(countries, tech) {
@@ -4712,6 +4808,8 @@
             if (gd.adoption) gd.adoption.leader = buildLeaderText(gd.countries, tech.name);
             const globalDistHtml = globalDistToHtml(gd.countries);
             const adoptionHtml = adoptionToHtml(gd.adoption, gd.countries, tech);
+            // 技术扩散同心圆（替代世界地图）
+            const diffusionRingsHtml = buildDiffusionRingsHtml(tech, details);
 
             // 机构竞争力图谱
             const landscapeHtml = landscapeToHtml(tech.landscape || autoLandscape(tech, details), tech);
@@ -4741,6 +4839,7 @@
                 diffusionHtml,
                 globalDistHtml,
                 countries: gd.countries,
+                diffusionRingsHtml,
                 adoptionHtml,
                 landscapeHtml,
                 socialHtml: industryViewsHtml,

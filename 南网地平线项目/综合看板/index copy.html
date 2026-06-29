@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>技术变革地平线全景扫描系统 - 综合看板</title>
+  <style>
+    :root {
+      --bg: #080e1a;
+      --primary: #00d4ff;
+      --text: #fff;
+      --text-secondary: rgba(255,255,255,0.55);
+      --border: rgba(0, 212, 255, 0.12);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: var(--bg);
+      font-family: "PingFang SC","Microsoft YaHei",sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .top-header {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; padding: 0 24px;
+      background: rgba(6,20,40,0.9);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .logo { display: flex; flex-direction: column; }
+    .logo-title { font-size: 20px; font-weight: 700; color: var(--primary); line-height: 1.2; letter-spacing: 1px; }
+    .logo-sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .main-nav { display: flex; gap: 8px; }
+    .main-nav a {
+      padding: 8px 20px; color: var(--text-secondary); text-decoration: none; font-size: 14px;
+      border-radius: 4px; transition: all 0.2s; cursor: pointer;
+    }
+    .main-nav a:hover { color: var(--text); background: rgba(0,212,255,0.08); }
+    .main-nav a.active {
+      color: var(--primary); background: rgba(0,212,255,0.12); border: 1px solid rgba(0,212,255,0.25);
+    }
+    .user-info { font-size: 13px; color: var(--text-secondary); display: flex; gap: 12px; align-items: center; }
+    .user-info a { color: var(--primary); text-decoration: none; }
+
+    .iframe-wrap {
+      width: 100%;
+      height: calc(100vh - 64px);
+    }
+    .iframe-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-header">
+  <div class="logo">
+    <div class="logo-title">技术变革地平线</div>
+    <div class="logo-sub">全景扫描系统 · 综合看板</div>
+  </div>
+  <nav class="main-nav" id="mainNav">
+    <a data-page="技术扫描.html" class="active">技术扫描</a>
+    <a data-page="技术详情.html">态势追踪</a>
+    <a data-page="技术图谱.html">技术图谱</a>
+    <a data-page="态势追踪-完整版.html">态势感知</a>
+    <a data-page="决策分析.html">决策分析</a>
+    <a data-page="分析报告生成.html">分析报告</a>
+  </nav>
+  <div class="user-info">
+    <span>南方电网科学研究院</span>
+    <a href="#">退出</a>
+  </div>
+</div>
+
+<div class="iframe-wrap">
+  <iframe id="contentFrame" src="../技术扫描.html"></iframe>
+</div>
+
+<script>
+  const links = document.querySelectorAll('#mainNav a');
+  const frame = document.getElementById('contentFrame');
+
+  function hideSubNav() {
+    try {
+      const iframeDoc = frame.contentDocument || frame.contentWindow.document;
+      // 隐藏子页面顶部导航栏（分析报告生成用 .top-header，决策分析/态势追踪用 header）
+      iframeDoc.querySelectorAll('.top-header, header').forEach(el => {
+        el.style.display = 'none';
+      });
+      // 同时补偿被隐藏导航占用的顶部空间
+      iframeDoc.body.style.paddingTop = '0';
+    } catch (e) {
+      console.error('无法隐藏子页面导航:', e);
+    }
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => navigateTo(link.dataset.page));
+  });
+
+  function navigateTo(page) {
+    if (!page) return;
+    links.forEach(l => l.classList.toggle('active', l.dataset.page === page));
+    frame.src = '../' + page;
+  }
+
+  // 子页面（如技术扫描点击技术卡片）请求切换一级导航
+  window.addEventListener('message', (e) => {
+    const data = e.data || {};
+    if (data.type === 'navigateTo' && data.page) {
+      navigateTo(data.page);
+    }
+  });
+
+  frame.addEventListener('load', hideSubNav);
+</script>
+
+</body>
+</html>
