@@ -4448,18 +4448,37 @@
                 </div>
             </div>`;
         }
+        // 正面驱动因素（与"负面阻碍"即原瓶颈对应）
+        function buildPositiveDrivers(countries, tech) {
+            if (!tech) return [];
+            const N = tech.name;
+            const top = (countries && countries.length) ? [...countries].sort((a, b) => b.level - a.level)[0] : null;
+            const lead = top ? top.name : '主要国家';
+            return [
+                { title: '政策与资本强力支持', reason: `${lead}等主要国家已将${N}纳入战略规划，配套专项补贴、示范工程与产业基金密集落地，社会资本持续涌入，为技术从研发走向商用提供强劲推力。` },
+                { title: '产业链配套与市场规模', reason: `${lead}具备较完整的上下游产业链与庞大的本土市场需求，规模效应推动单位成本下行，"需求牵引—制造放量—快速迭代"的正向循环不断加速${N}普及。` },
+                { title: '关键性能突破与成本下行', reason: `${N}核心性能指标持续突破、制造成本稳步下探，经济性拐点临近，对既有主流方案的替代吸引力增强，带动下游加速导入。` }
+            ];
+        }
         function adoptionToHtml(a, countries, tech) {
             if (!a) return '';
             const block = (label, content) => content ? `<div class="ad-block"><div class="ad-label">${label}</div><div class="ad-text">${content}</div></div>` : '';
             let html = '';
             if (countries && tech) html += buildDiffusionMetrics(countries, tech);
             html += block('🏁 领先国家与速度对比', a.leader);
-            if (a.bottlenecks && a.bottlenecks.length) {
-                html += `<div class="ad-block"><div class="ad-label">🚧 主要瓶颈</div><div class="ad-bn-list">${a.bottlenecks.map(b => {
-                    const title = typeof b === 'string' ? b : b.title;
-                    const reason = typeof b === 'string' ? '' : (b.reason || '');
-                    return `<div class="ad-bn-item"><div class="ad-bn-title">🔸 ${title}</div>${reason ? `<div class="ad-bn-reason">${reason}</div>` : ''}</div>`;
-                }).join('')}</div></div>`;
+            const posDrivers = buildPositiveDrivers(countries, tech);
+            const negDrivers = (a.bottlenecks || []).map(b => ({
+                title: typeof b === 'string' ? b : b.title,
+                reason: typeof b === 'string' ? '' : (b.reason || '')
+            }));
+            if (posDrivers.length || negDrivers.length) {
+                const renderItems = (arr, cls, mark) => arr.map(x =>
+                    `<div class="df-item ${cls}"><div class="df-title">${mark} ${x.title}</div>${x.reason ? `<div class="df-reason">${x.reason}</div>` : ''}</div>`
+                ).join('');
+                html += `<div class="ad-block"><div class="ad-label">⚖️ 驱动因素（正面 / 负面）</div>`;
+                if (posDrivers.length) html += `<div class="df-group-head df-pos-head">✅ 正面驱动</div><div class="ad-bn-list">${renderItems(posDrivers, 'df-pos', '🔹')}</div>`;
+                if (negDrivers.length) html += `<div class="df-group-head df-neg-head" style="margin-top:14px;">⛔ 负面阻碍</div><div class="ad-bn-list">${renderItems(negDrivers, 'df-neg', '🔸')}</div>`;
+                html += `</div>`;
             }
             return html;
         }
