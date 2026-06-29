@@ -4424,34 +4424,71 @@
             return tiers.map((t, i) => Object.assign({}, t, { members: names.slice(i * 5, i * 5 + 5) }));
         }
         function diffusionRingsToSvg(rings) {
-            const W = 720, H = 660, cx = 360, cy = 330;
-            const radii = [72, 132, 194, 256, 318];
+            const W = 740, H = 680, cx = 370, cy = 340;
+            const radii = [80, 142, 204, 266, 322];
+            const hash = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 131 + s.charCodeAt(i)) >>> 0; return h; };
             let g = '';
+            // 背景同心圆带（由外到内绘制，内层叠加在上）
             for (let i = rings.length - 1; i >= 0; i--) {
-                g += `<circle cx="${cx}" cy="${cy}" r="${radii[i]}" fill="${rings[i].color}" fill-opacity="0.06" stroke="${rings[i].color}" stroke-opacity="0.55" stroke-width="1.5"/>`;
+                g += `<circle cx="${cx}" cy="${cy}" r="${radii[i]}" fill="${rings[i].color}" fill-opacity="0.06" stroke="${rings[i].color}" stroke-opacity="0.5" stroke-width="1.4"/>`;
             }
+            // 中心核心 + 向外扩散涟漪动效
+            g += `<circle cx="${cx}" cy="${cy}" r="30" fill="none" stroke="#b91c1c" stroke-width="2">
+                    <animate attributeName="r" values="30;64;30" dur="3.2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1"/>
+                    <animate attributeName="opacity" values="0.55;0;0.55" dur="3.2s" repeatCount="indefinite"/>
+                  </circle>`;
             g += `<circle cx="${cx}" cy="${cy}" r="30" fill="#b91c1c"/>`;
             g += `<text x="${cx}" y="${cy - 2}" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">扩散</text>`;
             g += `<text x="${cx}" y="${cy + 13}" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">核心</text>`;
+            let idx = 0;
             rings.forEach((ring, i) => {
-                const r = radii[i];
-                const offset = -Math.PI / 2 + i * Math.PI / 5;
+                const baseR = radii[i];
+                const offset0 = -Math.PI / 2 + i * Math.PI / 5;
                 ring.members.forEach((m, j) => {
-                    const ang = offset + j * (2 * Math.PI / 5);
+                    const name = typeof m === 'string' ? m : m.name;
+                    const hh = hash(name + '|' + i + '|' + j);
+                    // 论文+专利 同比变化（-45%..+60%），内层偏增长
+                    let delta = ((hh % 81) - 40) + (2 - i) * 9;
+                    delta = Math.max(-45, Math.min(60, delta));
+                    // 同环内每个机构与圆心距离不同（半径抖动）
+                    const rJit = ((hh >> 5) % 31) - 15;
+                    const r = baseR + rJit;
+                    const ang = offset0 + j * (2 * Math.PI / 5) + (((hh >> 9) % 11) - 5) * 0.012;
                     const x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang);
-                    const disp = m.length > 6 ? m.slice(0, 6) + '…' : m;
-                    g += `<g><title>${m}（${ring.name}）</title>`;
-                    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${ring.color}" stroke="#fff" stroke-width="1.5"/>`;
+                    // 箭头：增长→指向圆心，下降→指向圆外；长度∝|变化幅度|
+                    const dist = Math.hypot(cx - x, cy - y) || 1;
+                    const uin = [(cx - x) / dist, (cy - y) / dist];
+                    const inc = delta >= 0;
+                    const dir = inc ? uin : [-uin[0], -uin[1]];
+                    const len = 8 + Math.abs(delta) * 0.62;
+                    const aColor = inc ? '#ff4d4f' : '#1677ff';
+                    const tipX = x + dir[0] * len, tipY = y + dir[1] * len;
+                    const ah = 5, baseAng = Math.atan2(dir[1], dir[0]);
+                    const lx = tipX - ah * Math.cos(baseAng - Math.PI / 7), ly = tipY - ah * Math.sin(baseAng - Math.PI / 7);
+                    const rx = tipX - ah * Math.cos(baseAng + Math.PI / 7), ry = tipY - ah * Math.sin(baseAng + Math.PI / 7);
+                    const disp = name.length > 6 ? name.slice(0, 6) + '…' : name;
+                    const dly = (idx * 0.12).toFixed(2);
+                    g += `<g><title>${name}（${ring.name}）｜论文+专利同比 ${inc ? '+' : ''}${Math.round(delta)}%</title>`;
+                    // 方向箭头（脉动动效）
+                    g += `<g stroke="${aColor}" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${tipX.toFixed(1)}" y2="${tipY.toFixed(1)}"/>
+                            <polyline points="${lx.toFixed(1)},${ly.toFixed(1)} ${tipX.toFixed(1)},${tipY.toFixed(1)} ${rx.toFixed(1)},${ry.toFixed(1)}"/>
+                            <animate attributeName="opacity" values="0.45;1;0.45" dur="2.4s" begin="${dly}s" repeatCount="indefinite"/>
+                          </g>`;
+                    // 机构节点（呼吸动效）
+                    g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${ring.color}" stroke="#fff" stroke-width="1.5">
+                            <animate attributeName="r" values="4;5.6;4" dur="2.2s" begin="${dly}s" repeatCount="indefinite"/>
+                          </circle>`;
                     g += `<text x="${x.toFixed(1)}" y="${(y - 9).toFixed(1)}" text-anchor="middle" fill="#33405a" font-size="11" font-weight="500" style="paint-order:stroke;stroke:#eef2f7;stroke-width:3px;">${disp}</text>`;
                     g += `</g>`;
+                    idx++;
                 });
             });
             return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${g}</svg>`;
         }
         function buildDiffusionRingsHtml(tech, details) {
             const rings = buildDiffusionRings(tech, details);
-            const legend = `<div class="rings-legend">${rings.map(r => `<span class="rl-item"><span class="rl-dot" style="background:${r.color}"></span>${r.name}</span>`).join('')}<span class="rl-note">由内到外：技术与机构扩散程度递减（越靠内扩散越快）</span></div>`;
-            return `<div class="rings-wrap">${diffusionRingsToSvg(rings)}</div>${legend}`;
+            return `<div class="rings-wrap">${diffusionRingsToSvg(rings)}</div>`;
         }
         // 技术扩散指标 + 判读（置于"领先国家与速度对比"之上）
         function buildDiffusionMetrics(countries, tech, leaderText) {
