@@ -4430,8 +4430,7 @@
             const arrowColor = diffTrend === 'down' ? '#52c41a' : (diffTrend === 'flat' ? '#8c8c8c' : '#ff4d4f');
             const items = [
                 { val: diffIndex + '%', name: '技术扩散指数', sub: diffDelta != null ? `<span style="color:${arrowColor}">环比去年 ${arrow}${diffDelta}%</span>` : '综合扩散水平' },
-                { val: top.level, name: '领先国家采用度', sub: top.name },
-                { val: avg, name: '全球平均采用度', sub: `${countries.length} 国/地区` }
+                { val: top.level, name: '领先国家采用度', sub: top.name }
             ];
             const metricsHtml = items.map(i => `
                 <div class="dm-item">
@@ -4465,20 +4464,6 @@
             const block = (label, content) => content ? `<div class="ad-block"><div class="ad-label">${label}</div><div class="ad-text">${content}</div></div>` : '';
             let html = '';
             if (countries && tech) html += buildDiffusionMetrics(countries, tech, a.leader);
-            const posDrivers = buildPositiveDrivers(countries, tech);
-            const negDrivers = (a.bottlenecks || []).map(b => ({
-                title: typeof b === 'string' ? b : b.title,
-                reason: typeof b === 'string' ? '' : (b.reason || '')
-            }));
-            if (posDrivers.length || negDrivers.length) {
-                const renderItems = (arr, cls, mark) => arr.map(x =>
-                    `<div class="df-item ${cls}"><div class="df-title">${mark} ${x.title}</div>${x.reason ? `<div class="df-reason">${x.reason}</div>` : ''}</div>`
-                ).join('');
-                html += `<div class="ad-block"><div class="ad-label">⚖️ 驱动因素（正面 / 负面）</div>`;
-                if (posDrivers.length) html += `<div class="df-group-head df-pos-head">✅ 正面驱动</div><div class="ad-bn-list">${renderItems(posDrivers, 'df-pos', '🔹')}</div>`;
-                if (negDrivers.length) html += `<div class="df-group-head df-neg-head" style="margin-top:14px;">⛔ 负面阻碍</div><div class="ad-bn-list">${renderItems(negDrivers, 'df-neg', '🔸')}</div>`;
-                html += `</div>`;
-            }
             return html;
         }
         function autoGlobalDist(tech) {
