@@ -703,17 +703,22 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
-            align-items: start;
+            align-items: stretch;
         }
         .heat-map { min-width: 0; }
         .heat-analysis {
             min-width: 0;
-            max-height: 560px;
-            overflow-y: auto;
-            padding-right: 6px;
+            display: flex;
+            flex-direction: column;
         }
-        .heat-analysis::-webkit-scrollbar { width: 6px; }
-        .heat-analysis::-webkit-scrollbar-thumb { background: rgba(22, 119, 255, 0.25); border-radius: 3px; }
+        /* 右栏内容拉伸至与左栏（同心圆）等高，判读区填充剩余空间 */
+        .heat-analysis > .ad-block {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 0;
+        }
+        .heat-analysis .dm-verdict { flex: 1; }
         .detail-card-title {
             font-size: 14px;
             font-weight: 600;
