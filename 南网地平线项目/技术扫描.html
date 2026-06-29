@@ -4421,7 +4421,15 @@
                 { name: '培育布局', color: '#fbbf24' },
                 { name: '观察跟踪', color: '#facc15' }
             ];
-            return tiers.map((t, i) => Object.assign({}, t, { members: names.slice(i * 5, i * 5 + 5) }));
+            const rh = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 131 + s.charCodeAt(i)) >>> 0; return h; };
+            return tiers.map((t, i) => Object.assign({}, t, {
+                members: names.slice(i * 5, i * 5 + 5).map((name, j) => {
+                    const hh = rh(name + '|' + i + '|' + j);
+                    let delta = ((hh % 81) - 40) + (2 - i) * 9; // 论文+专利同比，内层偏增长
+                    delta = Math.max(-45, Math.min(60, delta));
+                    return { name, delta };
+                })
+            }));
         }
         function diffusionRingsToSvg(rings) {
             const W = 740, H = 680, cx = 370, cy = 340;
@@ -4447,9 +4455,8 @@
                 ring.members.forEach((m, j) => {
                     const name = typeof m === 'string' ? m : m.name;
                     const hh = hash(name + '|' + i + '|' + j);
-                    // 论文+专利 同比变化（-45%..+60%），内层偏增长
-                    let delta = ((hh % 81) - 40) + (2 - i) * 9;
-                    delta = Math.max(-45, Math.min(60, delta));
+                    // 论文+专利 同比变化（与机构数据一致）
+                    const delta = (typeof m === 'object' && m.delta != null) ? m.delta : Math.max(-45, Math.min(60, ((hh % 81) - 40) + (2 - i) * 9));
                     // 同环内每个机构与圆心距离不同（半径抖动）
                     const rJit = ((hh >> 5) % 31) - 15;
                     const r = baseR + rJit;
@@ -4488,10 +4495,27 @@
         }
         function buildDiffusionRingsHtml(tech, details) {
             const rings = buildDiffusionRings(tech, details);
-            return `<div class="rings-wrap">${diffusionRingsToSvg(rings)}</div>`;
+            return `<div class="rings-wrap">${diffusionRingsToSvg(rings)}
+                <div class="rings-note">🎯 越靠近圆心，代表技术扩散速度越快（核心机构）；箭头指向圆心=论文/专利同比增长，指向圆外=下降，箭头越长变化越大。</div>
+            </div>`;
         }
-        // 技术扩散指标 + 判读（置于"领先国家与速度对比"之上）
-        function buildDiffusionMetrics(countries, tech, leaderText) {
+        // 依据同心圆（机构扩散格局）生成判读文案
+        function buildRingsNarrative(rings, tech) {
+            if (!rings || !rings.length) return '';
+            const all = [];
+            rings.forEach(ring => ring.members.forEach(m => all.push({
+                name: typeof m === 'string' ? m : m.name,
+                delta: (typeof m === 'object' && m.delta != null) ? m.delta : 0
+            })));
+            const total = all.length;
+            const grow = all.filter(a => a.delta >= 0).length;
+            const drop = total - grow;
+            const core = rings[0].members.map(m => typeof m === 'string' ? m : m.name).slice(0, 3).join('、');
+            const topGrow = [...all].sort((a, b) => b.delta - a.delta)[0];
+            return `从机构扩散格局看，${core}等机构居于扩散核心，论文与专利产出持续领跑；图谱共纳入 ${total} 家机构，由内到外分布于"核心引领→快速跟进→规模推进→培育布局→观察跟踪"五个圈层。其中 ${grow} 家机构论文+专利同比增长（箭头指向圆心）、${drop} 家有所回落（箭头指向圆外）；${topGrow.name}增长最快（同比 +${Math.round(topGrow.delta)}%）。整体呈现以头部机构为牵引、持续向外圈渗透的态势，${tech.name}正加速从核心机构向更广泛的产学研群体扩散。`;
+        }
+        // 技术扩散指标 + 判读（判读文案依据同心圆机构扩散格局生成）
+        function buildDiffusionMetrics(countries, tech, narrative) {
             if (!countries || !countries.length) return '';
             const levels = countries.map(c => c.level);
             const top = [...countries].sort((a, b) => b.level - a.level)[0];
@@ -4541,7 +4565,7 @@
                 </div>
                 <div class="dm-verdict" style="border-left-color:${vColor};">
                     <span class="dm-verdict-tag" style="color:${vColor};background:${vColor}1f;">📌 ${verdict}</span>
-                    <div class="dm-verdict-desc">${vDesc}${leaderText ? ' ' + leaderText : ''}</div>
+                    <div class="dm-verdict-desc">${vDesc}${narrative ? ' ' + narrative : ''}</div>
                 </div>
             </div>`;
         }
@@ -4592,11 +4616,11 @@
                 { title: '关键性能突破与成本下行', reason: `${N}核心性能指标持续突破、制造成本稳步下探，经济性拐点临近，对既有主流方案的替代吸引力增强，带动下游加速导入。` }
             ];
         }
-        function adoptionToHtml(a, countries, tech) {
+        function adoptionToHtml(a, countries, tech, narrative) {
             if (!a) return '';
             const block = (label, content) => content ? `<div class="ad-block"><div class="ad-label">${label}</div><div class="ad-text">${content}</div></div>` : '';
             let html = '';
-            if (countries && tech) html += buildDiffusionMetrics(countries, tech, a.leader);
+            if (countries && tech) html += buildDiffusionMetrics(countries, tech, narrative);
             return html;
         }
         function autoGlobalDist(tech) {
@@ -4844,9 +4868,10 @@
             const gd = tech.globalDist || autoGlobalDist(tech);
             if (gd.adoption) gd.adoption.leader = buildLeaderText(gd.countries, tech.name);
             const globalDistHtml = globalDistToHtml(gd.countries);
-            const adoptionHtml = adoptionToHtml(gd.adoption, gd.countries, tech);
-            // 技术扩散同心圆（替代世界地图）
+            // 技术扩散同心圆（替代世界地图）+ 依据机构格局生成判读文案
             const diffusionRingsHtml = buildDiffusionRingsHtml(tech, details);
+            const ringsNarrative = buildRingsNarrative(buildDiffusionRings(tech, details), tech);
+            const adoptionHtml = adoptionToHtml(gd.adoption, gd.countries, tech, ringsNarrative);
 
             // 机构竞争力图谱
             const landscapeHtml = landscapeToHtml(tech.landscape || autoLandscape(tech, details), tech);
