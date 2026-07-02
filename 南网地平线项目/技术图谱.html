@@ -390,6 +390,31 @@ function buildIntel(techName) {
 const intelCache = {};
 Object.keys(fieldMap).forEach(t => { intelCache[t] = buildIntel(t); });
 
+// 聚合一级/二级领域情报（汇总其下所有技术）
+function aggregateIntel(techList) {
+    const agg = {};
+    intelTypes.forEach(it => {
+        let count = 0, rows = [];
+        techList.forEach(t => {
+            const node = intelCache[t][it.key];
+            count += node.count;
+            rows = rows.concat(node.rows.slice(0, 2).map(r => Object.assign({ _tech: t }, r)));
+        });
+        agg[it.key] = { count, rows: rows.slice(0, 18) };
+    });
+    return agg;
+}
+const primaryTechs = {}, secondaryTechs = {};
+Object.keys(fieldMap).forEach(t => {
+    const f = fieldMap[t];
+    (primaryTechs[f.primary] = primaryTechs[f.primary] || []).push(t);
+    const sk = f.primary + '/' + f.secondary;
+    (secondaryTechs[sk] = secondaryTechs[sk] || []).push(t);
+});
+const primaryIntelCache = {}, secondaryIntelCache = {};
+Object.keys(primaryTechs).forEach(p => { primaryIntelCache[p] = aggregateIntel(primaryTechs[p]); });
+Object.keys(secondaryTechs).forEach(sk => { secondaryIntelCache[sk] = aggregateIntel(secondaryTechs[sk]); });
+
 /* ===================== 节点类型 / 图例 ===================== */
 // 类别顺序：层级三类 + 9 情报类型
 const categories = [
@@ -406,7 +431,7 @@ const legendState = {};
 categories.forEach(c => { legendState[c.name] = true; });
 
 /* ===================== 交互状态 ===================== */
-const expandedTechs = new Set();   // 已展开情报的技术
+const expandedNodes = new Set();   // 已展开情报的节点 id（一级/二级/技术通用）
 let filterPrimary = '';
 let filterSecondary = '';
 let keyword = '';
@@ -423,6 +448,27 @@ function buildGraph() {
         nodes.push(n);
     }
 
+    // 为某个节点挂载 9 类情报子节点
+    function addIntelNodes(ownerId, ownerName, intelObj) {
+        intelTypes.forEach(it => {
+            const node = intelObj[it.key];
+            const iid = 'I_' + ownerId + '_' + it.key;
+            addNode({
+                id: iid,
+                name: `${it.label} ${node.count}`,
+                category: catIndex[it.key],
+                value: it.label,
+                symbolSize: 15,
+                dataType: 'intel',
+                intelKey: it.key,
+                ownerName: ownerName,
+                intelData: node,
+                label: { fontSize: 11, color: '#5a6a82' }
+            });
+            links.push({ source: ownerId, target: iid, lineStyle: { color: it.color, opacity: 0.45 } });
+        });
+    }
+
     // 根节点
     const ROOT = '__root__';
     addNode({
@@ -433,6 +479,9 @@ function buildGraph() {
 
     const kw = keyword.trim().toLowerCase();
     const matchKw = txt => kw && txt.toLowerCase().indexOf(kw) >= 0;
+    const expStyle = (matched, expanded) => matched
+        ? { borderColor: '#ff4d4f', borderWidth: 3 }
+        : (expanded ? { borderColor: '#1f2d3d', borderWidth: 2 } : undefined);
 
     // 收集层级
     const primaries = {};   // primary -> { secondaries: { secondary -> [techs] } }
@@ -447,56 +496,39 @@ function buildGraph() {
 
     Object.keys(primaries).forEach(primary => {
         const pid = 'P_' + primary;
+        const pExpanded = expandedNodes.has(pid);
         addNode({
             id: pid, name: primary, category: catIndex.primary, value: '一级领域',
             symbolSize: 48, dataType: 'primary',
-            itemStyle: matchKw(primary) ? { borderColor: '#ff4d4f', borderWidth: 3 } : undefined,
+            itemStyle: expStyle(matchKw(primary), pExpanded),
             label: { fontSize: 14, fontWeight: 'bold' }
         });
         links.push({ source: ROOT, target: pid });
+        if (pExpanded) addIntelNodes(pid, primary, primaryIntelCache[primary]);
 
         Object.keys(primaries[primary]).forEach(secondary => {
             const sid = 'S_' + primary + '_' + secondary;
+            const sExpanded = expandedNodes.has(sid);
             addNode({
                 id: sid, name: secondary, category: catIndex.secondary, value: '二级领域',
                 symbolSize: 34, dataType: 'secondary',
-                itemStyle: matchKw(secondary) ? { borderColor: '#ff4d4f', borderWidth: 3 } : undefined,
+                itemStyle: expStyle(matchKw(secondary), sExpanded),
                 label: { fontSize: 13 }
             });
             links.push({ source: pid, target: sid });
+            if (sExpanded) addIntelNodes(sid, secondary, secondaryIntelCache[primary + '/' + secondary]);
 
             primaries[primary][secondary].forEach(tech => {
                 const tid = 'T_' + tech;
-                const expanded = expandedTechs.has(tech);
+                const tExpanded = expandedNodes.has(tid);
                 addNode({
                     id: tid, name: tech, category: catIndex.tech, value: '技术',
                     symbolSize: 26, dataType: 'tech', techName: tech,
-                    itemStyle: matchKw(tech)
-                        ? { borderColor: '#ff4d4f', borderWidth: 3 }
-                        : (expanded ? { borderColor: '#1f2d3d', borderWidth: 2 } : undefined),
+                    itemStyle: expStyle(matchKw(tech), tExpanded),
                     label: { fontSize: 12 }
                 });
                 links.push({ source: sid, target: tid });
-
-                if (expanded) {
-                    const intel = intelCache[tech];
-                    intelTypes.forEach(it => {
-                        const node = intel[it.key];
-                        const iid = 'I_' + tech + '_' + it.key;
-                        addNode({
-                            id: iid,
-                            name: `${it.label} ${node.count}`,
-                            category: catIndex[it.key],
-                            value: it.label,
-                            symbolSize: 16,
-                            dataType: 'intel',
-                            intelKey: it.key,
-                            techName: tech,
-                            label: { fontSize: 11, color: '#5a6a82' }
-                        });
-                        links.push({ source: tid, target: iid, lineStyle: { color: it.color, opacity: 0.45 } });
-                    });
-                }
+                if (tExpanded) addIntelNodes(tid, tech, intelCache[tech]);
             });
         });
     });
@@ -525,10 +557,11 @@ function render() {
                 if (params.dataType === 'edge') return '';
                 const d = params.data;
                 if (d.dataType === 'intel') {
-                    return `<b>${d.techName}</b><br/>${d.name}<br/><span style="color:#9aa7ba">点击查看明细</span>`;
+                    return `<b>${d.ownerName}</b><br/>${d.name}<br/><span style="color:#9aa7ba">点击查看明细</span>`;
                 }
-                if (d.dataType === 'tech') {
-                    return `<b>${d.name}</b>（技术）<br/><span style="color:#9aa7ba">点击${expandedTechs.has(d.techName) ? '收起' : '展开'}情报类型</span>`;
+                if (d.dataType === 'primary' || d.dataType === 'secondary' || d.dataType === 'tech') {
+                    const lv = d.dataType === 'primary' ? '一级领域' : (d.dataType === 'secondary' ? '二级领域' : '技术');
+                    return `<b>${d.name}</b>（${lv}）<br/><span style="color:#9aa7ba">点击${expandedNodes.has(d.id) ? '收起' : '展开'}情报类型</span>`;
                 }
                 return `<b>${d.name}</b><br/>${d.value || ''}`;
             }
@@ -577,13 +610,13 @@ function attachChartEvents() {
     chart.on('click', params => {
         const d = params.data;
         if (!d || params.dataType === 'edge') return;
-        if (d.dataType === 'tech') {
-            if (expandedTechs.has(d.techName)) expandedTechs.delete(d.techName);
-            else expandedTechs.add(d.techName);
+        if (d.dataType === 'primary' || d.dataType === 'secondary' || d.dataType === 'tech') {
+            if (expandedNodes.has(d.id)) expandedNodes.delete(d.id);
+            else expandedNodes.add(d.id);
             closeDetail();
             render();
         } else if (d.dataType === 'intel') {
-            openDetail(d.techName, d.intelKey);
+            openDetail(d.ownerName, d.intelKey, d.intelData);
         }
     });
     window.addEventListener('resize', () => chart && chart.resize());
@@ -617,6 +650,7 @@ function renderDetailRows(filterText) {
     const rows = kw
         ? dpState.rows.filter(r => {
             if (r.title.toLowerCase().indexOf(kw) >= 0) return true;
+            if (r._tech && r._tech.toLowerCase().indexOf(kw) >= 0) return true;
             return Object.values(r.meta).some(v => String(v).toLowerCase().indexOf(kw) >= 0);
         })
         : dpState.rows;
@@ -628,18 +662,18 @@ function renderDetailRows(filterText) {
     }
     body.innerHTML = rows.map(r => {
         const metaHtml = Object.keys(r.meta).map(k => `<span><b>${k}：</b>${r.meta[k]}</span>`).join('');
+        const techTag = r._tech ? `<span style="display:inline-block;font-size:11px;color:#1677ff;background:rgba(22,119,255,0.1);border-radius:4px;padding:0 6px;margin-right:6px;">${r._tech}</span>` : '';
         return `<div class="dp-row" style="border-left:3px solid ${it.color};padding-left:10px;">
-            <div class="dp-row-title">${r.title}</div>
+            <div class="dp-row-title">${techTag}${r.title}</div>
             <div class="dp-meta">${metaHtml}</div>
         </div>`;
     }).join('') + `<div class="dp-foot">${kw ? `匹配 ${rows.length} 条 · ` : ''}以上为代表性示例，完整 ${dpState.count.toLocaleString()} 条数据可在「技术扫描 / 技术详情」相关数据源中查看。</div>`;
 }
 
-function openDetail(tech, intelKey) {
+function openDetail(ownerName, intelKey, node) {
     const it = intelTypes.find(t => t.key === intelKey);
-    const node = intelCache[tech][intelKey];
-    dpState = { tech, it, count: node.count, rows: node.rows };
-    document.getElementById('dpTitle').textContent = `${tech} · ${it.label}`;
+    dpState = { owner: ownerName, it, count: node.count, rows: node.rows };
+    document.getElementById('dpTitle').textContent = `${ownerName} · ${it.label}`;
     document.getElementById('dpCount').textContent = `共约 ${node.count.toLocaleString()} 条 · 示例 ${node.rows.length} 条`;
     const search = document.getElementById('dpSearch');
     search.value = '';
@@ -688,12 +722,14 @@ document.getElementById('expandAllBtn').addEventListener('click', () => {
         const f = fieldMap[t];
         if (filterPrimary && f.primary !== filterPrimary) return;
         if (filterSecondary && f.secondary !== filterSecondary) return;
-        expandedTechs.add(t);
+        expandedNodes.add('P_' + f.primary);
+        expandedNodes.add('S_' + f.primary + '_' + f.secondary);
+        expandedNodes.add('T_' + t);
     });
     render();
 });
 document.getElementById('collapseAllBtn').addEventListener('click', () => {
-    expandedTechs.clear();
+    expandedNodes.clear();
     closeDetail();
     render();
 });
