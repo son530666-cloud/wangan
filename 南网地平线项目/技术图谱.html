@@ -667,14 +667,14 @@ function renderDetailRows(filterText) {
             <div class="dp-row-title">${techTag}${r.title}</div>
             <div class="dp-meta">${metaHtml}</div>
         </div>`;
-    }).join('') + `<div class="dp-foot">${kw ? `匹配 ${rows.length} 条 · ` : ''}以上为代表性示例，完整 ${dpState.count.toLocaleString()} 条数据可在「技术扫描 / 技术详情」相关数据源中查看。</div>`;
+    }).join('') + (kw ? `<div class="dp-foot">匹配 ${rows.length} 条</div>` : '');
 }
 
 function openDetail(ownerName, intelKey, node) {
     const it = intelTypes.find(t => t.key === intelKey);
     dpState = { owner: ownerName, it, count: node.count, rows: node.rows };
     document.getElementById('dpTitle').textContent = `${ownerName} · ${it.label}`;
-    document.getElementById('dpCount').textContent = `共约 ${node.count.toLocaleString()} 条 · 示例 ${node.rows.length} 条`;
+    document.getElementById('dpCount').textContent = `共约 ${node.count.toLocaleString()} 条`;
     const search = document.getElementById('dpSearch');
     search.value = '';
     renderDetailRows('');
