@@ -2000,13 +2000,13 @@
             </div>
             <div class="history-filter-bar" id="historyFilterBar">
                 <div class="filter-group">
-                    <label class="filter-label">一级领域</label>
+                    <label class="filter-label">一级分类</label>
                     <select class="filter-select" id="filterPrimary">
                         <option value="">全部领域</option>
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label class="filter-label">二级领域</label>
+                    <label class="filter-label">二级分类</label>
                     <select class="filter-select" id="filterSecondary">
                         <option value="">全部</option>
                     </select>
@@ -2020,10 +2020,10 @@
                         <option value="firstSeen-asc">识别时间（正序）</option>
                         <option value="score-desc">综合评分（高→低）</option>
                         <option value="score-asc">综合评分（低→高）</option>
-                        <option value="novelty-desc">技术新颖性（高→低）</option>
-                        <option value="value-desc">技术价值性（高→低）</option>
-                        <option value="relevance-desc">技术关联性（高→低）</option>
-                        <option value="prospect-desc">技术前瞻性（高→低）</option>
+                        <option value="novelty-desc">技术热度（高→低）</option>
+                        <option value="value-desc">技术突破（高→低）</option>
+                        <option value="relevance-desc">技术转化（高→低）</option>
+                        <option value="prospect-desc">专家认可度（高→低）</option>
                     </select>
                 </div>
                 <button class="filter-reset" id="filterReset">重置</button>
@@ -2057,7 +2057,7 @@
         function getMiniRadar(dim) {
             const cx = 100, cy = 82, r = 46;
             const scores = [dim.novelty, dim.value, dim.relevance, dim.prospect];
-            const labels = ['新颖性', '价值性', '关联性', '前瞻性'];
+            const labels = ['热度', '突破', '转化', '专家认可度'];
             const angleStep = (Math.PI * 2) / 4;
             const startAngle = -Math.PI / 2; // 从顶部开始
 
@@ -2136,7 +2136,7 @@
                 isNew: false,
                 firstSeen: '2026-04-28',
                 lastActive: '2026-06-22',
-                warnReason: '评分 91 高位运行；关联性达 92，南网/国网多省试点加速落地，被 Gartner 列入年度十大趋势。',
+                warnReason: '评分 91 高位运行；转化达 92，南网/国网多省试点加速落地，被 Gartner 列入年度十大趋势。',
                 dimensions4: { novelty: 85, value: 90, relevance: 92, prospect: 88 }
             },
             {
@@ -2163,7 +2163,7 @@
                 firstSeen: '2026-06-08',
                 lastActive: '2026-06-24',
                 identifyTime: '2026-06-08 14:32',
-                warnReason: '评分周环比 +6 跃升至 93；叠层电池效率突破 33%，新颖性 94、前瞻性 96 双高，资本与论文热度骤增。',
+                warnReason: '评分周环比 +6 跃升至 93；叠层电池效率突破 33%，热度 94、专家认可度 96 双高，资本与论文热度骤增。',
                 dimensions4: { novelty: 94, value: 92, relevance: 85, prospect: 96 },
                 changeBasis: [
                     { value: '近半年论文增长率为 42%', trend: 'up' },
@@ -2183,7 +2183,7 @@
                 firstSeen: '2026-06-08',
                 lastActive: '2026-06-23',
                 identifyTime: '2026-06-08 11:15',
-                warnReason: '评分 89 逼近预警线；新颖性高达 96，量子密钥分发进入城域组网试点，信息安全战略关注度上升。',
+                warnReason: '评分 89 逼近预警线；热度高达 96，量子密钥分发进入城域组网试点，信息安全战略关注度上升。',
                 dimensions4: { novelty: 96, value: 85, relevance: 78, prospect: 90 },
                 changeBasis: [
                     { value: '近半年论文增长率为 30%', trend: 'up' },
@@ -2203,7 +2203,7 @@
                 firstSeen: '2026-06-07',
                 lastActive: '2026-06-20',
                 identifyTime: '2026-06-07 16:45',
-                warnReason: '评分 86 但周环比 -2 有回落；关联性 92 仍突出，柔直工程造价偏高，需跟踪示范项目进度。',
+                warnReason: '评分 86 但周环比 -2 有回落；转化 92 仍突出，柔直工程造价偏高，需跟踪示范项目进度。',
                 dimensions4: { novelty: 78, value: 88, relevance: 92, prospect: 82 },
                 changeBasis: [
                     { value: '近半年论文增长率为 10%', trend: 'up' },
@@ -2223,7 +2223,7 @@
                 firstSeen: '2026-06-07',
                 lastActive: '2026-06-24',
                 identifyTime: '2026-06-07 09:20',
-                warnReason: '评分 92 且周环比 +3；价值性 94 居全榜首位，电网调度刚需明确，AI 大模型落地速度极快。',
+                warnReason: '评分 92 且周环比 +3；突破 94 居全榜首位，电网调度刚需明确，AI 大模型落地速度极快。',
                 dimensions4: { novelty: 90, value: 94, relevance: 88, prospect: 93 },
                 changeBasis: [
                     { value: '近半年论文增长率为 48%', trend: 'up' },
@@ -2243,7 +2243,7 @@
                 firstSeen: '2026-06-06',
                 lastActive: '2026-06-21',
                 identifyTime: '2026-06-06 15:10',
-                warnReason: '评分 85 周环比 +5 快速上行；储运一体化降本路径清晰，绿氢政策加码，前瞻性 88 值得关注。',
+                warnReason: '评分 85 周环比 +5 快速上行；储运一体化降本路径清晰，绿氢政策加码，专家认可度 88 值得关注。',
                 dimensions4: { novelty: 82, value: 86, relevance: 80, prospect: 88 },
                 changeBasis: [
                     { value: '近半年论文增长率为 25%', trend: 'up' },
@@ -2263,7 +2263,7 @@
                 firstSeen: '2026-06-06',
                 lastActive: '2026-06-19',
                 identifyTime: '2026-06-06 10:55',
-                warnReason: '评分 83 周环比 -2 略降；边缘智能与配网终端结合度高，关联性 85，需观察规模化部署节奏。',
+                warnReason: '评分 83 周环比 -2 略降；边缘智能与配网终端结合度高，转化 85，需观察规模化部署节奏。',
                 dimensions4: { novelty: 80, value: 82, relevance: 85, prospect: 78 },
                 changeBasis: [
                     { value: '近半年论文增长率为 12%', trend: 'up' },
@@ -2283,7 +2283,7 @@
                 firstSeen: '2026-06-05',
                 lastActive: '2026-06-22',
                 identifyTime: '2026-06-05 13:40',
-                warnReason: '评分周环比 +6 升至 88；新颖性 92，石墨烯功率器件论文/专利高增长，材料突破或带来器件代际跃迁。',
+                warnReason: '评分周环比 +6 升至 88；热度 92，石墨烯功率器件论文/专利高增长，材料突破或带来器件代际跃迁。',
                 dimensions4: { novelty: 92, value: 85, relevance: 80, prospect: 88 },
                 changeBasis: [
                     { value: '近半年论文增长率为 34%', trend: 'up' },
@@ -2361,7 +2361,7 @@
         // 评估维度 → 子指标配置（按产品需求图片）
         const subIndicatorConfig = {
             prospect: {
-                label: '前瞻性',
+                label: '专家认可度',
                 color: '#ffa940',
                 barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)',
                 subs: [
@@ -2371,7 +2371,7 @@
                 ]
             },
             value: {
-                label: '价值性',
+                label: '突破',
                 color: '#73d13d',
                 barColor: 'linear-gradient(90deg,#73d13d,#95de64)',
                 subs: [
@@ -2380,21 +2380,21 @@
                 ]
             },
             novelty: {
-                label: '新颖性',
+                label: '热度',
                 color: '#ff4d4f',
                 barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)',
                 subs: [
-                    { key: 'ipcNovelty', label: '专利IPC组合新颖性' },
-                    { key: 'semanticNovelty', label: '论文语义偏离新颖性' },
-                    { key: 'timeNovelty', label: '时间新颖性' }
+                    { key: 'ipcNovelty', label: '专利IPC组合热度' },
+                    { key: 'semanticNovelty', label: '论文语义偏离热度' },
+                    { key: 'timeNovelty', label: '时间热度' }
                 ]
             },
             relevance: {
-                label: '关联性',
+                label: '转化',
                 color: '#1677ff',
                 barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)',
                 subs: [
-                    { key: 'scienceRelevance', label: '科学关联性' },
+                    { key: 'scienceRelevance', label: '科学转化度' },
                     { key: 'crossRate', label: '学科熵/领域交叉率' },
                     { key: 'paperPatentRatio', label: '关联论文专利比例' }
                 ]
@@ -2427,7 +2427,7 @@
             }
         });
 
-        // 统一将 dimensions4 转为 dimensions 数组 [新颖性, 价值性, 关联性, 前瞻性]
+        // 统一将 dimensions4 转为 dimensions 数组 [热度, 突破, 转化, 专家认可度]
         weeklyTechs.forEach(tech => {
             if (tech.dimensions4) {
                 tech.dimensions = [tech.dimensions4.novelty, tech.dimensions4.value, tech.dimensions4.relevance, tech.dimensions4.prospect];
@@ -3203,7 +3203,7 @@
         // ========== 纯SVG降级雷达图（无ECharts依赖） ==========
         function renderFallbackRadar(container) {
             const W=600, H=480, CX=300, CY=240, R=170;
-            const dims=['技术新颖性','技术价值性','技术关联性','技术前瞻性'];
+            const dims=['技术热度','技术突破','技术转化','专家认可度'];
             const angles=[-Math.PI/2,0,Math.PI/2,Math.PI];
             const newTechList=weeklyTechs.filter(t=>t.isNew);
 
@@ -3296,10 +3296,10 @@
             const ev = tech?.dimensionEvidence || {};
             const d4 = tech?.dimensions4 || {};
             const dimRows = [
-                { key: 'novelty',   label: '新颖性', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
-                { key: 'prospect',  label: '前瞻性', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
-                { key: 'relevance', label: '关联性', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
-                { key: 'value',     label: '价值性', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
+                { key: 'novelty',   label: '热度', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
+                { key: 'prospect',  label: '专家认可度', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
+                { key: 'relevance', label: '转化', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
+                { key: 'value',     label: '突破', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
             ].map(dim => {
                 const score = ev[dim.key]?.score || d4[dim.key] || 0;
                 return buildDimWithSubsHtml(dim.key, dim.label, dim.color, dim.barColor, tech.name, score);
@@ -3347,7 +3347,7 @@
             container.querySelectorAll('.radar-overlay-el').forEach(el=> el.remove());
             const rect = container.getBoundingClientRect();
             const cx = rect.width / 2, cy = rect.height / 2, r = Math.min(cx, cy) * 0.65;
-            const dims = ['技术新颖性','技术价值性','技术关联性','技术前瞻性'];
+            const dims = ['技术热度','技术突破','技术转化','专家认可度'];
             const angles = [-Math.PI/2, 0, Math.PI/2, Math.PI];
             const newTechList = weeklyTechs.filter(t=> t.isNew);
 
@@ -3426,10 +3426,10 @@
                     const ev = tech.dimensionEvidence || {};
                     const d4 = tech.dimensions4 || {};
                     const dimRows = [
-                        { key: 'novelty',   label: '新颖性', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
-                        { key: 'prospect',  label: '前瞻性', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
-                        { key: 'relevance', label: '关联性', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
-                        { key: 'value',     label: '价值性', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
+                        { key: 'novelty',   label: '热度', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
+                        { key: 'prospect',  label: '专家认可度', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
+                        { key: 'relevance', label: '转化', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
+                        { key: 'value',     label: '突破', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
                     ].map(dim => {
                         const score = ev[dim.key]?.score || d4[dim.key] || 0;
                         return buildDimWithSubsHtml(dim.key, dim.label, dim.color, dim.barColor, tech.name, score);
@@ -3915,33 +3915,33 @@
 
         // ========== 技术维度详情弹层控制 ==========
         const dimConfig = [
-            { key: 'novelty',   label: '新颖性', icon: '💡', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
-            { key: 'prospect',  label: '前瞻性', icon: '🔭', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
-            { key: 'relevance', label: '关联性', icon: '🔗', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
-            { key: 'value',     label: '价值性', icon: '💎', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
+            { key: 'novelty',   label: '热度', icon: '💡', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
+            { key: 'prospect',  label: '专家认可度', icon: '🔭', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
+            { key: 'relevance', label: '转化', icon: '🔗', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
+            { key: 'value',     label: '突破', icon: '💎', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
         ];
 
         function getDimSummary(dimKey, score) {
             if (score >= 90) {
                 if (dimKey === 'novelty') return '该维度表现突出，技术处于高度创新活跃期，近期专利与论文增长迅速，原创性成果密集涌现。';
-                if (dimKey === 'prospect') return '发展前景广阔，技术路线清晰，产业化预期明确，未来3-5年有望实现规模化突破。';
-                if (dimKey === 'relevance') return '与产业链上下游及核心应用场景关联性极高，技术落地路径顺畅，生态支撑完善。';
-                if (dimKey === 'value') return '经济价值显著，投资回报可期，规模化应用后有望带来明显的成本下降与效率提升。';
+                if (dimKey === 'prospect') return '专家与产业界认可度极高，技术路线共识强，未来3-5年有望实现规模化突破。';
+                if (dimKey === 'relevance') return '技术转化度极高，与产业链上下游及核心应用场景衔接顺畅，生态支撑完善。';
+                if (dimKey === 'value') return '技术突破显著，核心性能指标或关键瓶颈取得重要进展，规模化应用后有望带来明显的成本下降与效率提升。';
             } else if (score >= 80) {
                 if (dimKey === 'novelty') return '创新活跃度较高，专利与论文保持稳健增长，技术持续迭代优化。';
-                if (dimKey === 'prospect') return '发展趋势向好，关键瓶颈逐步突破，具备中长期产业化潜力。';
+                if (dimKey === 'prospect') return '专家认可度较高，发展趋势向好，关键瓶颈逐步突破，具备中长期产业化潜力。';
                 if (dimKey === 'relevance') return '与主流应用场景匹配度良好，已具备一定的产业链协同基础。';
-                if (dimKey === 'value') return '具备较好的商业化价值，随着成本下降和技术成熟，投资回报率将进一步提升。';
+                if (dimKey === 'value') return '具备较好的技术突破潜力，随着核心指标提升和成本下降，应用边界将进一步拓宽。';
             } else if (score >= 70) {
                 if (dimKey === 'novelty') return '创新活动较为平稳，技术进入工程优化阶段，原创性突破相对较少。';
-                if (dimKey === 'prospect') return '发展前景尚可，但部分技术路线和商业模式仍需进一步验证。';
-                if (dimKey === 'relevance') return '与部分应用场景关联性一般，需进一步拓展适配场景。';
-                if (dimKey === 'value') return '价值潜力有待释放，当前成本或市场接受度仍是主要制约因素。';
+                if (dimKey === 'prospect') return '专家认可度尚可，发展前景较为明确，但部分技术路线和商业模式仍需进一步验证。';
+                if (dimKey === 'relevance') return '技术转化度一般，与部分应用场景的衔接仍需进一步拓展适配。';
+                if (dimKey === 'value') return '技术突破潜力有待释放，当前核心指标或市场接受度仍是主要制约因素。';
             } else {
                 if (dimKey === 'novelty') return '技术相对成熟或创新活跃度较低，近期重大原创成果较少。';
-                if (dimKey === 'prospect') return '发展前景受限，可能面临技术瓶颈或替代路线竞争。';
-                if (dimKey === 'relevance') return '与当前主流应用场景关联性有限，落地空间较小。';
-                if (dimKey === 'value') return '短期经济价值有限，需等待技术突破或成本大幅下降。';
+                if (dimKey === 'prospect') return '专家认可度有限，发展前景受限，可能面临技术瓶颈或替代路线竞争。';
+                if (dimKey === 'relevance') return '技术转化度有限，与当前主流应用场景的衔接不足，落地空间较小。';
+                if (dimKey === 'value') return '技术突破有限，核心性能指标或成本瓶颈尚未出现明显拐点，需等待关键进展。';
             }
         }
 
@@ -4049,7 +4049,7 @@
             }
 
             if (d4.prospect && d4.prospect >= 90) {
-                advices.push('前瞻性强，建议提前布局相关技术生态。');
+                advices.push('专家认可度强，建议提前布局相关技术生态。');
             }
 
             return '<ul style="margin:0;padding-left:18px;">' + advices.map(a => `<li style="margin-bottom:6px;">${a}</li>`).join('') + '</ul>';
@@ -4954,7 +4954,7 @@
                 name: tech.name,
                 score: tech.score,
                 rating: ratingOf(tech.score),
-                scoreTip: '综合评分由技术新颖性、价值性、关联性、前瞻性四维加权得出，分值越高代表越值得重点跟踪。',
+                scoreTip: '综合评分由技术热度、突破、转化、专家认可度四维加权得出，分值越高代表越值得重点跟踪。',
                 category: tech.category,
                 primaryField: tech.primaryField || '',
                 secondaryField: tech.secondaryField || '',
@@ -5028,10 +5028,10 @@
         function buildDetailRadarSvg(tech) {
             const d4 = tech.dimensions4 || { novelty: 80, value: 80, relevance: 80, prospect: 80 };
             const indicators = [
-                { name: '新颖性', key: 'novelty', color: '#ff4d4f' },
-                { name: '价值性', key: 'value', color: '#73d13d' },
-                { name: '关联性', key: 'relevance', color: '#1677ff' },
-                { name: '前瞻性', key: 'prospect', color: '#ffa940' }
+                { name: '热度', key: 'novelty', color: '#ff4d4f' },
+                { name: '突破', key: 'value', color: '#73d13d' },
+                { name: '转化', key: 'relevance', color: '#1677ff' },
+                { name: '专家认可度', key: 'prospect', color: '#ffa940' }
             ];
 
             const W = 400, H = 340, CX = 200, CY = 170, R = 110;
