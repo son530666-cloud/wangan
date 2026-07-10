@@ -2125,7 +2125,7 @@
         function getMiniRadar(dim) {
             const cx = 100, cy = 82, r = 46;
             const scores = [dim.novelty, dim.value, dim.relevance, dim.prospect];
-            const labels = ['热度', '突破', '转化', '专家认可度'];
+            const labels = ['技术热度', '技术突破', '技术转化', '专家认可度'];
             const angleStep = (Math.PI * 2) / 4;
             const startAngle = -Math.PI / 2; // 从顶部开始
 
@@ -2159,14 +2159,14 @@
                 axes += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="rgba(82, 196, 26,0.2)" stroke-width="0.5"/>`;
             });
 
-            // 标签位置（稍远一点）
-            const labelDist = r + 16;
+            // 标签位置（稍远一点），显示维度名 + 分数
+            const labelDist = r + 18;
             const labelPoints = labels.map((text, i) => {
                 const angle = startAngle + i * angleStep;
                 const x = cx + labelDist * Math.cos(angle);
                 const y = cy + labelDist * Math.sin(angle);
                 const anchor = i === 0 ? 'middle' : i === 1 ? 'start' : i === 2 ? 'middle' : 'end';
-                return `<text x="${x}" y="${y + 4}" text-anchor="${anchor}" fill="#6e7d95" font-size="10" font-family="system-ui, sans-serif">${text}</text>`;
+                return `<text x="${x}" y="${y + 4}" text-anchor="${anchor}" fill="#6e7d95" font-size="9" font-family="system-ui, sans-serif">${text} ${scores[i]}</text>`;
             }).join('');
 
             // 数据点圆点
