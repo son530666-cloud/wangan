@@ -3288,9 +3288,11 @@
                 return;
             }
 
-            // 渲染当前选中维度的最高分卡片
-            const tech = topByDim[activeWarningTab];
-            if (!tech) {
+            // 渲染当前选中维度下的高分预警卡片（按该维度分数倒序）
+            const activeTab = WARNING_DIM_TABS.find(t => t.key === activeWarningTab);
+            const sortedTechs = warningTechs.slice().sort((a, b) => (b.dimensions4?.[activeWarningTab] || 0) - (a.dimensions4?.[activeWarningTab] || 0));
+
+            if (sortedTechs.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1/-1;">
                         <div class="empty-state-icon">🔍</div>
@@ -3300,24 +3302,24 @@
                 return;
             }
 
-            const activeTab = WARNING_DIM_TABS.find(t => t.key === activeWarningTab);
-            const dimScore = tech.dimensions4?.[activeWarningTab] || 0;
-
-            container.innerHTML = `
-                <div class="warning-card" data-id="${tech.id}" style="grid-column:1/-1;">
-                    <img class="warning-icon" src="${getTechIcon(tech.category)}" alt="${tech.name}" title="${tech.category}">
-                    <div class="warning-content">
-                        <div class="warning-name">${tech.name}</div>
-                        <div class="warning-meta">
-                            <span class="warning-score">${tech.score}</span>
-                            <span class="warning-tag">${tech.category}</span>
-                            <span class="warning-tag" style="color:${activeTab.color};background:rgba(${hexToRgb(activeTab.color)},0.12);border-color:rgba(${hexToRgb(activeTab.color)},0.25);">${activeTab.label} ${dimScore}</span>
+            container.innerHTML = sortedTechs.map(tech => {
+                const dimScore = tech.dimensions4?.[activeWarningTab] || 0;
+                return `
+                    <div class="warning-card" data-id="${tech.id}">
+                        <img class="warning-icon" src="${getTechIcon(tech.category)}" alt="${tech.name}" title="${tech.category}">
+                        <div class="warning-content">
+                            <div class="warning-name">${tech.name}</div>
+                            <div class="warning-meta">
+                                <span class="warning-score">${tech.score}</span>
+                                <span class="warning-tag">${tech.category}</span>
+                                <span class="warning-tag" style="color:${activeTab.color};background:rgba(${hexToRgb(activeTab.color)},0.12);border-color:rgba(${hexToRgb(activeTab.color)},0.25);">${activeTab.label} ${dimScore}</span>
+                            </div>
+                            <div class="warning-date">最近活跃时间：${tech.lastActive || tech.firstSeen} ${tech.isNew ? '<span style="color:#ff4d4f;margin-left:8px;">本周新识别</span>' : ''}</div>
+                            ${tech.warnReason ? `<div class="warning-reason">高分预警理由：${tech.warnReason}</div>` : ''}
                         </div>
-                        <div class="warning-date">最近活跃时间：${tech.lastActive || tech.firstSeen} ${tech.isNew ? '<span style="color:#ff4d4f;margin-left:8px;">本周新识别</span>' : ''}</div>
-                        ${tech.warnReason ? `<div class="warning-reason">高分预警理由：${tech.warnReason}</div>` : ''}
                     </div>
-                </div>
-            `;
+                `;
+            }).join('');
 
             // 绑定卡片点击跳转技术详情页
             container.querySelectorAll('.warning-card').forEach(card => {
