@@ -953,35 +953,48 @@
 
         /* 四维分数 */
         .history-dims {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            display: flex;
+            flex-direction: column;
             gap: 8px;
             margin-bottom: 14px;
         }
 
         .history-dim-item {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 4px;
-            padding: 8px 4px;
-            background: rgba(40, 70, 120, 0.04);
-            border-radius: 8px;
+            gap: 10px;
             font-size: 12px;
         }
 
         .history-dim-name {
+            width: 64px;
             color: #5a6a82;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .history-dim-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(40, 70, 120, 0.08);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .history-dim-bar-inner {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.4s ease;
         }
 
         .history-dim-score {
+            width: 28px;
+            text-align: right;
             font-weight: 700;
             font-family: 'Segoe UI', system-ui, sans-serif;
-            font-size: 15px;
+            flex-shrink: 0;
         }
 
         .history-dim-item.dim-heat { border-left: 3px solid #ff4d4f; }
@@ -3816,20 +3829,24 @@
                 const dims = tech.dimensions4 || {};
                 const dimsHtml = `
                     <div class="history-dims">
-                        <div class="history-dim-item dim-heat">
+                        <div class="history-dim-item">
                             <span class="history-dim-name">技术热度</span>
+                            <div class="history-dim-bar"><div class="history-dim-bar-inner" style="width:${dims.novelty || 0}%;background:#ff4d4f;"></div></div>
                             <span class="history-dim-score" style="color:#ff4d4f;">${dims.novelty || 0}</span>
                         </div>
-                        <div class="history-dim-item dim-break">
+                        <div class="history-dim-item">
                             <span class="history-dim-name">技术突破</span>
+                            <div class="history-dim-bar"><div class="history-dim-bar-inner" style="width:${dims.value || 0}%;background:#73d13d;"></div></div>
                             <span class="history-dim-score" style="color:#73d13d;">${dims.value || 0}</span>
                         </div>
-                        <div class="history-dim-item dim-trans">
+                        <div class="history-dim-item">
                             <span class="history-dim-name">技术转化</span>
+                            <div class="history-dim-bar"><div class="history-dim-bar-inner" style="width:${dims.relevance || 0}%;background:#1677ff;"></div></div>
                             <span class="history-dim-score" style="color:#1677ff;">${dims.relevance || 0}</span>
                         </div>
-                        <div class="history-dim-item dim-exp">
+                        <div class="history-dim-item">
                             <span class="history-dim-name">专家认可度</span>
+                            <div class="history-dim-bar"><div class="history-dim-bar-inner" style="width:${dims.prospect || 0}%;background:#ffa940;"></div></div>
                             <span class="history-dim-score" style="color:#ffa940;">${dims.prospect || 0}</span>
                         </div>
                     </div>
