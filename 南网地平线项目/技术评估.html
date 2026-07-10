@@ -954,17 +954,17 @@
         /* 四维分数 */
         .history-dims {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             margin-bottom: 14px;
         }
 
         .history-dim-item {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            padding: 6px 10px;
+            gap: 4px;
+            padding: 8px 4px;
             background: rgba(40, 70, 120, 0.04);
             border-radius: 8px;
             font-size: 12px;
@@ -975,12 +975,13 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            font-size: 11px;
         }
 
         .history-dim-score {
             font-weight: 700;
             font-family: 'Segoe UI', system-ui, sans-serif;
-            flex-shrink: 0;
+            font-size: 15px;
         }
 
         .history-dim-item.dim-heat { border-left: 3px solid #ff4d4f; }
