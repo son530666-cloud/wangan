@@ -149,6 +149,47 @@
             gap: 16px;
         }
 
+        .warning-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .warning-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 77, 79, 0.2);
+            color: #8c3330;
+        }
+
+        .warning-tab:hover {
+            background: rgba(255, 77, 79, 0.08);
+        }
+
+        .warning-tab.active {
+            background: rgba(255, 77, 79, 0.15);
+            border-color: rgba(255, 77, 79, 0.45);
+            color: #ff4d4f;
+            box-shadow: 0 2px 8px rgba(255, 77, 79, 0.12);
+        }
+
+        .warning-tab .tab-score {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.7);
+        }
+
         .warning-card {
             background: linear-gradient(135deg, rgba(255, 77, 79, 0.1) 0%, rgba(255, 255, 255, 0.92) 100%);
             border: 1px solid rgba(255, 77, 79, 0.25);
@@ -1936,6 +1977,7 @@
                 <span>🔥 高分技术预警（分值 ≥ 90）</span>
                 <span class="badge">实时监测</span>
             </div>
+            <div class="warning-tabs" id="warningTabs"></div>
             <div class="warning-grid" id="warningGrid"></div>
         </div>
 
@@ -3162,14 +3204,24 @@
         });
 
         // ========== 渲染预警模块 ==========
+        let activeWarningTab = 'novelty';
+        const WARNING_DIM_TABS = [
+            { key: 'novelty', label: '技术热度', color: '#ff4d4f' },
+            { key: 'value', label: '技术突破', color: '#73d13d' },
+            { key: 'relevance', label: '技术转化', color: '#1677ff' },
+            { key: 'prospect', label: '专家认可度', color: '#ffa940' }
+        ];
+
         function renderWarningModule() {
             const warningTechs = weeklyTechs.filter(t => t.score >= 90).sort((a, b) => {
-    if (a.isNew !== b.isNew) return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
-    return b.score - a.score;
-});
+                if (a.isNew !== b.isNew) return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
+                return b.score - a.score;
+            });
             const container = document.getElementById('warningGrid');
+            const tabsContainer = document.getElementById('warningTabs');
 
             if (warningTechs.length === 0) {
+                if (tabsContainer) tabsContainer.innerHTML = '';
                 container.innerHTML = `
                     <div class="empty-state" style="grid-column: 1/-1;">
                         <div class="empty-state-icon">✅</div>
@@ -3179,28 +3231,78 @@
                 return;
             }
 
-            container.innerHTML = warningTechs.map(tech => `
-                <div class="warning-card" data-id="${tech.id}">
+            // 计算各维度最高分技术
+            const topByDim = {};
+            WARNING_DIM_TABS.forEach(tab => {
+                topByDim[tab.key] = warningTechs.slice().sort((a, b) => (b.dimensions4?.[tab.key] || 0) - (a.dimensions4?.[tab.key] || 0))[0];
+            });
+
+            // 渲染 tabs
+            if (tabsContainer) {
+                tabsContainer.innerHTML = WARNING_DIM_TABS.map(tab => {
+                    const tech = topByDim[tab.key];
+                    const score = tech?.dimensions4?.[tab.key] || 0;
+                    const active = activeWarningTab === tab.key ? 'active' : '';
+                    return `
+                        <button class="warning-tab ${active}" data-key="${tab.key}"
+                            style="${active ? `border-color:${tab.color};color:${tab.color};background:rgba(${hexToRgb(tab.color)},0.12);` : ''}">
+                            <span>${tab.label}</span>
+                            <span class="tab-score" style="${active ? `color:${tab.color};` : ''}">${score}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                tabsContainer.querySelectorAll('.warning-tab').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        activeWarningTab = btn.dataset.key;
+                        renderWarningModule();
+                    });
+                });
+            }
+
+            // 渲染当前选中维度的最高分卡片
+            const tech = topByDim[activeWarningTab];
+            if (!tech) {
+                container.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-state-icon">🔍</div>
+                        <div>该维度暂无数据</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const activeTab = WARNING_DIM_TABS.find(t => t.key === activeWarningTab);
+            const dimScore = tech.dimensions4?.[activeWarningTab] || 0;
+
+            container.innerHTML = `
+                <div class="warning-card" data-id="${tech.id}" style="grid-column:1/-1;">
                     <img class="warning-icon" src="${getTechIcon(tech.category)}" alt="${tech.name}" title="${tech.category}">
                     <div class="warning-content">
                         <div class="warning-name">${tech.name}</div>
                         <div class="warning-meta">
                             <span class="warning-score">${tech.score}</span>
                             <span class="warning-tag">${tech.category}</span>
+                            <span class="warning-tag" style="color:${activeTab.color};background:rgba(${hexToRgb(activeTab.color)},0.12);border-color:rgba(${hexToRgb(activeTab.color)},0.25);">${activeTab.label} ${dimScore}</span>
                         </div>
                         <div class="warning-date">最近活跃时间：${tech.lastActive || tech.firstSeen} ${tech.isNew ? '<span style="color:#ff4d4f;margin-left:8px;">本周新识别</span>' : ''}</div>
                         ${tech.warnReason ? `<div class="warning-reason">高分预警理由：${tech.warnReason}</div>` : ''}
                     </div>
                 </div>
-            `).join('');
+            `;
 
             // 绑定卡片点击跳转技术详情页
             container.querySelectorAll('.warning-card').forEach(card => {
                 card.addEventListener('click', () => {
-                    const tech = warningTechs.find(t => t.id === card.dataset.id);
-                    if (tech) openTechDetail(tech);
+                    const clickedTech = warningTechs.find(t => t.id === card.dataset.id);
+                    if (clickedTech) openTechDetail(clickedTech);
                 });
             });
+        }
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}` : '255,77,79';
         }
 
         // ========== 纯SVG降级雷达图（无ECharts依赖） ==========
