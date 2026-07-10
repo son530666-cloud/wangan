@@ -3242,14 +3242,13 @@
             // 渲染 tabs
             if (tabsContainer) {
                 tabsContainer.innerHTML = WARNING_DIM_TABS.map(tab => {
-                    const tech = topByDim[tab.key];
-                    const score = tab.key === 'all' ? warningTechs.length : (tech?.dimensions4?.[tab.key] || 0);
                     const active = activeWarningTab === tab.key ? 'active' : '';
+                    const suffix = tab.key === 'all' ? `${warningTechs.length}项` : '↓';
                     return `
                         <button class="warning-tab ${active}" data-key="${tab.key}"
                             style="${active ? `border-color:${tab.color};color:${tab.color};background:rgba(${hexToRgb(tab.color)},0.12);` : ''}">
                             <span>${tab.label}</span>
-                            <span class="tab-score" style="${active ? `color:${tab.color};` : ''}">${tab.key === 'all' ? `${score}项` : score}</span>
+                            <span class="tab-score" style="${active ? `color:${tab.color};` : ''}">${suffix}</span>
                         </button>
                     `;
                 }).join('');
