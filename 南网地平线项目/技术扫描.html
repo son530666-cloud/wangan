@@ -951,6 +951,43 @@
             font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
+        /* 四维分数 */
+        .history-dims {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .history-dim-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 10px;
+            background: rgba(40, 70, 120, 0.04);
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .history-dim-name {
+            color: #5a6a82;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-dim-score {
+            font-weight: 700;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            flex-shrink: 0;
+        }
+
+        .history-dim-item.dim-heat { border-left: 3px solid #ff4d4f; }
+        .history-dim-item.dim-break { border-left: 3px solid #73d13d; }
+        .history-dim-item.dim-trans { border-left: 3px solid #1677ff; }
+        .history-dim-item.dim-exp { border-left: 3px solid #ffa940; }
+
         /* 生命周期 */
         .history-lifecycle {
             margin-bottom: 16px;
@@ -3774,6 +3811,29 @@
                     </div>
                 ` : '';
 
+                // 四维分数
+                const dims = tech.dimensions4 || {};
+                const dimsHtml = `
+                    <div class="history-dims">
+                        <div class="history-dim-item dim-heat">
+                            <span class="history-dim-name">技术热度</span>
+                            <span class="history-dim-score" style="color:#ff4d4f;">${dims.novelty || 0}</span>
+                        </div>
+                        <div class="history-dim-item dim-break">
+                            <span class="history-dim-name">技术突破</span>
+                            <span class="history-dim-score" style="color:#73d13d;">${dims.value || 0}</span>
+                        </div>
+                        <div class="history-dim-item dim-trans">
+                            <span class="history-dim-name">技术转化</span>
+                            <span class="history-dim-score" style="color:#1677ff;">${dims.relevance || 0}</span>
+                        </div>
+                        <div class="history-dim-item dim-exp">
+                            <span class="history-dim-name">专家认可度</span>
+                            <span class="history-dim-score" style="color:#ffa940;">${dims.prospect || 0}</span>
+                        </div>
+                    </div>
+                `;
+
                 return `
                     <div class="history-card" data-id="${tech.id}" style="cursor:pointer;">
                         <div class="history-card-header">
@@ -3783,6 +3843,7 @@
                             </div>
                             <span class="history-card-score">${tech.score}分</span>
                         </div>
+                        ${dimsHtml}
                         ${lifeHtml}
                         ${changeBasisHtml}
                         ${playersHtml}
