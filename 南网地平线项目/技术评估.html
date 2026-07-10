@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>技术变革扫描模块 - 南网地平线</title>
+    <title>技术变革性评估 - 南网地平线</title>
     <!-- 主 CDN：360 CDN -->
     <script src="https://lib.baomitu.com/echarts/5.4.3/echarts.min.js"></script>
     <!-- 自动检测 + 备用加载 -->
@@ -1298,6 +1298,83 @@
             border-color: #1677ff;
         }
 
+        /* 技术联想输入 */
+        .tech-search-wrap {
+            position: relative;
+        }
+
+        .tech-search-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1px solid rgba(22, 119, 255, 0.2);
+            border-radius: 10px;
+            color: #2b3a4f;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .tech-search-input:hover, .tech-search-input:focus {
+            border-color: rgba(22, 119, 255, 0.45);
+            background: #eef4fc;
+        }
+
+        .tech-search-dropdown {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            right: 0;
+            max-height: 260px;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid rgba(22, 119, 255, 0.2);
+            border-radius: 10px;
+            box-shadow: 0 12px 32px rgba(40, 70, 120, 0.12);
+            z-index: 100;
+            display: none;
+            list-style: none;
+            padding: 6px 0;
+            margin: 0;
+        }
+
+        .tech-search-dropdown.show { display: block; }
+
+        .tech-search-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #2b3a4f;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            transition: background 0.15s;
+        }
+
+        .tech-search-item:hover, .tech-search-item.active {
+            background: rgba(22, 119, 255, 0.08);
+        }
+
+        .tech-search-item .ts-match {
+            color: #1677ff;
+            font-weight: 600;
+        }
+
+        .tech-search-item .ts-meta {
+            font-size: 12px;
+            color: #6e7d95;
+            white-space: nowrap;
+        }
+
+        .tech-search-empty {
+            padding: 12px 16px;
+            color: #6e7d95;
+            font-size: 13px;
+            text-align: center;
+        }
+
         /* 空状态 */
         .empty-state {
             text-align: center;
@@ -1894,68 +1971,27 @@
     <div class="container">
         <!-- 页面标题 -->
         <div class="page-header">
-            <h1>技术变革扫描模块</h1>
-            <div class="subtitle">实时监测全球前沿技术动态 · 每周智能识别与评估</div>
+            <h1>技术变革性评估</h1>
+            <div class="subtitle">检索并评估全部变革性技术 · 支持技术联想与多维筛选</div>
         </div>
 
-        <!-- 第一部分：技术预警模块（分值≥90） -->
-        <div class="section-card warning-section">
-            <div class="section-title">
-                <span>🔥 高分技术预警（分值 ≥ 90）</span>
-                <span class="badge">实时监测</span>
-            </div>
-            <div class="warning-grid" id="warningGrid"></div>
-        </div>
-
-        <!-- 第二部分：雷达图 + 新技术清单 -->
-        <div class="scan-section">
-            <div class="section-card radar-container">
-                <div class="section-title">
-                    <span>📡 实时技术雷达扫描</span>
-                    <span class="badge">本周识别 10 项技术</span>
-                </div>
-                <div class="radar-toolbar">
-                    <span class="last-scan-time" id="lastScanTime">🕐 最近扫描：2026-06-08 14:32:18</span>
-                    <button class="scan-btn" id="manualScanBtn" onclick="triggerManualScan()">
-                        <span class="scan-btn-icon">📡</span>
-                        <span>手动扫描</span>
-                    </button>
-                </div>
-                <div class="radar-chart-wrap" id="radarChartWrap">
-                    <div id="radarChart"></div>
-                    <div class="radar-scan-effect" id="radarScanEffect"></div>
-                </div>
-                <div class="radar-legend">
-                    <div class="legend-item">
-                        <div class="legend-dot new-tech"></div>
-                        <span>本周新技术（7项）</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-dot old-tech"></div>
-                        <span>持续追踪技术（3项）</span>
-                    </div>
-                </div>
-            </div>
-            <div class="section-card new-tech-panel">
-                <div class="section-title">
-                    <span>✨ 本周新识别技术</span>
-                    <span class="badge">7项</span>
-                </div>
-                <div class="slider-container" id="newTechSlider">
-                    <div class="slider-arrow prev" id="sliderPrev">&#10094;</div>
-                    <div class="slider-track" id="newTechList"></div>
-                    <div class="slider-arrow next" id="sliderNext">&#10095;</div>
-                    <div class="slider-dots" id="sliderDots"></div>
-                </div>
-                <div class="newtech-summary" id="newTechSummary"></div>
-            </div>
-        </div>
-
-        <!-- 第三部分：历史变革技术清单 -->
+        <!-- 技术联想输入 -->
         <div class="section-card">
             <div class="section-title">
-                <span>📋 历史变革技术清单</span>
-                <span class="badge" id="historyBadge">累计识别（${historyTechs.length}项）</span>
+                <span>🔍 技术检索</span>
+                <span class="badge">输入名称联想命中</span>
+            </div>
+            <div class="tech-search-wrap">
+                <input type="text" id="techSearchInput" class="tech-search-input" placeholder="输入技术名称，如：固态电池、AI调度、钙钛矿…" autocomplete="off">
+                <ul id="techSearchDropdown" class="tech-search-dropdown"></ul>
+            </div>
+        </div>
+
+        <!-- 全部变革性技术清单 -->
+        <div class="section-card">
+            <div class="section-title">
+                <span>📋 全部变革性技术清单</span>
+                <span class="badge" id="historyBadge">累计识别（0项）</span>
             </div>
             <div class="history-filter-bar" id="historyFilterBar">
                 <div class="filter-group">
@@ -1989,23 +2025,11 @@
             </div>
             <div class="history-grid" id="historyGrid"></div>
         </div>
-
-        <!-- 技术维度详情弹层 -->
-        <div class="tech-dim-popup" id="techDimPopup">
-            <div class="popup-header">
-                <div class="popup-icon" id="popupIcon"></div>
-                <div class="popup-title-wrap">
-                    <div class="popup-name" id="popupName"></div>
-                    <div class="popup-score" id="popupScore"></div>
-                </div>
-            </div>
-            <div class="popup-divider"></div>
-            <div class="popup-section-title">评估指标</div>
-            <div id="popupDimList"></div>
-        </div>
     </div>
 
     <script>
+        let allTechs = []; // 全部变革性技术（历史 + 本周）
+
         // ========== 技术图标生成器（内联SVG，不依赖外部网络） ==========
         function getTechIcon(category) {
             const icons = {
@@ -3667,16 +3691,37 @@
             return stages[0].label;
         }
 
-        // ========== 渲染历史技术清单（融合图片8维度 + 一二级领域筛选） ==========
+        // ========== 合并全部变革性技术（历史 + 本周，历史数据更完整优先） ==========
+        function getMergedTechs() {
+            const map = new Map();
+            historyTechs.forEach(t => map.set(t.name, t));
+            weeklyTechs.forEach(t => {
+                if (!map.has(t.name)) map.set(t.name, t);
+            });
+            return Array.from(map.values());
+        }
+
+        // ========== 渲染历史技术清单（融合图片8维度 + 一二级领域筛选 + 关键字过滤） ==========
         function renderHistoryList() {
             const container = document.getElementById('historyGrid');
             const primaryFilter = document.getElementById('filterPrimary')?.value || '';
             const secondaryFilter = document.getElementById('filterSecondary')?.value || '';
             const sortValue = document.getElementById('filterSort')?.value || 'lastActive-desc';
+            const keyword = document.getElementById('techSearchInput')?.value.trim().toLowerCase() || '';
 
-            const filtered = historyTechs.filter(tech => {
+            const filtered = allTechs.filter(tech => {
                 if (primaryFilter && tech.primaryField !== primaryFilter) return false;
                 if (secondaryFilter && tech.secondaryField !== secondaryFilter) return false;
+                if (keyword) {
+                    const hay = [
+                        tech.name,
+                        tech.category,
+                        tech.primaryField,
+                        tech.secondaryField,
+                        (tech.tags || []).join(' ')
+                    ].join(' ').toLowerCase();
+                    if (!hay.includes(keyword)) return false;
+                }
                 return true;
             });
 
@@ -3709,7 +3754,7 @@
 
             // 更新总数显示
             const badge = document.getElementById('historyBadge');
-            if (badge) badge.textContent = `累计识别（${historyTechs.length}项）`;
+            if (badge) badge.textContent = `累计识别（${allTechs.length}项）`;
 
             if (filtered.length === 0) {
                 container.innerHTML = `
@@ -3794,7 +3839,7 @@
             // 绑定卡片点击打开详情页
             container.querySelectorAll('.history-card').forEach(card => {
                 card.addEventListener('click', () => {
-                    const tech = historyTechs.find(t => t.id === card.dataset.id);
+                    const tech = allTechs.find(t => t.id === card.dataset.id);
                     if (tech) openTechDetail(tech);
                 });
             });
@@ -3811,7 +3856,7 @@
             // 提取唯一领域值
             const primarySet = new Set();
             const secondaryMap = new Map(); // primary -> Set of secondary
-            historyTechs.forEach(tech => {
+            allTechs.forEach(tech => {
                 if (tech.primaryField) primarySet.add(tech.primaryField);
                 if (tech.primaryField && tech.secondaryField) {
                     if (!secondaryMap.has(tech.primaryField)) secondaryMap.set(tech.primaryField, new Set());
@@ -3821,7 +3866,7 @@
 
             const sortedPrimary = Array.from(primarySet).sort();
             const allSecondary = new Set();
-            historyTechs.forEach(t => { if (t.secondaryField) allSecondary.add(t.secondaryField); });
+            allTechs.forEach(t => { if (t.secondaryField) allSecondary.add(t.secondaryField); });
             const sortedAllSecondary = Array.from(allSecondary).sort();
 
             // 填充一级领域
@@ -3857,6 +3902,8 @@
                 primarySelect.value = '';
                 fillSecondary('');
                 if (sortSelect) sortSelect.value = 'lastActive-desc';
+                const searchInput = document.getElementById('techSearchInput');
+                if (searchInput) searchInput.value = '';
                 renderHistoryList();
             });
         }
@@ -5048,19 +5095,120 @@
             if (dim) dim.classList.toggle('expanded');
         };
 
+        // ========== 技术联想输入 ==========
+        function initTechAutocomplete(inputId, dropdownId, techs) {
+            const input = document.getElementById(inputId);
+            const dropdown = document.getElementById(dropdownId);
+            if (!input || !dropdown) return;
+
+            let activeIndex = -1;
+            let matches = [];
+
+            function highlight(name, kw) {
+                if (!kw) return name;
+                const idx = name.toLowerCase().indexOf(kw.toLowerCase());
+                if (idx === -1) return name;
+                return name.slice(0, idx) + `<span class="ts-match">${name.slice(idx, idx + kw.length)}</span>` + name.slice(idx + kw.length);
+            }
+
+            function renderDropdown() {
+                const kw = input.value.trim();
+                if (!kw) {
+                    dropdown.classList.remove('show');
+                    dropdown.innerHTML = '';
+                    activeIndex = -1;
+                    matches = [];
+                    return;
+                }
+                matches = techs
+                    .filter(t => t.name.toLowerCase().includes(kw.toLowerCase()))
+                    .sort((a, b) => {
+                        const sa = a.name.toLowerCase().startsWith(kw.toLowerCase()) ? 0 : 1;
+                        const sb = b.name.toLowerCase().startsWith(kw.toLowerCase()) ? 0 : 1;
+                        if (sa !== sb) return sa - sb;
+                        return b.score - a.score;
+                    })
+                    .slice(0, 10);
+
+                if (matches.length === 0) {
+                    dropdown.innerHTML = '<li class="tech-search-empty">未找到匹配技术</li>';
+                } else {
+                    dropdown.innerHTML = matches.map((t, i) => `
+                        <li class="tech-search-item" data-index="${i}" data-id="${t.id}">
+                            <span>${highlight(t.name, kw)}</span>
+                            <span class="ts-meta">${t.score}分 · ${t.primaryField || t.category || ''}</span>
+                        </li>
+                    `).join('');
+                }
+                dropdown.classList.add('show');
+                activeIndex = -1;
+            }
+
+            function selectByIndex(i) {
+                const tech = matches[i];
+                if (tech) openTechDetail(tech);
+            }
+
+            function updateActive() {
+                dropdown.querySelectorAll('.tech-search-item').forEach((el, i) => {
+                    el.classList.toggle('active', i === activeIndex);
+                });
+            }
+
+            input.addEventListener('input', () => {
+                renderDropdown();
+                renderHistoryList();
+            });
+
+            input.addEventListener('focus', () => {
+                if (input.value.trim()) renderDropdown();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (!dropdown.classList.contains('show')) return;
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    activeIndex = (activeIndex + 1) % matches.length;
+                    updateActive();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    activeIndex = (activeIndex - 1 + matches.length) % matches.length;
+                    updateActive();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (activeIndex >= 0) {
+                        selectByIndex(activeIndex);
+                    } else if (matches.length > 0) {
+                        selectByIndex(0);
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.classList.remove('show');
+                    activeIndex = -1;
+                }
+            });
+
+            dropdown.addEventListener('click', (e) => {
+                const item = e.target.closest('.tech-search-item');
+                if (!item) return;
+                const idx = Number(item.dataset.index);
+                selectByIndex(idx);
+            });
+
+            // 点击外部关闭下拉
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                    activeIndex = -1;
+                }
+            });
+        }
+
         // ========== 初始化 ==========
         document.addEventListener('DOMContentLoaded', () => {
-            try { renderWarningModule(); } catch (e) { console.error('预警模块渲染失败:', e); }
-            try { renderRadarChart(); } catch (e) { console.error('雷达图渲染失败:', e); }
-            try { renderNewTechList(); } catch (e) { console.error('新技术列表渲染失败:', e); }
-            try { renderHistoryList(); } catch (e) { console.error('历史清单渲染失败:', e); }
+            allTechs = getMergedTechs();
+            try { renderHistoryList(); } catch (e) { console.error('清单渲染失败:', e); }
             try { initHistoryFilter(); } catch (e) { console.error('筛选器初始化失败:', e); }
-
-            // 弹层鼠标移出时隐藏
-            const popup = document.getElementById('techDimPopup');
-            if (popup) {
-                popup.addEventListener('mouseleave', () => hideTechDimPopup());
-            }
+            try { initTechAutocomplete('techSearchInput', 'techSearchDropdown', allTechs); } catch (e) { console.error('联想输入初始化失败:', e); }
         });
     </script>
 </body>
