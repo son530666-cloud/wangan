@@ -3204,8 +3204,9 @@
         });
 
         // ========== 渲染预警模块 ==========
-        let activeWarningTab = 'novelty';
+        let activeWarningTab = 'all';
         const WARNING_DIM_TABS = [
+            { key: 'all', label: '全部', color: '#ff4d4f' },
             { key: 'novelty', label: '技术热度', color: '#ff4d4f' },
             { key: 'value', label: '技术突破', color: '#73d13d' },
             { key: 'relevance', label: '技术转化', color: '#1677ff' },
@@ -3234,6 +3235,7 @@
             // 计算各维度最高分技术
             const topByDim = {};
             WARNING_DIM_TABS.forEach(tab => {
+                if (tab.key === 'all') return;
                 topByDim[tab.key] = warningTechs.slice().sort((a, b) => (b.dimensions4?.[tab.key] || 0) - (a.dimensions4?.[tab.key] || 0))[0];
             });
 
@@ -3241,13 +3243,13 @@
             if (tabsContainer) {
                 tabsContainer.innerHTML = WARNING_DIM_TABS.map(tab => {
                     const tech = topByDim[tab.key];
-                    const score = tech?.dimensions4?.[tab.key] || 0;
+                    const score = tab.key === 'all' ? warningTechs.length : (tech?.dimensions4?.[tab.key] || 0);
                     const active = activeWarningTab === tab.key ? 'active' : '';
                     return `
                         <button class="warning-tab ${active}" data-key="${tab.key}"
                             style="${active ? `border-color:${tab.color};color:${tab.color};background:rgba(${hexToRgb(tab.color)},0.12);` : ''}">
                             <span>${tab.label}</span>
-                            <span class="tab-score" style="${active ? `color:${tab.color};` : ''}">${score}</span>
+                            <span class="tab-score" style="${active ? `color:${tab.color};` : ''}">${tab.key === 'all' ? `${score}项` : score}</span>
                         </button>
                     `;
                 }).join('');
@@ -3258,6 +3260,32 @@
                         renderWarningModule();
                     });
                 });
+            }
+
+            // 全部：展示所有高分预警卡片
+            if (activeWarningTab === 'all') {
+                container.innerHTML = warningTechs.map(tech => `
+                    <div class="warning-card" data-id="${tech.id}">
+                        <img class="warning-icon" src="${getTechIcon(tech.category)}" alt="${tech.name}" title="${tech.category}">
+                        <div class="warning-content">
+                            <div class="warning-name">${tech.name}</div>
+                            <div class="warning-meta">
+                                <span class="warning-score">${tech.score}</span>
+                                <span class="warning-tag">${tech.category}</span>
+                            </div>
+                            <div class="warning-date">最近活跃时间：${tech.lastActive || tech.firstSeen} ${tech.isNew ? '<span style="color:#ff4d4f;margin-left:8px;">本周新识别</span>' : ''}</div>
+                            ${tech.warnReason ? `<div class="warning-reason">高分预警理由：${tech.warnReason}</div>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+
+                container.querySelectorAll('.warning-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const clickedTech = warningTechs.find(t => t.id === card.dataset.id);
+                        if (clickedTech) openTechDetail(clickedTech);
+                    });
+                });
+                return;
             }
 
             // 渲染当前选中维度的最高分卡片
