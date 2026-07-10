@@ -3450,29 +3450,16 @@
         function fallbackDotEnter(el,e){
             const ttip=document.getElementById('fallbackRadarTooltip');
             if(!ttip) return;
-            const tech = weeklyTechs.find(t => t.name === el.dataset.name);
-            const ev = tech?.dimensionEvidence || {};
-            const d4 = tech?.dimensions4 || {};
-            const dimRows = [
-                { key: 'novelty',   label: '热度', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
-                { key: 'prospect',  label: '专家认可度', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
-                { key: 'relevance', label: '转化', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
-                { key: 'value',     label: '突破', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
-            ].map(dim => {
-                const score = ev[dim.key]?.score || d4[dim.key] || 0;
-                return buildDimWithSubsHtml(dim.key, dim.label, dim.color, dim.barColor, tech.name, score);
-            }).join('');
             ttip.innerHTML=`
                 <div style="font-weight:600;margin-bottom:6px;font-size:15px;">${el.dataset.name}</div>
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                     <span style="color:#6e7d95;">${el.dataset.cat}</span>
                     <span style="color:#1677ff;font-weight:700;">${el.dataset.score}分</span>
                     <span style="color:#6e7d95;font-size:12px;">${el.dataset.isnew==='true'?'本周新识别':'持续追踪'}</span>
                 </div>
-                ${dimRows}
-                <div style="margin-top:6px;font-size:11px;color:#6e7d95;">点击查看详细评分依据</div>`;
+                <div style="font-size:11px;color:#6e7d95;">点击查看详细评分依据</div>`;
             ttip.style.display='block';
-            ttip.style.width='260px';
+            ttip.style.width='220px';
             ttip.style.whiteSpace='normal';
             fallbackDotMove(el,e);
         }
@@ -3586,29 +3573,17 @@
                         <span class="rt-score" style="color:${color};">${tech.score}分</span>
                     </div>`;
                 dot.addEventListener('mouseenter', e => {
-                    const ev = tech.dimensionEvidence || {};
-                    const d4 = tech.dimensions4 || {};
-                    const dimRows = [
-                        { key: 'novelty',   label: '热度', color: '#ff4d4f', barColor: 'linear-gradient(90deg,#ff4d4f,#ff7875)' },
-                        { key: 'prospect',  label: '专家认可度', color: '#ffa940', barColor: 'linear-gradient(90deg,#ffa940,#ffc53d)' },
-                        { key: 'relevance', label: '转化', color: '#1677ff', barColor: 'linear-gradient(90deg,#1677ff,#69c0ff)' },
-                        { key: 'value',     label: '突破', color: '#73d13d', barColor: 'linear-gradient(90deg,#73d13d,#95de64)' }
-                    ].map(dim => {
-                        const score = ev[dim.key]?.score || d4[dim.key] || 0;
-                        return buildDimWithSubsHtml(dim.key, dim.label, dim.color, dim.barColor, tech.name, score);
-                    }).join('');
                     tooltip.innerHTML = `
                         <div style="font-weight:600;margin-bottom:6px;font-size:15px;">${tech.name}</div>
-                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
                             <span style="color:#6e7d95;">${tech.category}</span>
                             <span style="color:#1677ff;font-weight:700;">${tech.score}分</span>
                             <span style="color:#6e7d95;font-size:12px;">${isNew ? '本周新识别' : '持续追踪'}</span>
                         </div>
-                        ${dimRows}
-                        <div style="margin-top:6px;font-size:11px;color:#6e7d95;">点击查看详细评分依据</div>
+                        <div style="font-size:11px;color:#6e7d95;">点击查看详细评分依据</div>
                     `;
                     tooltip.style.display = 'block';
-                    tooltip.style.width = '260px';
+                    tooltip.style.width = '220px';
                     tooltip.style.whiteSpace = 'normal';
                     const crect = container.getBoundingClientRect();
                     tooltip.style.left = (e.clientX - crect.left + 12) + 'px';
