@@ -430,6 +430,20 @@ categories.forEach((c, i) => { catIndex[c.key] = i; });
 const legendState = {};
 categories.forEach(c => { legendState[c.name] = true; });
 
+// 技术节点之间的关联关系（技术 A + 技术 B → 衍生/协同/同属等）
+const techRelations = [
+    { source: '固态电池技术', target: '钠离子电池', label: '同属先进电池路线' },
+    { source: '钙钛矿太阳能电池', target: '氢能储运一体化', label: '清洁可再生能源组合' },
+    { source: 'AI电网调度大脑', target: '虚拟电厂聚合平台', label: '智能调度支撑' },
+    { source: '数字孪生电网', target: '边缘计算终端', label: '孪生需边缘感知' },
+    { source: '区块链电力交易', target: '虚拟电厂聚合平台', label: '交易与聚合协同' },
+    { source: '第三代半导体SiC', target: '石墨烯电力器件', label: '新型电力电子材料' },
+    { source: '柔性直流电网', target: '超导电缆输电', label: '新型输电技术' },
+    { source: '分布式能源路由器', target: '虚拟电厂聚合平台', label: '能源互联与聚合' },
+    { source: '量子加密通信', target: 'AI电网调度大脑', label: '保障调度安全' },
+    { source: '无线电能传输', target: '固态电池技术', label: '无线充电与电池' }
+];
+
 /* ===================== 交互状态 ===================== */
 const expandedNodes = new Set();   // 已展开情报的节点 id（一级/二级/技术通用）
 let filterPrimary = '';
@@ -531,6 +545,21 @@ function buildGraph() {
                 if (tExpanded) addIntelNodes(tid, tech, intelCache[tech]);
             });
         });
+    });
+
+    // 增加技术节点之间的横向关联（衍生/协同/同属等）
+    techRelations.forEach(r => {
+        const sid = 'T_' + r.source;
+        const tid = 'T_' + r.target;
+        if (nodeIds.has(sid) && nodeIds.has(tid)) {
+            links.push({
+                source: sid,
+                target: tid,
+                label: { show: true, formatter: r.label, fontSize: 10, color: '#6e7d95' },
+                lineStyle: { color: '#9ca3af', width: 1, type: [4, 4], curveness: 0.2 },
+                symbol: ['none', 'arrow']
+            });
+        }
     });
 
     return { nodes, links };

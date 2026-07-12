@@ -65,7 +65,6 @@
   <nav class="main-nav" id="mainNav">
     <a data-page="技术扫描.html" class="active">技术扫描</a>
     <a data-page="技术评估.html">技术评估</a>
-    <a data-page="技术详情.html">态势追踪</a>
     <a data-page="技术图谱.html">技术图谱</a>
     <a data-page="态势追踪-完整版.html">态势感知</a>
     <a data-page="决策分析.html">决策分析</a>
@@ -99,25 +98,50 @@
     }
   }
 
+  // 导航历史栈：记录 iframe 内页面跳转顺序，用于子页面返回时同步高亮
+  const navStack = ['技术扫描.html'];
+
   links.forEach(link => {
     link.addEventListener('click', () => navigateTo(link.dataset.page));
   });
 
-  function navigateTo(page) {
+  function navigateTo(page, fromBack) {
     if (!page) return;
     links.forEach(l => l.classList.toggle('active', l.dataset.page === page));
     frame.src = '../' + page;
+    if (!fromBack) navStack.push(page);
   }
 
-  // 子页面（如技术扫描点击技术卡片）请求切换一级导航
+  function goBack() {
+    if (navStack.length <= 1) return;
+    navStack.pop();
+    const prev = navStack[navStack.length - 1];
+    navigateTo(prev, true);
+  }
+
+  // 子页面请求切换一级导航 / 返回
   window.addEventListener('message', (e) => {
     const data = e.data || {};
     if (data.type === 'navigateTo' && data.page) {
       navigateTo(data.page);
+    } else if (data.type === 'navigateBack') {
+      goBack();
     }
   });
 
-  frame.addEventListener('load', hideSubNav);
+  frame.addEventListener('load', () => {
+    hideSubNav();
+    // 兜底：根据 iframe 实际地址同步一级导航高亮
+    try {
+      const path = frame.contentWindow.location.pathname;
+      const page = decodeURIComponent(path.split('/').pop() || '');
+      if (page) {
+        links.forEach(l => l.classList.toggle('active', l.dataset.page === page));
+      }
+    } catch (e) {
+      console.error('无法同步导航高亮:', e);
+    }
+  });
 </script>
 
 </body>

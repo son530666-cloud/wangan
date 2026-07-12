@@ -190,6 +190,48 @@
             background: rgba(255, 255, 255, 0.7);
         }
 
+        /* 历史清单维度排序 tab */
+        .history-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .history-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(22, 119, 255, 0.2);
+            color: #3b6cb0;
+        }
+
+        .history-tab:hover {
+            background: rgba(22, 119, 255, 0.08);
+        }
+
+        .history-tab.active {
+            background: rgba(22, 119, 255, 0.12);
+            border-color: rgba(22, 119, 255, 0.45);
+            color: #1677ff;
+            box-shadow: 0 2px 8px rgba(22, 119, 255, 0.12);
+        }
+
+        .history-tab .tab-score {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.7);
+        }
+
         .warning-card {
             background: linear-gradient(135deg, rgba(255, 77, 79, 0.1) 0%, rgba(255, 255, 255, 0.92) 100%);
             border: 1px solid rgba(255, 77, 79, 0.25);
@@ -301,7 +343,7 @@
         /* ========== 第二部分：雷达图 + 新技术清单 ========== */
         .scan-section {
             display: grid;
-            grid-template-columns: 1fr 380px;
+            grid-template-columns: 1fr 630px;
             gap: 20px;
             align-items: stretch;
             height: 760px;
@@ -443,8 +485,79 @@
             50% { transform: scale(1.35); opacity: 0.65; }
         }
 
+        .radar-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .radar-zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(22, 119, 255, 0.06);
+            border: 1px solid rgba(22, 119, 255, 0.15);
+            border-radius: 6px;
+            padding: 3px;
+        }
+
+        .radar-zoom-controls button {
+            width: 26px;
+            height: 26px;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            color: #1677ff;
+            font-size: 15px;
+            line-height: 1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .radar-zoom-controls button:hover {
+            background: rgba(22, 119, 255, 0.12);
+        }
+
+        .radar-zoom-controls button:active {
+            background: rgba(22, 119, 255, 0.22);
+        }
+
+        .radar-zoom-value {
+            min-width: 44px;
+            text-align: center;
+            font-size: 12px;
+            color: #2b3a4f;
+            font-weight: 600;
+            user-select: none;
+        }
+
         /* ========== 雷达图技术点 + 维度标签 + 扫描线（荧光绿版） ========== */
         .radar-chart-wrap { position: relative; overflow: hidden; }
+
+        .radar-zoom-content {
+            width: 100%;
+            height: 100%;
+            transform-origin: center center;
+            transition: transform 0.2s ease;
+        }
+
+        .radar-zoom-hint {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 20;
+            font-size: 11px;
+            color: #6e7d95;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(22, 119, 255, 0.15);
+            border-radius: 6px;
+            padding: 4px 8px;
+            pointer-events: none;
+            backdrop-filter: blur(2px);
+        }
 
         .radar-tech-dot {
             position: absolute;
@@ -666,43 +779,61 @@
 
         /* 新技术统计摘要 */
         .newtech-summary {
-            margin-top: 10px;
-            padding: 8px 12px;
-            background: rgba(82, 196, 26, 0.04);
-            border: 1px solid rgba(82, 196, 26, 0.12);
-            border-radius: 8px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
             gap: 10px;
+            margin-top: 10px;
         }
 
-        .summary-item {
+        .summary-tile {
             flex: 1;
-            text-align: center;
-            padding: 4px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: rgba(22, 119, 255, 0.03);
+            border: 1px solid rgba(22, 119, 255, 0.08);
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
 
-        .summary-item:not(:last-child) {
-            border-right: 1px solid rgba(82, 196, 26, 0.1);
+        .summary-tile:hover {
+            background: rgba(22, 119, 255, 0.06);
+            border-color: rgba(22, 119, 255, 0.14);
         }
 
-        .summary-label {
+        .summary-tile-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(82, 196, 26, 0.10);
+            color: #52c41a;
             font-size: 13px;
-            color: #6e7d95;
-            margin-bottom: 4px;
+            flex-shrink: 0;
         }
 
-        .summary-value {
-            font-size: 17px;
+        .summary-tile-main {
+            min-width: 0;
+        }
+
+        .summary-tile-label {
+            font-size: 11px;
+            color: #8c9bb0;
+            margin-bottom: 1px;
+        }
+
+        .summary-tile-value {
+            font-size: 14px;
             font-weight: 700;
             color: #52c41a;
         }
 
-        .summary-sub {
-            font-size: 12px;
-            color: #6e7d95;
-            margin-top: 2px;
+        .summary-tile-sub {
+            font-size: 11px;
+            color: #8c9bb0;
+            margin-top: 1px;
         }
 
         /* ========== 新技术卡片（滑动版） ========== */
@@ -822,15 +953,35 @@
         }
 
         .tech-card-radar {
-            margin: 10px 0;
+            flex: 1 1 55%;
+            min-width: 0;
             background: rgba(22, 119, 255, 0.05);
             border-radius: 8px;
             padding: 10px;
-            height: 130px;
+            height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+        }
+
+        .tech-card-body {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+            margin-top: 6px;
+        }
+
+        .tech-card-reason {
+            flex: 1 1 45%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .tech-card-reason .history-section-title {
+            margin-top: 0;
         }
 
         .tech-card-tags {
@@ -2013,14 +2164,25 @@
                 </div>
                 <div class="radar-toolbar">
                     <span class="last-scan-time" id="lastScanTime">🕐 最近扫描：2026-06-08 14:32:18</span>
-                    <button class="scan-btn" id="manualScanBtn" onclick="triggerManualScan()">
-                        <span class="scan-btn-icon">📡</span>
-                        <span>手动扫描</span>
-                    </button>
+                    <div class="radar-toolbar-right">
+                        <div class="radar-zoom-controls">
+                            <button type="button" onclick="changeRadarZoom(-0.1)" title="缩小">−</button>
+                            <span class="radar-zoom-value" id="radarZoomValue">100%</span>
+                            <button type="button" onclick="changeRadarZoom(0.1)" title="放大">+</button>
+                            <button type="button" onclick="resetRadarZoom()" title="重置缩放">⟲</button>
+                        </div>
+                        <button class="scan-btn" id="manualScanBtn" onclick="triggerManualScan()">
+                            <span class="scan-btn-icon">📡</span>
+                            <span>手动扫描</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="radar-chart-wrap" id="radarChartWrap">
-                    <div id="radarChart"></div>
-                    <div class="radar-scan-effect" id="radarScanEffect"></div>
+                    <div class="radar-zoom-hint" id="radarZoomHint">滚动鼠标滚轮缩放 · 100%</div>
+                    <div class="radar-zoom-content" id="radarZoomContent">
+                        <div id="radarChart"></div>
+                        <div class="radar-scan-effect" id="radarScanEffect"></div>
+                    </div>
                 </div>
                 <div class="radar-legend">
                     <div class="legend-item">
@@ -2054,6 +2216,7 @@
                 <span>📋 历史变革技术清单</span>
                 <span class="badge" id="historyBadge">累计识别（${historyTechs.length}项）</span>
             </div>
+            <div class="history-tabs" id="historyTabs"></div>
             <div class="history-filter-bar" id="historyFilterBar">
                 <div class="filter-group">
                     <label class="filter-label">一级分类</label>
@@ -3478,18 +3641,56 @@
             if(el.dataset.isnew==='true' && el.dataset.newidx!=='-1'){
                 slideNewTechTo(parseInt(el.dataset.newidx));
             }
-            const tech = weeklyTechs.find(t => t.name === el.dataset.name);
-            if (tech) showTechDimPopup(tech, el);
         }
 
         // ========== 雷达图全局状态 ==========
         let radarChartInstance = null;
         let radarScanInterval = null;
         let scanRotation = 0;
+        const MIN_RADAR_ZOOM = 0.5;
+        const MAX_RADAR_ZOOM = 3.0;
+        const RADAR_ZOOM_STEP = 0.1;
+        let radarZoomScale = 1;
+
+        function updateRadarZoom() {
+            const content = document.getElementById('radarZoomContent');
+            const hint = document.getElementById('radarZoomHint');
+            const valueLabel = document.getElementById('radarZoomValue');
+            if (content) content.style.transform = `scale(${radarZoomScale.toFixed(2)})`;
+            const percent = Math.round(radarZoomScale * 100) + '%';
+            if (hint) hint.textContent = `滚动鼠标滚轮缩放 · ${percent}`;
+            if (valueLabel) valueLabel.textContent = percent;
+        }
+
+        function changeRadarZoom(delta) {
+            const next = Math.max(MIN_RADAR_ZOOM, Math.min(MAX_RADAR_ZOOM, radarZoomScale + delta));
+            if (next !== radarZoomScale) {
+                radarZoomScale = next;
+                updateRadarZoom();
+            }
+        }
+
+        function resetRadarZoom() {
+            radarZoomScale = 1;
+            updateRadarZoom();
+        }
+
+        function initRadarZoom() {
+            const wrap = document.getElementById('radarChartWrap');
+            if (!wrap) return;
+            updateRadarZoom();
+            wrap.addEventListener('wheel', e => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -RADAR_ZOOM_STEP : RADAR_ZOOM_STEP;
+                changeRadarZoom(delta);
+            }, { passive: false });
+        }
 
         // ========== 绘制雷达图DOM叠加层（技术点 + 维度标签 + 扫描线） ==========
         function drawRadarOverlay(container) {
             container.querySelectorAll('.radar-overlay-el').forEach(el=> el.remove());
+            const radarWrap = document.getElementById('radarChartWrap');
+            if (radarWrap) radarWrap.querySelectorAll('.radar-tooltip-el').forEach(el => el.remove());
             const rect = container.getBoundingClientRect();
             const cx = rect.width / 2, cy = rect.height / 2, r = Math.min(cx, cy) * 0.65;
             const dims = ['技术热度','技术突破','技术转化','专家认可度'];
@@ -3549,10 +3750,11 @@
             svg.appendChild(scanG);
             container.appendChild(svg);
 
-            // Tooltip
+            // Tooltip（挂载到 wrap 而非缩放容器，避免受缩放影响定位）
             const tooltip = document.createElement('div');
             tooltip.className = 'radar-tooltip-el radar-overlay-el';
-            container.appendChild(tooltip);
+            if (radarWrap) radarWrap.appendChild(tooltip);
+            else container.appendChild(tooltip);
 
             // 技术点（呼吸闪烁）
             weeklyTechs.forEach((tech, idx) => {
@@ -3572,6 +3774,7 @@
                         <span class="rt-name">${tech.name}</span>
                         <span class="rt-score" style="color:${color};">${tech.score}分</span>
                     </div>`;
+                const tooltipRef = radarWrap || container;
                 dot.addEventListener('mouseenter', e => {
                     tooltip.innerHTML = `
                         <div style="font-weight:600;margin-bottom:6px;font-size:15px;">${tech.name}</div>
@@ -3585,19 +3788,18 @@
                     tooltip.style.display = 'block';
                     tooltip.style.width = '220px';
                     tooltip.style.whiteSpace = 'normal';
-                    const crect = container.getBoundingClientRect();
+                    const crect = tooltipRef.getBoundingClientRect();
                     tooltip.style.left = (e.clientX - crect.left + 12) + 'px';
                     tooltip.style.top = (e.clientY - crect.top - 8) + 'px';
                 });
                 dot.addEventListener('mousemove', e => {
-                    const crect = container.getBoundingClientRect();
+                    const crect = tooltipRef.getBoundingClientRect();
                     tooltip.style.left = (e.clientX - crect.left + 12) + 'px';
                     tooltip.style.top = (e.clientY - crect.top - 8) + 'px';
                 });
                 dot.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
                 dot.addEventListener('click', () => {
                     if (isNew && newIdx >= 0) slideNewTechTo(newIdx);
-                    showTechDimPopup(tech, dot);
                 });
                 container.appendChild(dot);
             });
@@ -3731,14 +3933,18 @@
                             <span class="tech-meta-cat">${tech.category}</span>
                             <span class="tech-meta-time">🕐 ${tech.identifyTime}</span>
                         </div>
-                        <div class="tech-card-radar">${miniRadar}</div>
-                        <div class="history-section-title">技术变革理由</div>
-                        <div class="history-change-basis">
-                            ${(tech.changeBasis || []).map(c => `
-                                <div class="history-change-item trend-${c.trend}">
-                                    <span class="history-change-value">${c.value}</span>
+                        <div class="tech-card-body">
+                            <div class="tech-card-radar">${miniRadar}</div>
+                            <div class="tech-card-reason">
+                                <div class="history-section-title">技术变革理由</div>
+                                <div class="history-change-basis">
+                                    ${(tech.changeBasis || []).map(c => `
+                                        <div class="history-change-item trend-${c.trend}">
+                                            <span class="history-change-value">${c.value}</span>
+                                        </div>
+                                    `).join('')}
                                 </div>
-                            `).join('')}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -3779,30 +3985,37 @@
 
             updateSlider();
 
-            // 渲染底部统计摘要
+            // 渲染统计摘要
             const summaryContainer = document.getElementById('newTechSummary');
             if (summaryContainer) {
                 const highScoreCount = newTechs.filter(t => t.score >= 90).length;
                 const maxTech = newTechs.reduce((m, t) => t.score > m.score ? t : m, newTechs[0]);
                 summaryContainer.innerHTML = `
-                    <div class="summary-item">
-                        <div class="summary-label">≥90分技术数</div>
-                        <div class="summary-value">${highScoreCount}</div>
+                    <div class="summary-tile">
+                        <div class="summary-tile-icon">🏆</div>
+                        <div class="summary-tile-main">
+                            <div class="summary-tile-label">≥90分技术数</div>
+                            <div class="summary-tile-value">${highScoreCount}</div>
+                        </div>
                     </div>
-                    <div class="summary-item">
-                        <div class="summary-label">最高分</div>
-                        <div class="summary-value" style="font-size:13px;line-height:1.4;word-break:break-all;">${maxTech.name}</div>
-                        <div class="summary-sub">${maxTech.score}分</div>
+                    <div class="summary-tile">
+                        <div class="summary-tile-icon">🥇</div>
+                        <div class="summary-tile-main">
+                            <div class="summary-tile-label">最高分</div>
+                            <div class="summary-tile-value" style="font-size:13px;line-height:1.3;word-break:break-all;">${maxTech.name}</div>
+                            <div class="summary-tile-sub">${maxTech.score}分</div>
+                        </div>
                     </div>
                 `;
             }
 
-            // 绑定卡片雷达图 hover 事件
+            // 绑定卡片事件
             setTimeout(() => {
                 const cards = track.querySelectorAll('.tech-card');
                 newTechs.forEach((tech, idx) => {
                     const card = cards[idx];
                     if (!card) return;
+                    card.addEventListener('click', () => openTechDetail(tech));
                     const radarEl = card.querySelector('.tech-card-radar');
                     if (!radarEl) return;
                     radarEl.addEventListener('mouseenter', () => showTechDimPopup(tech, radarEl));
@@ -3834,9 +4047,20 @@
             return stages[0].label;
         }
 
+        // ========== 历史清单维度排序 tab 状态 ==========
+        let activeHistoryTab = 'all';
+        const HISTORY_DIM_TABS = [
+            { key: 'all', label: '全部', color: '#1677ff' },
+            { key: 'novelty', label: '技术热度', color: '#ff4d4f' },
+            { key: 'value', label: '技术突破', color: '#73d13d' },
+            { key: 'relevance', label: '技术转化', color: '#1677ff' },
+            { key: 'prospect', label: '专家认可度', color: '#ffa940' }
+        ];
+
         // ========== 渲染历史技术清单（融合图片8维度 + 一二级领域筛选） ==========
         function renderHistoryList() {
             const container = document.getElementById('historyGrid');
+            const tabsContainer = document.getElementById('historyTabs');
             const primaryFilter = document.getElementById('filterPrimary')?.value || '';
             const secondaryFilter = document.getElementById('filterSecondary')?.value || '';
             const sortValue = document.getElementById('filterSort')?.value || 'lastActive-desc';
@@ -3847,7 +4071,32 @@
                 return true;
             });
 
+            // 渲染维度排序 tab
+            if (tabsContainer) {
+                tabsContainer.innerHTML = HISTORY_DIM_TABS.map(tab => {
+                    const active = activeHistoryTab === tab.key ? 'active' : '';
+                    const suffix = tab.key === 'all' ? `${filtered.length}项` : '↓';
+                    return `
+                        <button class="history-tab ${active}" data-key="${tab.key}"
+                            style="${active ? `border-color:${tab.color};color:${tab.color};background:rgba(${hexToRgb(tab.color)},0.12);` : ''}">
+                            <span>${tab.label}</span>
+                            <span class="tab-score" style="${active ? `color:${tab.color};` : ''}">${suffix}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                tabsContainer.querySelectorAll('.history-tab').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        activeHistoryTab = btn.dataset.key;
+                        renderHistoryList();
+                    });
+                });
+            }
+
             filtered.sort((a, b) => {
+                if (activeHistoryTab !== 'all') {
+                    return (b.dimensions4?.[activeHistoryTab] || 0) - (a.dimensions4?.[activeHistoryTab] || 0);
+                }
                 switch (sortValue) {
                     case 'lastActive-desc':
                         return (b.lastActive || '').localeCompare(a.lastActive || '');
@@ -4303,18 +4552,25 @@
             g += `<line x1="${xL}" y1="${midY}" x2="${xR}" y2="${midY}" stroke="rgba(22, 119, 255, 0.35)" stroke-width="1.2" stroke-dasharray="5 4"/>`;
             g += `<text x="${xR}" y="${yB + 32}" text-anchor="end" fill="#6e7d95" font-size="12">产业能力（专利量）→</text>`;
             g += `<text x="${xL - 56}" y="${yT - 14}" text-anchor="start" fill="#6e7d95" font-size="12">↑ 理论研究（论文量）</text>`;
-            g += `<text x="${xR - 8}" y="${yT + 16}" text-anchor="end" fill="rgba(82,160,40,0.95)" font-size="12">全面领先</text>`;
-            g += `<text x="${xL + 8}" y="${yT + 16}" text-anchor="start" fill="rgba(22, 119, 255,0.9)" font-size="12">理论引领</text>`;
-            g += `<text x="${xR - 8}" y="${yB - 8}" text-anchor="end" fill="rgba(212,134,6,0.95)" font-size="12">产业主导</text>`;
-            g += `<text x="${xL + 8}" y="${yB - 8}" text-anchor="start" fill="rgba(90,106,130,0.95)" font-size="12">潜力跟随</text>`;
+            // 四象限标签放在各象限内角
+            g += `<text x="${xR - 12}" y="${yT + 18}" text-anchor="end" fill="rgba(82,160,40,0.95)" font-size="12">全面领先</text>`;
+            g += `<text x="${xL + 12}" y="${yT + 18}" text-anchor="start" fill="rgba(22, 119, 255,0.9)" font-size="12">理论引领</text>`;
+            g += `<text x="${xR - 12}" y="${yB - 12}" text-anchor="end" fill="rgba(212,134,6,0.95)" font-size="12">产业主导</text>`;
+            g += `<text x="${xL + 12}" y="${yB - 12}" text-anchor="start" fill="rgba(90,106,130,0.95)" font-size="12">潜力跟随</text>`;
             insts.forEach(i => {
                 const x = sx(i.patents), y = sy(i.papers);
                 const color = i.region === '国外' ? '#ffa940' : '#1677ff';
                 g += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="${color}" fill-opacity="0.85" stroke="#eef2f7" stroke-width="1.5"><title>${i.name}\n论文 ${i.papers} · 专利 ${i.patents}${i.focus ? '\n' + i.focus : ''}</title></circle>`;
-                g += `<text x="${(x + 9).toFixed(1)}" y="${(y + 4).toFixed(1)}" fill="#5a6a82" font-size="11">${i.name}</text>`;
+                // 机构名称自动避让，避免超出四象限边界
+                const nameW = i.name.length * 12;
+                let lx = x + 9, ly = y + 4, anchor = 'start';
+                if (lx + nameW > xR - 4) { lx = x - 9; anchor = 'end'; }
+                if (ly - 10 < yT) { ly = y + 14; }
+                if (ly + 4 > yB) { ly = y - 10; }
+                g += `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}" fill="#5a6a82" font-size="11">${i.name}</text>`;
             });
-            g += `<circle cx="${xL + 10}" cy="${yT}" r="5" fill="#1677ff"/><text x="${xL + 20}" y="${yT + 4}" fill="#6e7d95" font-size="11">国内</text>`;
-            g += `<circle cx="${xL + 70}" cy="${yT}" r="5" fill="#ffa940"/><text x="${xL + 80}" y="${yT + 4}" fill="#6e7d95" font-size="11">国外</text>`;
+            g += `<circle cx="${xR - 130}" cy="${yT - 18}" r="5" fill="#1677ff"/><text x="${xR - 118}" y="${yT - 14}" fill="#6e7d95" font-size="11">国内</text>`;
+            g += `<circle cx="${xR - 70}" cy="${yT - 18}" r="5" fill="#ffa940"/><text x="${xR - 58}" y="${yT - 14}" fill="#6e7d95" font-size="11">国外</text>`;
             return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;">${g}</svg>`;
         }
         function instTableHtml(insts, tech) {
@@ -4462,7 +4718,6 @@
         }
         function autoEvolution(tech) {
             const ds = tech.dataSources || [];
-            if (!ds.length) return [];
             const get = t => { const f = ds.find(d => d.type === t); return f ? f.content : ''; };
             const N = tech.name;
             const km = (tech.keyMetrics || []).map(m => `${m.label} ${m.value}`).join(' · ');
@@ -4520,27 +4775,61 @@
             });
         }
 
-        // ===== 未来趋势预测（阶段性时间轴 + 突破口 + 技术融合） =====
+        // ===== 未来趋势预测（阶段性时间轴 + 突破口 + 技术融合 + 分析维度表） =====
         function forecastToHtml(f) {
             if (!f) return '';
             const termCls = t => t === '短期' ? 'short' : t === '中期' ? 'mid' : t === '长期' ? 'long' : '';
+            const list = items => items && items.length ? `<ul class="fc-cell-list">${items.map(i => `<li>${i}</li>`).join('')}</ul>` : '<span style="color:#9ca3b0;font-size:12px;">—</span>';
             let html = '';
             if (f.summary) html += `<p class="fc-summary">${f.summary}</p>`;
-            if (f.phases && f.phases.length) {
-                html += `<div class="fc-timeline">${f.phases.map(p => `
-                    <div class="fc-item">
-                        <div class="fc-dot ${termCls(p.term)}"></div>
-                        <div class="fc-body">
-                            <div class="fc-head">${p.term ? `<span class="fc-term ${termCls(p.term)}">${p.term}</span>` : ''}<span class="fc-title">${p.title}</span></div>
-                            <div class="fc-desc">${p.desc}</div>
-                        </div>
-                    </div>`).join('')}</div>`;
+
+            // 短中长期趋势对比表
+            if (f.table && f.table.length) {
+                html += `
+                    <div class="fc-table-wrap">
+                        <div class="fc-table-title">📊 短中长期趋势对比</div>
+                        <table class="fc-table">
+                            <thead>
+                                <tr>
+                                    <th>阶段</th>
+                                    <th>创新主体</th>
+                                    <th>突破技术</th>
+                                    <th>技术融合</th>
+                                    <th>潜在风险</th>
+                                    <th>政策与监管</th>
+                                    <th>对产业的影响</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${f.table.map(row => `
+                                    <tr>
+                                        <td><span class="fc-term ${termCls(row.term)}">${row.term}</span></td>
+                                        <td>${list(row.institutions)}</td>
+                                        <td>${list(row.breakthroughs)}</td>
+                                        <td>${list(row.crossScenes)}</td>
+                                        <td>${list(row.risks)}</td>
+                                        <td>${list(row.policies)}</td>
+                                        <td>${list(row.socialImpact)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
             }
+
             const extra = (label, c) => c ? `<div class="fc-extra"><span class="fc-extra-label">${label}</span><span class="fc-extra-text">${c}</span></div>` : '';
-            html += extra('🔑 关键突破口', f.breakthrough) + extra('🔗 技术融合', f.fusion);
+            html += extra('🏢 创新主体', f.institutionNarrative);
+            html += extra('🚀 突破技术', f.breakthrough);
+            html += extra('🔗 技术融合', f.fusion);
+            html += extra('⚠️ 潜在风险', f.riskNarrative);
+            html += extra('📜 政策与监管', f.policyNarrative);
+            html += extra('🌐 对产业的影响', f.impactNarrative);
             return html;
         }
         function autoForecast(tech, details) {
+            const N = tech.name;
+            const cat = tech.category || '本领域';
             const scenes = (details.scenarios || []).map(s => s.title);
             const pains = (details.painPoints || []).map(p => p.title);
             const related = tech.relatedTechs || [];
@@ -4549,11 +4838,178 @@
                 { term: '中期', period: '3–7 年', title: '规模化突破与成本下探', desc: `随着关键工艺与产业链配套成熟，${tech.name}逐步进入主流应用，成本快速下行、渗透率显著提升，并对既有技术路线形成实质性替代，带动${tech.category}格局重塑。` },
                 { term: '长期', period: '7 年以上', title: '全场景普及与生态重构', desc: `${tech.name}有望实现全场景普及，成为${tech.category}领域的基础设施级技术，重构上下游产业生态与商业模式，对能源、交通与经济社会运行产生深远影响。` }
             ];
+
+            // 与用户提供的样例结构对齐的短中长期多维度分析表
+            const analysisTable = [
+                {
+                    term: '短期', sub: '现状监测与风险预警',
+                    rows: [
+                        { dimension: '技术演进', sources: '专利、资讯', actions: [`监测近期${N}专利申请增长率与热点主题。`, `识别当前市场关注度最高的${N}技术关键词。`] },
+                        { dimension: '宏观战略', sources: '政策、资讯', actions: [`解读最新发布的${cat}产业政策与监管动态。`, `评估当前${N}舆情态势与社会接受度。`] },
+                        { dimension: '创新生态', sources: '项目、机构', actions: [`追踪近期立项的${N}重大科技项目与资金流向。`, `分析${N}活跃的创新主体（企业/实验室）动态。`] },
+                        { dimension: '风险合规', sources: '管控清单、资讯', actions: [`对照管控清单，排查${N}即时供应链断供风险。`, `识别近期的${N}贸易摩擦或合规警告事件。`] }
+                    ]
+                },
+                {
+                    term: '中期', sub: '趋势研判与资源布局',
+                    rows: [
+                        { dimension: '技术演进', sources: '论文、专利', actions: [`构建${N}技术主题共现网络，识别技术融合趋势。`, `分析${N}技术生命周期，预测未来3-5年突破点。`] },
+                        { dimension: '宏观战略', sources: '智库报告、政策', actions: [`评估${N}技术与国家中长期战略规划的对齐度。`, `分析${N}产业布局策略与经济安全影响。`] },
+                        { dimension: '创新生态', sources: '人才、机构、项目', actions: [`识别${N}核心科学家团队与跨学科人才分布。`, `评估${N}研发基础设施（大科学装置等）建设进度。`] },
+                        { dimension: '风险合规', sources: '政策、管控清单', actions: [`预判${N}知识产权保护格局的变化趋势。`, `分析${N}关键技术领域的海外依赖度演变。`] }
+                    ]
+                },
+                {
+                    term: '长期', sub: '前沿洞察与战略储备',
+                    rows: [
+                        { dimension: '技术演进', sources: '论文、专利', actions: [`提取${N}高原创性文献，识别颠覆性技术潜力。`, `测量${N}颠覆指数，定位底层逻辑变革方向。`] },
+                        { dimension: '宏观战略', sources: '智库报告、资讯', actions: [`洞察${N}在全球顶层设计中的长远战略定位。`, `评估${N}对国家安全与长远发展的深远影响。`] },
+                        { dimension: '创新生态', sources: '人才、机构', actions: [`评估${N}科研体制协同效应与人才高地形成情况。`, `预测${N}“国家战略-大企业-初创企”生态演化路径。`] },
+                        { dimension: '风险合规', sources: '政策、资讯、智库报告', actions: [`前瞻性评估${N}技术伦理挑战（如AI偏见、数据隐私）。`, `分析${N}全球治理规则制定中的博弈态势与话语权。`] }
+                    ]
+                }
+            ];
+
+            // 原表数据：潜在方向 / 突破技术 / 重点机构 / 交叉场景 / 风险 / 政策
+            const players = (details.keyPlayers || []).slice(0, 9);
+            const risks = tech.riskSignals || [];
+            const policySrc = (tech.dataSources || []).find(d => d.type === '政策')?.content || '';
+            const genericRisks = [
+                '技术路线尚未收敛，存在被替代方案超越的风险',
+                '标准与法规滞后可能延缓规模化进程',
+                '核心材料与装备受制于外部供应链',
+                '市场接受度不足导致商业化不及预期'
+            ];
+
+            const table = phases.map((p, idx) => {
+                const phase = p.term; // 短期 / 中期 / 长期
+                const dirScenes = scenes.length
+                    ? scenes.slice(idx % scenes.length, idx % scenes.length + 2)
+                    : [`${cat}高价值场景`, '示范工程'];
+
+                // 突破技术：按阶段递进——短期攻关、中期工程化、长期生态化
+                let breakthroughs;
+                if (pains.length >= 3) {
+                    breakthroughs = [pains[idx % pains.length], pains[(idx + 1) % pains.length]];
+                } else if (pains.length === 2) {
+                    breakthroughs = phase === '短期' ? [pains[0], pains[1]]
+                        : phase === '中期' ? [pains[1], `${pains[0]}的工程化突破`]
+                        : [pains[0], '全产业链协同与生态闭环构建'];
+                } else if (pains.length === 1) {
+                    breakthroughs = phase === '短期' ? [pains[0], '关键材料/工艺实验室验证']
+                        : phase === '中期' ? [`${pains[0]}的中试与良率提升`, '系统集成可靠性突破']
+                        : [`${pains[0]}的规模化降本`, '标准体系与回收闭环完善'];
+                } else {
+                    breakthroughs = phase === '短期' ? ['核心材料体系验证', '关键工艺实验室突破']
+                        : phase === '中期' ? ['中试线与良率爬坡', '系统集成可靠性提升']
+                        : ['全产业链成本下探', '标准体系与回收闭环完善'];
+                }
+
+                // 创新主体：突出短中期最具发展潜力的机构——短期研发/专利领先、中期产业转化、长期生态平台
+                let institutions;
+                if (players.length >= 9) {
+                    institutions = phase === '短期' ? players.slice(0, 3)
+                        : phase === '中期' ? [players[0], players[1], players[5]]
+                        : players.slice(6, 9);
+                } else if (players.length >= 6) {
+                    institutions = phase === '短期' ? players.slice(0, 3)
+                        : phase === '中期' ? [players[0], players[1], players[players.length - 1]]
+                        : ['行业联盟与标准组织', '平台型生态企业', '回收与服务运营商'];
+                } else if (players.length >= 3) {
+                    institutions = phase === '短期' ? players.slice(0, 3)
+                        : phase === '中期' ? [players[0], players[1], players[3] || '产业链龙头/系统集成商']
+                        : ['标准与认证机构', '平台型生态企业', '终端应用/运营商'];
+                } else {
+                    institutions = phase === '短期' ? ['头部科研院所', '技术型初创企业', '龙头实验室']
+                        : phase === '中期' ? ['产业链龙头企业', '关键装备供应商', '系统集成商']
+                        : ['平台型生态企业', '标准与认证机构', '回收与服务运营商'];
+                }
+
+                // 技术融合：按阶段深化——短期研发辅助、中期系统集成、长期社会级生态
+                const scene0 = scenes[0] || '核心场景';
+                const scene1 = scenes[1] || scene0;
+                let crossScenes;
+                if (related.length >= 3) {
+                    crossScenes = phase === '短期'
+                        ? [`${N} + ${related[0]} · ${scene0}`, `${N} + ${related[1]} · 研发验证`]
+                        : phase === '中期'
+                        ? [`${N} + ${related[1]} · ${scene1}`, `${N} + ${related[2]} · 系统集成`]
+                        : [`${N} + ${related[2]} · 全生命周期`, `${N} + ${related[0]}/社会治理 · 生态融合`];
+                } else if (related.length === 2) {
+                    crossScenes = phase === '短期'
+                        ? [`${N} + ${related[0]} · ${scene0}`, `${N} + ${related[1]} · 研发迭代`]
+                        : phase === '中期'
+                        ? [`${N} + ${related[1]} · ${scene1}`, `${N} + ${related[0]} · 示范工程`]
+                        : [`${N} + ${related[0]} + ${related[1]} · 生态融合`, `${N} + 人工智能/大数据 · 社会级应用`];
+                } else if (related.length === 1) {
+                    crossScenes = phase === '短期'
+                        ? [`${N} + ${related[0]} · ${scene0}`, `${N} + ${related[0]} · ${scene1}`]
+                        : phase === '中期'
+                        ? [`${N} + ${related[0]} · 系统级集成`, `${N} + 物联网 · ${scene0}`]
+                        : [`${N} + ${related[0]} · 全生命周期管理`, `${N} + 区块链/隐私计算 · 可信流通`];
+                } else {
+                    crossScenes = phase === '短期'
+                        ? [`${N} + 数字孪生/AI · ${scene0}`, `${N} + 数字孪生/AI · ${scene1}`]
+                        : phase === '中期'
+                        ? [`${N} + 物联网/边缘计算 · ${scene0}`, `${N} + 云平台 · ${scene1}`]
+                        : [`${N} + 能源互联网 · ${scene0}`, `${N} + 新型电力系统 · ${scene1}`];
+                }
+
+                // 潜在风险：按阶段转移——短期技术、中期产业、长期市场/社会
+                let riskItems;
+                if (risks.length >= 3) {
+                    riskItems = [risks[idx % risks.length], risks[(idx + 1) % risks.length]];
+                } else if (risks.length === 2) {
+                    riskItems = phase === '短期' ? [risks[0], '技术路线与性能指标存在不确定性']
+                        : phase === '中期' ? [risks[1], '规模化制造与供应链本土化压力']
+                        : ['市场接受度与商业模式成熟度不及预期', '数据安全、伦理及社会接受度挑战'];
+                } else if (risks.length === 1) {
+                    riskItems = phase === '短期' ? [risks[0], '实验室到工程化转化存在不确定性']
+                        : phase === '中期' ? ['规模化生产成本与良率压力', '供应链稳定性与标准缺位风险']
+                        : ['市场接受度与商业模式成熟度不及预期', '数据安全、伦理及社会接受度挑战'];
+                } else {
+                    riskItems = phase === '短期' ? [genericRisks[0], '研发进度与性能指标存在不确定性']
+                        : phase === '中期' ? [genericRisks[2], '规模化制造与成本控制压力']
+                        : [genericRisks[1], genericRisks[3]];
+                }
+
+                // 政策与监管：按阶段配套——短期研发扶持、中期标准激励、长期治理框架
+                const policyItems = phase === '短期'
+                    ? ['加大基础研究与前沿技术攻关投入', '布局中试线与示范工程专项支持']
+                    : phase === '中期'
+                    ? ['建立行业标准、检测认证与安全评估体系', '出台补贴、税收与公共采购激励政策']
+                    : ['完善知识产权保护与技术成果转化机制', '制定回收、数据治理与社会伦理监管框架'];
+
+                // 对产业的影响：按阶段递进——短期岗位/溢价、中期产业链重构、长期社会系统变革
+                const impactItems = phase === '短期'
+                    ? [`带动${N}基础研究、材料开发与试验验证等新兴岗位需求`, '在高端示范场景中形成初步技术溢价与品牌效应']
+                    : phase === '中期'
+                    ? [`推动${cat}产业链上下游重构，催生装备、材料与服务新业态`, '加速传统岗位技能升级与区域产业集群形成']
+                    : [`${N}深度融入能源、交通等关键系统，显著降低社会运行碳排放`, '伴随数据隐私、技术伦理等议题，需完善社会治理与公众沟通机制'];
+
+                return {
+                    term: p.term,
+                    directions: dirScenes,
+                    breakthroughs,
+                    institutions,
+                    crossScenes,
+                    risks: riskItems,
+                    policies: policyItems,
+                    socialImpact: impactItems
+                };
+            });
+
             return {
                 summary: `综合技术成熟度、产业进展与政策导向研判，${tech.name}的未来扩散将呈现"由点到面、由示范到普及"的阶段性演进特征：`,
                 phases,
                 breakthrough: `突破将主要来自${pains.length ? pains.join('、') + '等' : '核心材料、关键工艺与标准体系等'}核心瓶颈的攻克：一方面需在关键材料体系、核心工艺与专用装备上取得原始创新，提升性能上限并持续压低制造成本；另一方面要补齐标准规范、检测认证、安全评估与回收利用等产业配套短板。只有在"材料—工艺—装备—标准"全链条同步突破，${tech.name}才能跨越从实验室走向规模量产的"死亡之谷"，真正释放其在${tech.category}领域的变革潜力与商业价值。`,
-                fusion: `未来将与${related.length ? related.join('、') + '等' : '人工智能、数字孪生、新材料等'}技术深度融合协同：通过与上下游关键技术的耦合集成，${tech.name}有望突破单一器件的性能天花板，在系统层面实现性能、效率、安全与成本的综合最优。同时，人工智能材料筛选、数字孪生与智能制造的引入将大幅缩短研发与迭代周期，推动其从单点技术突破走向系统级能力跃升，并催生全新的产品形态与商业模式，重塑${tech.category}的竞争格局。`
+                fusion: `未来将与${related.length ? related.join('、') + '等' : '人工智能、数字孪生、新材料等'}技术深度融合协同：通过与上下游关键技术的耦合集成，${tech.name}有望突破单一器件的性能天花板，在系统层面实现性能、效率、安全与成本的综合最优。同时，人工智能材料筛选、数字孪生与智能制造的引入将大幅缩短研发与迭代周期，推动其从单点技术突破走向系统级能力跃升，并催生全新的产品形态与商业模式，重塑${tech.category}的竞争格局。`,
+                institutionNarrative: `从创新主体发展潜力看，${N}在不同阶段由不同类型机构主导。短期内，${table[0].institutions.join('、')}最具先发优势：${players.length ? players.slice(0, 2).join('、') : '头部科研机构与技术型初创企业'}已在核心材料、关键工艺或示范应用上取得领先，具备快速迭代与专利卡位能力，能够在高价值场景中率先验证技术可行性。进入中期，${table[1].institutions.join('、')}有望成为规模化主力：凭借产业链整合、制造能力与资本实力，它们能够推动${N}从中试走向量产，带动成本下探与标准建立。长期来看，${table[2].institutions.join('、')}将共同塑造产业生态：标准组织与平台型企业负责打通跨环节协同，回收与服务运营商支撑全生命周期闭环，创新重心从单一技术竞争转向系统级生态协作。`,
+                riskNarrative: `${N}在加速演进的同时也面临多重不确定性：${risks.length ? risks.join('；') + '。' : ''}技术路线尚未完全收敛，多种替代方案并存可能带来路径选择风险；标准规范、检测认证与回收体系滞后于技术迭代，可能延缓规模化落地；核心材料与关键装备若过度依赖外部供应链，将面临地缘政治与贸易管制带来的断供风险；此外，市场接受度、成本下降节奏与用户信任度也将共同决定其商业化进程是否顺利。`,
+                policyNarrative: `政策与监管层面，${policySrc ? policySrc + '等顶层设计' : '加快行业标准与检测认证体系建设、推动示范工程与专项补贴落地、强化知识产权保护与技术成果转化激励等政策组合'}正在为${N}的产业化营造良好环境：一方面通过完善标准规范、安全评估与监管框架，为企业创新提供清晰的技术路线指引；另一方面依托示范工程、财税激励与公共采购，降低早期应用成本并培育市场空间；同时强化知识产权保护，促进科研院所、龙头企业与初创公司的协同创新，形成政策、市场与技术三轮驱动的良性发展格局。`,
+                impactNarrative: `${N}的规模化应用将对${cat}产业乃至更广泛的经济社会产生深远影响：在供给侧，它将重塑产业链价值分配，催生新型材料、装备与服务环节，并推动传统岗位技能升级；在需求侧，通过提升能源、交通等关键系统的效率、安全性与智能化水平，为社会带来显著的低碳化与数字化效益；与此同时，其普及也可能伴随数据治理、技术伦理、就业结构调整等新议题，需要建立包容审慎的监管框架与公众沟通机制，以实现技术创新与社会福祉的协调共进。`,
+                table,
+                analysisTable
             };
         }
 
@@ -4968,8 +5424,67 @@
             };
         }
 
+        // ===== 默认详情数据填充（避免详情页出现空数据红框） =====
+        function buildDefaultDetails(tech) {
+            const N = tech.name;
+            const cat = tech.category || '本技术领域';
+            return {
+                scenarios: [
+                    { title: `${cat}核心应用场景`, content: `${N}可广泛应用于${cat}的关键环节，通过提升效率、降低成本或增强系统可靠性，解决现有技术方案难以克服的瓶颈问题，是该领域重要的技术升级方向。` },
+                    { title: '新型电力系统示范', content: `在新型电力系统建设与运行中，${N}可作为重要技术支撑，推动系统向更安全、更高效、更低碳的方向演进，具备显著的示范推广价值。` }
+                ],
+                painPoints: [
+                    { title: '成本与可靠性瓶颈', content: `${N}目前仍处于成本下行与可靠性验证的关键阶段，初期制造成本偏高、长期运行数据不足，与成熟方案相比经济性与稳定性优势尚不明显。` },
+                    { title: '标准与配套体系不完善', content: `相关行业标准、检测规范与基础设施配套尚不健全，制约了${N}从局部示范向规模化普及扩展，需要政策、行业与企业协同破局。` }
+                ],
+                advantages: [
+                    { title: '性能提升潜力', content: `相比传统方案，${N}在关键性能指标上具有显著提升潜力，能够满足新型电力系统对高效率、高可靠性与低碳化的综合要求。` },
+                    { title: '应用前景广阔', content: `随着技术成熟度提升和成本下降，${N}有望在多个典型场景实现规模化推广，带动产业链上下游协同创新。` }
+                ],
+                marketAnalysis: `从市场角度看，${N}所处的${cat}领域正处于快速变革期，政策、资本与产业需求多重驱动，未来增长空间较大，头部企业与研究机构正加速布局。`,
+                potentialImpact: `${N}的规模化应用有望重塑${cat}产业链格局，带动关键材料、核心器件与系统集成等环节协同创新，提升整体系统效率与安全性。`,
+                solutions: `需要通过持续研发投入、标准体系完善、示范工程推广与产业链协同，逐步突破${N}在成本、可靠性与配套方面的瓶颈，推动其从实验室走向规模化应用。`
+            };
+        }
+
+        function mergeDefaultDetails(raw, tech) {
+            const def = buildDefaultDetails(tech);
+            const merged = {};
+            ['scenarios', 'painPoints', 'advantages', 'marketAnalysis', 'potentialImpact', 'solutions'].forEach(k => {
+                merged[k] = (raw && raw[k] && (Array.isArray(raw[k]) ? raw[k].length : raw[k])) ? raw[k] : def[k];
+            });
+            return merged;
+        }
+
+        function getDefaultKeyPlayers(tech) {
+            const cat = tech.category || '';
+            const N = tech.name;
+            if (cat.includes('电池') || N.includes('电池')) return ['宁德时代', '比亚迪', '松下', 'LG新能源', 'QuantumScape'];
+            if (cat.includes('光伏') || N.includes('光伏') || N.includes('太阳能')) return ['隆基绿能', '通威股份', '晶科能源', 'First Solar', '天合光能'];
+            if (cat.includes('氢') || N.includes('氢')) return ['隆基氢能', '国富氢能', 'Plug Power', '蒂森克虏伯', '西门子能源'];
+            if (cat.includes('AI') || N.includes('智能') || N.includes('调度')) return ['华为', '国家电网', '南方电网', '南瑞集团', '阿里云'];
+            return ['国家电网', '南方电网', '清华大学', '华为', 'ABB'];
+        }
+
+        function getDefaultKeyMetrics(tech) {
+            const dims = tech.dimensions4 || { novelty: 80, value: 80, relevance: 80, prospect: 80 };
+            const heat = dims.novelty >= 85 ? '极高' : dims.novelty >= 70 ? '高' : '中';
+            const breakthru = dims.value >= 85 ? '极高' : dims.value >= 70 ? '高' : '中';
+            return [
+                { label: '综合评分', value: (tech.score || 80) + '分' },
+                { label: '技术成熟度', value: getTrlByScore(tech.lifecycleScore || 0) },
+                { label: '市场热度', value: heat },
+                { label: '技术突破度', value: breakthru }
+            ];
+        }
+
         function buildDetailPayload(tech) {
-            const details = techDetailsMap[tech.name] || {};
+            const rawDetails = techDetailsMap[tech.name] || {};
+            const details = mergeDefaultDetails(rawDetails, tech);
+            if (!details.keyPlayers || !details.keyPlayers.length) {
+                details.keyPlayers = getDefaultKeyPlayers(tech);
+            }
+            const keyMetrics = (tech.keyMetrics && tech.keyMetrics.length) ? tech.keyMetrics : getDefaultKeyMetrics(tech);
 
             const adviceHtml = generateTechAdvice(tech);
 
@@ -4977,9 +5492,7 @@
                 ? `<ul>${details.keyPlayers.map(p => `<li>${p}</li>`).join('')}</ul>`
                 : '<span style="color:#6e7d95;font-size:12px;">暂无主要玩家数据</span>';
 
-            const metricsHtml = (tech.keyMetrics && tech.keyMetrics.length)
-                ? tech.keyMetrics.map(m => `<span class="tech-detail-metric">${m.label} ${m.value}</span>`).join('')
-                : '<span style="color:#6e7d95;font-size:12px;">暂无关键指标</span>';
+            const metricsHtml = keyMetrics.map(m => `<span class="tech-detail-metric">${m.label} ${m.value}</span>`).join('');
 
             let risksImpactHtml = '';
             if (tech.riskSignals && tech.riskSignals.length) {
@@ -5087,7 +5600,9 @@
             const evolutionHtml = evolutionToHtml(tech.evolution || autoEvolution(tech));
 
             // 未来趋势预测
-            const forecastHtml = forecastToHtml(tech.forecast || autoForecast(tech, details));
+            const forecastHtml = forecastToHtml(tech.forecast
+                ? { ...autoForecast(tech, details), ...tech.forecast }
+                : autoForecast(tech, details));
 
             return {
                 name: tech.name,
@@ -5243,6 +5758,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             try { renderWarningModule(); } catch (e) { console.error('预警模块渲染失败:', e); }
             try { renderRadarChart(); } catch (e) { console.error('雷达图渲染失败:', e); }
+            try { initRadarZoom(); } catch (e) { console.error('雷达缩放初始化失败:', e); }
             try { renderNewTechList(); } catch (e) { console.error('新技术列表渲染失败:', e); }
             try { renderHistoryList(); } catch (e) { console.error('历史清单渲染失败:', e); }
             try { initHistoryFilter(); } catch (e) { console.error('筛选器初始化失败:', e); }

@@ -20,6 +20,30 @@
             padding: 20px 20px 48px;
         }
 
+        .detail-back-bar {
+            margin-bottom: 14px;
+        }
+
+        .detail-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            background: rgba(22, 119, 255, 0.06);
+            border: 1px solid rgba(22, 119, 255, 0.18);
+            border-radius: 6px;
+            color: #1677ff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .detail-back-btn:hover {
+            background: rgba(22, 119, 255, 0.12);
+            border-color: rgba(22, 119, 255, 0.3);
+        }
+
         /* 一二三级技术级联筛选 */
         .detail-filters {
             display: flex;
@@ -527,6 +551,89 @@
         .fc-extra-label { flex-shrink: 0; font-size: 13px; font-weight: 600; color: #1677ff; }
         .fc-extra-text { font-size: 13px; line-height: 1.8; color: #5a6a82; }
 
+        .fc-table-wrap {
+            margin-top: 18px;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(22, 119, 255, 0.12);
+            border-radius: 10px;
+            padding: 14px;
+            overflow-x: auto;
+        }
+        .fc-table-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2b3a4f;
+            margin-bottom: 12px;
+        }
+        .fc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            min-width: 900px;
+            table-layout: fixed;
+        }
+        .fc-table th:nth-child(1),
+        .fc-table td:nth-child(1) { width: 70px; min-width: 70px; text-align: center; white-space: nowrap; vertical-align: middle; }
+        .fc-table th:nth-child(2),
+        .fc-table td:nth-child(2) { width: 130px; min-width: 130px; }
+        .fc-table th:nth-child(3),
+        .fc-table td:nth-child(3) { width: 110px; min-width: 110px; }
+        .fc-table th:nth-child(4),
+        .fc-table td:nth-child(4) { width: 180px; min-width: 180px; }
+        .fc-table th:nth-child(5),
+        .fc-table td:nth-child(5) { width: 180px; min-width: 180px; }
+        .fc-table th:nth-child(6),
+        .fc-table td:nth-child(6) { width: 180px; min-width: 180px; }
+        .fc-table th:nth-child(7),
+        .fc-table td:nth-child(7) { width: 200px; min-width: 200px; }
+        .fc-table th {
+            text-align: left;
+            padding: 10px 8px;
+            background: rgba(22, 119, 255, 0.08);
+            color: #1677ff;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(22, 119, 255, 0.18);
+            white-space: nowrap;
+        }
+        .fc-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid rgba(40, 70, 120, 0.08);
+            vertical-align: top;
+            color: #4a5a72;
+            line-height: 1.7;
+        }
+        .fc-table tr:last-child td { border-bottom: none; }
+        .fc-table tr:hover td { background: rgba(22, 119, 255, 0.03); }
+        .fc-cell-list {
+            margin: 0;
+            padding-left: 14px;
+        }
+        .fc-cell-list li { margin-bottom: 4px; }
+        .fc-cell-list li:last-child { margin-bottom: 0; }
+        .fc-phase-cell {
+            text-align: center;
+            vertical-align: middle;
+            background: rgba(22, 119, 255, 0.04);
+            min-width: 90px;
+        }
+        .fc-phase-sub {
+            font-size: 11px;
+            color: #6e7d95;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        .fc-dim-cell {
+            font-weight: 600;
+            color: #2b3a4f;
+            white-space: nowrap;
+        }
+        .fc-action-list {
+            margin: 0;
+            padding-left: 16px;
+        }
+        .fc-action-list li { margin-bottom: 4px; }
+        .fc-action-list li:last-child { margin-bottom: 0; }
+
         /* 机构竞争力图谱 */
         .ls-top {
             display: grid;
@@ -883,23 +990,9 @@
 </head>
 <body>
     <div class="detail-page">
-        <div class="detail-filters" id="detailFilters" style="display:none;">
-            <div class="filter-group">
-                <label>一级领域</label>
-                <select class="filter-select" id="lv1"></select>
-            </div>
-            <span class="filter-sep">›</span>
-            <div class="filter-group">
-                <label>二级领域</label>
-                <select class="filter-select" id="lv2"></select>
-            </div>
-            <span class="filter-sep">›</span>
-            <div class="filter-group">
-                <label>三级技术</label>
-                <select class="filter-select" id="lv3"></select>
-            </div>
+        <div class="detail-back-bar">
+            <button class="detail-back-btn" onclick="goBack()">← 返回</button>
         </div>
-
         <div id="detailRoot"></div>
     </div>
 
@@ -917,7 +1010,6 @@
         let currentName = null;
 
         function renderEmpty() {
-            document.getElementById('detailFilters').style.display = 'none';
             document.getElementById('detailRoot').innerHTML = `
                 <div class="detail-empty">
                     <div class="icon">📄</div>
@@ -926,39 +1018,11 @@
             `;
         }
 
-        function fillSelect(sel, options, selected) {
-            sel.innerHTML = options.map(o => `<option value="${o}"${o === selected ? ' selected' : ''}>${o}</option>`).join('');
-        }
-
-        // 根据技术名定位其一二级路径，回显三个下拉框
-        function findPath(name) {
-            const tax = BUNDLE.taxonomy;
-            for (const p of Object.keys(tax)) {
-                for (const s of Object.keys(tax[p])) {
-                    if (tax[p][s].includes(name)) return { primary: p, secondary: s };
-                }
-            }
-            return null;
-        }
-
-        function syncFilters(name) {
-            const tax = BUNDLE.taxonomy;
-            const path = findPath(name) || {};
-            const lv1 = document.getElementById('lv1');
-            const lv2 = document.getElementById('lv2');
-            const lv3 = document.getElementById('lv3');
-
-            fillSelect(lv1, Object.keys(tax), path.primary);
-            fillSelect(lv2, Object.keys(tax[path.primary] || {}), path.secondary);
-            fillSelect(lv3, (tax[path.primary] && tax[path.primary][path.secondary]) || [], name);
-        }
-
         function showTech(name) {
             const payload = BUNDLE.payloads[name];
             if (!payload) return;
             currentName = name;
             renderDetail(payload);
-            syncFilters(name);
             initWorldMap(payload.countries);
             initDataSources(payload.dataSourcesModule);
             window.__curGraph = payload.graph;
@@ -1198,33 +1262,7 @@
         }
         window.addEventListener('resize', () => { if (worldChart) worldChart.resize(); if (dsRiverInst) dsRiverInst.resize(); if (graphChart) graphChart.resize(); });
 
-        function bindFilters() {
-            const lv1 = document.getElementById('lv1');
-            const lv2 = document.getElementById('lv2');
-            const lv3 = document.getElementById('lv3');
-            const tax = BUNDLE.taxonomy;
-
-            lv1.addEventListener('change', () => {
-                const p = lv1.value;
-                const sec = Object.keys(tax[p] || {});
-                fillSelect(lv2, sec, sec[0]);
-                const third = (tax[p][sec[0]]) || [];
-                fillSelect(lv3, third, third[0]);
-                if (third[0]) showTech(third[0]);
-            });
-            lv2.addEventListener('change', () => {
-                const p = lv1.value, s = lv2.value;
-                const third = (tax[p][s]) || [];
-                fillSelect(lv3, third, third[0]);
-                if (third[0]) showTech(third[0]);
-            });
-            lv3.addEventListener('change', () => {
-                if (lv3.value) showTech(lv3.value);
-            });
-        }
-
         function renderDetail(p) {
-            document.getElementById('detailFilters').style.display = 'flex';
             const introHtml = p.intro ? `<p>${p.intro}</p>` : '';
             const MODS = [
                 { on: p.changeBasisHtml,    id: 'mod-change',    label: '📈 技术变革理由' },
@@ -1344,6 +1382,14 @@
             `;
         }
 
+        function goBack() {
+            if (window.parent && window.parent !== window) {
+                window.parent.postMessage({ type: 'navigateBack' }, '*');
+            } else {
+                history.back();
+            }
+        }
+
         (function init() {
             let raw = null;
             try { raw = sessionStorage.getItem('techDetailPayload'); } catch (e) {}
@@ -1361,11 +1407,7 @@
 
             if (data && data.payloads && data.selectedName && data.payloads[data.selectedName]) {
                 BUNDLE = data;
-                if (Object.keys(BUNDLE.taxonomy).length) bindFilters();
                 showTech(BUNDLE.selectedName);
-                if (!Object.keys(BUNDLE.taxonomy).length) {
-                    document.getElementById('detailFilters').style.display = 'none';
-                }
             } else {
                 renderEmpty();
             }
